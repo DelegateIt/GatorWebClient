@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>DelegateIt</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <style>
+        .ng-cloak { display:none; }
+    </style>
+</head>
+
+<body data-ng-app="app" data-ng-controller="mainCtrl">
+    <div class="container" style="padding-top:20px">
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target="#example-navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#/">DelegateIt</a>
+            </div>
+            <div class="collapse navbar-collapse" id="example-navbar-collapse">
+                <ul class="nav navbar-nav ng-cloak">
+                    <li class="active">
+                        <a href="/">Customers</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <noscript>
+            <div class="alert alert-danger" style="text-align:center;">
+                Please turn on javascript to view this website
+            </div>
+        </noscript>
+        <div data-ng-view>
+        </div>
+    </div>
+    <script src="/js/lib/jquery-2.1.4.min.js"></script>
+    <script src="/js/lib/angular.min.js"></script>
+    <script src="/js/lib/angular-route.min.js"></script>
+    <script src="/js/lib/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
+
