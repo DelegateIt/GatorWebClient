@@ -1,0 +1,43 @@
+<div class="row">
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">Customers</div>
+            <table class="table">
+                <tbody>
+                    <tr data-ng-repeat="c in customerList" data-ng-class="{'info': c.id == selected.id}">
+                        <td><a href="#/customer/{{c.id}}">{{c.firstName + " " + c.lastName}}</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Messages
+            </div>
+            <div class="panel-body">
+                <div data-ng-repeat="msg in messageList">
+                    <div
+                            data-ng-class="{
+                                'msg-sent': !msg.fromCustomer,
+                                'msg-recv': msg.fromCustomer
+                            }"
+                            class="well well-sm msg">
+                        {{msg.message}}
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <form data-ng-submit="sendMessage()">
+                <div class="input-group">
+                    <input data-ng-model="sendMessageText" type="text" class="form-control" placeholder="Send a message">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Send</button>
+                    </span>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

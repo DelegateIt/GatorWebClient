@@ -1,0 +1,16 @@
+
+.msg {
+    padding: 10px;
+}
+
+.msg-sent {
+    background-color:#DFF0D8;
+}
+
+.msg-recv {
+    text-align:right;
+}
+
+
+
+
