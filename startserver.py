@@ -15,4 +15,5 @@ if __name__ == "__main__":
     parser.add_argument("--host", "-bh", dest="host", default="", help="The hostname to bind to")
 
     args = parser.parse_args()
+    print("Server started on port {}".format(args.port))
     run((args.host, args.port))
