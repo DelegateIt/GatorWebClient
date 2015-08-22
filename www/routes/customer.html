@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="panel panel-default">
             <div class="panel-heading">Customers</div>
             <table class="table">
@@ -11,7 +11,7 @@
             </table>
         </div>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-7">
         <div class="panel panel-default">
             <div class="panel-heading">
                 Messages
@@ -37,6 +37,39 @@
                     </span>
                 </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">Receipt</div>
+            <table class="table">
+                <tbody>
+                    <tr data-ng-repeat="item in selected.getActiveReceipt().items">
+                        <td>{{item.name}}</td>
+                        <td>${{item.cost}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="panel-footer">
+                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal">Edit</button>
+                <button data-ng-disabled="!selected.getActiveReceipt().canFinalize()" class="btn btn-warning pull-right" type="button">Finalize</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="EditReceiptModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edit Receipt</h4>
+            </div>
+            <div class="modal-body">
+                <p>Nothing here yet</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

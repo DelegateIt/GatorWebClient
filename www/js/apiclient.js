@@ -9,26 +9,18 @@ var has = function(obj, property) {
 GAT.webapi = function() {
     var s = {};
 
-    var Customer = function(phoneNumber, firstName, lastName, id) {
-        this.phoneNumber = phoneNumber;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.id = id;
-    };
-
     var Message = function(fromCustomer, msg) {
         this.message = msg;
         this.fromCustomer = !!fromCustomer;
     };
 
-
     var customerList = [
-        new Customer("9339405948", "George", "Bush", 0),
-        new Customer("8766666545", "John", "Adams", 1),
-        new Customer("1039403940", "Andrew", "Johnson", 2),
-        new Customer("4334493844", "Creepy", "Nixon", 3),
-        new Customer("3039403941", "Frank", "Roosevelt", 4),
-        new Customer("5849408948", "Barack", "Obama", 5),
+        new GAT.transaction.Customer("George", "Bush", "9339405948", 0),
+        new GAT.transaction.Customer("John", "Adams", "8766666545", 1),
+        new GAT.transaction.Customer("Andrew", "Johnson", "1039403940", 2),
+        new GAT.transaction.Customer("Creepy", "Nixon", "4334493844", 3),
+        new GAT.transaction.Customer("Frank", "Roosevelt", "3039403941", 4),
+        new GAT.transaction.Customer("Barack", "Obama", "5849408948", 5),
     ];
 
     var msgLog = {
@@ -40,6 +32,13 @@ GAT.webapi = function() {
         4: [new Message(true, "I need my lawn mowed pronto")],
         5: [new Message(true, "you.. uh.. got anymore of that dank bud"), new Message(false, "420 blaze it")],
     };
+
+    customerList[0].receipts.push(new GAT.transaction.Receipt());
+    customerList[0].receipts[0].addItem("Pizza", 12.45);
+    customerList[2].receipts.push(new GAT.transaction.Receipt());
+    customerList[2].receipts[0].addItem("Declaration of independence", 12003495.45);
+    customerList[5].receipts.push(new GAT.transaction.Receipt());
+    customerList[5].receipts[0].addItem("Dank Bud", 4.20);
 
     s.previewCustomers = function(callback) {
         callback(true, customerList);
