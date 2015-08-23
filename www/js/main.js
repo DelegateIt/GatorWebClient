@@ -32,6 +32,12 @@ angular.module("app", ["ngRoute"])
 
     $scope.sendMessageText = "";
 
+    $scope.getReceipt = function() {
+        if ($scope.selected == null)
+            return null;
+        return $scope.selected.getActiveReceipt();
+    };
+
     $scope.sendMessage = function() {
         GAT.webapi.sendMessage($scope.selected.id, $scope.sendMessageText, function() {});
         $scope.sendMessageText = "";
@@ -50,5 +56,29 @@ angular.module("app", ["ngRoute"])
     GAT.webapi.previewCustomers(function(success, customerList) {
         $scope.customerList = customerList;
     });
+}])
+.controller("receiptItemCtrl", ["$scope", function($scope) {
+
+    $scope.onNameChange = function() {
+        $scope.item.name = $scope.itemName;
+    };
+
+    $scope.onCostChange = function() {
+        $scope.item.cost = $scope.itemCost;
+    };
+
+    $scope.itemName = $scope.item.name;
+    $scope.itemCost = $scope.item.cost;
+
+}])
+.controller("receiptModCtrl", ["$scope", function($scope) {
+
+    $scope.addItem = function() {
+        $scope.getReceipt().addItem("", 0.0);
+    };
+
+    $scope.deleteItem = function(index) {
+        $scope.getReceipt().deleteItem(index);
+    };
 }]);
 

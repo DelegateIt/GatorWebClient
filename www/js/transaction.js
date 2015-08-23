@@ -33,6 +33,10 @@ GAT.transaction = function() {
             return this.items.length - 1;
         };
 
+        this.deleteItem = function(index) {
+            this.items.splice(index, 1);
+        };
+
         this.addNote = function(message) {
             this.notes.push(message);
             return this.items.length - 1;
