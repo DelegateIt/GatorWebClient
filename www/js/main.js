@@ -43,6 +43,10 @@ angular.module("app", ["ngRoute"])
         $scope.sendMessageText = "";
     };
 
+    $scope.finalizeReceipt = function() {
+        console.log("Receipt finalized");
+    };
+
     if (typeof($routeParams.customerId) !== "undefined") {
         var customerId = $routeParams.customerId;
         GAT.webapi.getCustomer(customerId, function(success, customer) {

@@ -53,7 +53,14 @@
             </table>
             <div class="panel-footer">
                 <button class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal">Edit</button>
-                <button data-ng-disabled="!getReceipt().canFinalize()" class="btn btn-warning pull-right" type="button">Finalize</button>
+                <div class="btn-group pull-right">
+                    <button data-ng-disabled="!getReceipt().canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+                        Finalize <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href data-ng-click="finalizeReceipt()">Are you sure? Yes</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
