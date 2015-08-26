@@ -12,6 +12,8 @@ GAT.transaction = function() {
         "COMPLETED": "completed"
     };
 
+    s.unhelpedCustomerCount = 0;
+
     s.activeTransactions = {}; // {transactionId: Transaction}
 
     s.myDelegatorId = 0;
@@ -121,6 +123,7 @@ GAT.transaction = function() {
         GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
             onSuccess(function(resp) {
                 if (resp.transactions.length != 0) {
+                    s.unhelpedCustomerCount--;
                     var transResp = resp.transactions[0];
                     GAT.webapi.updateTransaction(transResp.uuid, s.myDelegatorId, s.states.HELPED);
                     onTransactionLoad(transResp, callback);
@@ -134,6 +137,11 @@ GAT.transaction = function() {
     };
 
     var refreshActiveTransactions = function() {
+        GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
+            onSuccess(function(r) {
+                s.unhelpedCustomerCount = r.transactions.length;
+            });
+
         for (var id in s.activeTransactions) {
             GAT.webapi.getTransaction(id).onSuccess(onTransactionRefresh);
         }

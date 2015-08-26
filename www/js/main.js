@@ -34,6 +34,10 @@ angular.module("app", ["ngRoute"])
 
     $scope.selected = null;
 
+    $scope.getUnhelpedCustomerCount = function() {
+        return GAT.transaction.unhelpedCustomerCount;
+    };
+
     $scope.sendMessageText = "";
 
     $scope.getTransactions = function() {
