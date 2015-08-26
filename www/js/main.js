@@ -52,10 +52,20 @@ angular.module("app", ["ngRoute"])
 
     $scope.sendMessage = function() {
         $scope.selected.sendMessage($scope.sendMessageText);
+        $scope.sendMessageText = "";
     };
 
     $scope.finalizeReceipt = function() {
-        console.log("Receipt finalized");
+        $scope.selected.setState(GAT.transaction.states.CONFIRMED);
+        $scope.sendMessageText = "Thank you for using DelegateIt!\n";
+        $scope.sendMessageText += "Here is your transaction list\n";
+        $scope.sendMessageText += "Please accept or deny the charges\n";
+        var items = $scope.selected.receipt.items;
+        for (var i = 0; i < items.length; i++) {
+            $scope.sendMessageText += items[i].name + "  $" + items[i].cost + "\n";
+        }
+        $scope.sendMessage();
+
     };
 
     $scope.addCustomer = function() {

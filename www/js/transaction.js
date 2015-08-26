@@ -35,6 +35,14 @@ GAT.transaction = function() {
             this.messages.push(new s.Message(content, false));
             GAT.webapi.sendMessage(this.id, content);
         };
+
+        this.setState = function(state) {
+            var _this = this;
+            GAT.webapi.updateTransaction(this.id, null, state).
+                onSuccess(function() {
+                    _this.state = state;
+                });
+        };
     };
 
     s.ReceiptItem = function(name, cost) {

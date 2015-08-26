@@ -28,7 +28,7 @@
                                 'msg-recv': msg.fromCustomer
                             }"
                             class="well well-sm msg">
-                        {{msg.content}}
+                        <div data-ng-repeat="line in msg.content.split('\n')">{{line}}</div>
                     </div>
                 </div>
             </div>
