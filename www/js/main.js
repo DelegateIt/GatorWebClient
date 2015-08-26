@@ -5,61 +5,64 @@ var GAT = GAT || {};
 angular.module("app", ["ngRoute"])
 .config(["$routeProvider", function($routeProvider) {
     $routeProvider.
-        when("/customer/", {
-            "templateUrl": "/routes/customer.html",
-            "controller": "customerCtrl"
+        when("/transaction/", {
+            "templateUrl": "/routes/transaction.html",
+            "controller": "transactionCtl"
         }).
-        when("/customer/:customerId/", {
-            "templateUrl": "/routes/customer.html",
-            "controller": "customerCtrl"
+        when("/transaction/:transactionId/", {
+            "templateUrl": "/routes/transaction.html",
+            "controller": "transactionCtl"
         }).
         otherwise({
-            redirectTo: "/customer/0"
+            redirectTo: "/transaction/"
         });
 }])
 .controller("mainCtrl", ["$scope",
         function($scope, $routeParams, contentView) {
     //Nothing for now
 }])
-.controller("customerCtrl", ["$scope", "$routeParams",
+.controller("transactionCtl", ["$scope", "$routeParams",
         function($scope, $routeParams, contentView) {
-
-    $scope.customerList = [];
 
     $scope.selected = null;
 
-    $scope.messageList = [];
-
     $scope.sendMessageText = "";
 
+    $scope.getTransactions = function() {
+        return GAT.transaction.activeTransactions;
+    };
+
     $scope.getReceipt = function() {
-        if ($scope.selected == null)
+        if ($scope.selected === null)
             return null;
-        return $scope.selected.getActiveReceipt();
+        return $scope.selected.receipt;
     };
 
     $scope.sendMessage = function() {
-        GAT.webapi.sendMessage($scope.selected.id, $scope.sendMessageText, function() {});
-        $scope.sendMessageText = "";
+        $scope.selected.sendMessage($scope.sendMessageText);
     };
 
     $scope.finalizeReceipt = function() {
         console.log("Receipt finalized");
     };
 
-    if (typeof($routeParams.customerId) !== "undefined") {
-        var customerId = $routeParams.customerId;
-        GAT.webapi.getCustomer(customerId, function(success, customer) {
-            $scope.selected = customer;
+    $scope.addCustomer = function() {
+        GAT.transaction.retreiveNewCustomer(function(transaction) {
+            $scope.selected = transaction;
         });
-        GAT.webapi.getMessages(customerId, 0, function(success, messageList) {
-            $scope.messageList = messageList;
+    };
+
+    if (typeof($routeParams.transactionId) !== "undefined") {
+        var transactionId = $routeParams.transactionId;
+        GAT.transaction.loadTransaction(transactionId, function(transaction) {
+            $scope.selected = transaction;
         });
     }
 
-    GAT.webapi.previewCustomers(function(success, customerList) {
-        $scope.customerList = customerList;
+    GAT.transaction.onNewTransaction.push(function() {
+        $scope.$apply();
     });
+
 }])
 .controller("receiptItemCtrl", ["$scope", function($scope) {
 

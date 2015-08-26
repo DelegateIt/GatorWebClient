@@ -4,11 +4,14 @@
             <div class="panel-heading">Customers</div>
             <table class="table">
                 <tbody>
-                    <tr data-ng-repeat="c in customerList" data-ng-class="{'info': c.id == selected.id}">
-                        <td><a href="#/customer/{{c.id}}">{{c.firstName + " " + c.lastName}}</a></td>
+                    <tr data-ng-repeat="(tId, t) in getTransactions()" data-ng-class="{'info': t.id == selected.id}">
+                        <td><a href="#/transaction/{{t.id}}">{{t.customer.firstName + " " + t.customer.lastName}}</a></td>
                     </tr>
                 </tbody>
             </table>
+            <div class="panel-footer">
+                <button data-ng-click="addCustomer()" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-plus"></span> Add customer</button>
+            </div>
         </div>
     </div>
     <div class="col-md-7">
@@ -17,14 +20,14 @@
                 Messages
             </div>
             <div class="panel-body">
-                <div data-ng-repeat="msg in messageList">
+                <div data-ng-repeat="msg in selected.messages">
                     <div
                             data-ng-class="{
                                 'msg-sent': !msg.fromCustomer,
                                 'msg-recv': msg.fromCustomer
                             }"
                             class="well well-sm msg">
-                        {{msg.message}}
+                        {{msg.content}}
                     </div>
                 </div>
             </div>
@@ -52,7 +55,7 @@
                 </tbody>
             </table>
             <div class="panel-footer">
-                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal">Edit</button>
+                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                 <div class="btn-group pull-right">
                     <button data-ng-disabled="!getReceipt().canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
                         Finalize <span class="caret"></span>
@@ -87,7 +90,7 @@
                     </div>
                 </div>
                 <div>
-                    <button data-ng-click="addItem()" class="btn btn-success" type="button"><span class="glyphicon glyphicon-plus"></span></button>
+                    <button data-ng-click="addItem()" class="btn btn-success" type="button"><span class="glyphicon glyphicon-plus"></span> Add</button>
                 </div>
             </div>
             <div class="modal-footer">

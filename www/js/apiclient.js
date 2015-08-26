@@ -7,71 +7,130 @@ var has = function(obj, property) {
 };
 
 GAT.webapi = function() {
+    //TODO register bad responses ie. result != 0
     var s = {};
 
-    var Message = function(fromCustomer, msg) {
-        this.message = msg;
-        this.fromCustomer = !!fromCustomer;
+    var debug = true;
+
+    var Future = function() {
+        this._successCallback = function() { };
+        this._errorCallback = function() { };
+
+        this.onSuccess = function(callback) {
+            this._successCallback = callback;
+            if ("result" in this)
+                this._successCallback(this.result);
+            return this;
+        };
+
+        this.onError = function(callback) {
+            this._errorCallback = callback;
+            if ("error" in this)
+                this._errorCallback(this.error);
+            return this;
+        };
+
+        this.notify = function(response) {
+           this.result = response;
+           this._successCallback(this.result);
+        };
+
+        this.notifyError = function(error) {
+            this.error = error;
+            this._errorCallback(this.error);
+        };
     };
 
-    var customerList = [
-        new GAT.transaction.Customer("George", "Bush", "9339405948", 0),
-        new GAT.transaction.Customer("John", "Adams", "8766666545", 1),
-        new GAT.transaction.Customer("Andrew", "Johnson", "1039403940", 2),
-        new GAT.transaction.Customer("Creepy", "Nixon", "4334493844", 3),
-        new GAT.transaction.Customer("Frank", "Roosevelt", "3039403941", 4),
-        new GAT.transaction.Customer("Barack", "Obama", "5849408948", 5),
-    ];
-
-    var msgLog = {
-        0: [new Message(true, "I need pizza"), new Message(false, "sure thing, it's on the way")],
-        1: [new Message(true, "How's it going?"), new Message(false, "I'm having trouble making fake converstion")],
-        2: [new Message(true, "Bring me a copy of the declaration of independence")],
-        3: [new Message(true, "skfjsd"), new Message(false, "slfjds"), new Message(true, "sldkfjsdfk"),
-                new Message(false, "kdkdkddksklf")],
-        4: [new Message(true, "I need my lawn mowed pronto")],
-        5: [new Message(true, "you.. uh.. got anymore of that dank bud"), new Message(false, "420 blaze it")],
-    };
-
-    customerList[0].receipts.push(new GAT.transaction.Receipt());
-    customerList[0].receipts[0].addItem("Pizza", 12.45);
-    customerList[2].receipts.push(new GAT.transaction.Receipt());
-    customerList[2].receipts[0].addItem("Declaration of independence", 12003495.45);
-    customerList[5].receipts.push(new GAT.transaction.Receipt());
-    customerList[5].receipts[0].addItem("Dank Bud", 4.20);
-
-    s.previewCustomers = function(callback) {
-        callback(true, customerList);
-    };
-
-    s.getCustomer = function(customerId, callback) {
-        var found = null;
-        for (var i = 0; found == null && i < customerList.length; i++) {
-            var c = customerList[i];
-            if (c.id == customerId)
-                found = c;
+    var formatUrl = function(components) {
+        var url = "http://localhost:8000/";
+        for (var i = 0; i < components.length; i++) {
+            url += encodeURIComponent(components[i]) + "/";
         }
-        if (found !== null)
-            callback(true, found);
+        return url.substring(0, url.length - 1);
+    };
+
+    var sendRestApiReq = function(method, urlComponents, data) {
+        var url = formatUrl(urlComponents);
+        var future = new Future();
+        var http = new XMLHttpRequest();
+
+        http.open(method, url, true);
+        http.setRequestHeader("Content-Type", "application/json");
+
+        http.onreadystatechange = function() {
+            if (http.readyState == 4) {
+                if (http.status == 200) {
+                    try {
+                        var rsp = JSON.parse(http.responseText);
+                        if (debug)
+                            console.log("RPC response", rsp);
+                        future.notify(rsp);
+                    } catch(e) {
+                        if (debug)
+                            console.log("RPC parse error", e);
+                        future.notifyError(e.toString());
+                    }
+                } else {
+                    if (debug)
+                        console.log("RPC HTTP error", http.status, http.responseText);
+                    future.notifyError("HTTP " + http.status);
+                }
+            }
+        };
+
+        if (debug)
+            console.log("RPC request", method, url, data);
+
+        if (typeof(data) !== "undefined")
+            http.send(JSON.stringify(data));
         else
-            callback(false);
+            http.send();
+        return future;
     };
 
-    s.sendMessage = function(customerId, msg, callback) {
-        if (!has(msgLog, customerId)) {
-            callback(false);
-        } else {
-            msgLog[customerId].push(new Message(false, msg));
-            callback(true);
-        }
+    s.getTransactionsWithStatus = function(transStatus) {
+        var components = ["get_transactions_with_status", transStatus];
+        return sendRestApiReq("GET", components);
     };
 
-    s.getMessages = function(customerId, timestamp, callback) {
-        if (!has(msgLog, customerId)) {
-            callback(false);
-        } else {
-            callback(true, msgLog[customerId]);
-        }
+    s.getTransaction = function(transactionId) {
+        var components = ["transaction", transactionId];
+        return sendRestApiReq("GET", components);
+    };
+
+    s.updateTransaction = function(transactionId, delegatorId, transStatus) {
+        var components = ["transaction", transactionId];
+        var httpData = {};
+        if (delegatorId !== null)
+            httpData["delegator_uuid"] = delegatorId;
+        if (transStatus !== null)
+            httpData["status"] = transStatus;
+        return sendRestApiReq("PUT", components, httpData);
+    };
+
+    s.getCustomer = function(customerId) {
+        var components = ["customer", customerId];
+        return sendRestApiReq("GET", components);
+    };
+
+    s.sendMessage = function(transactionId, msg) {
+        var components = ["send_message", transactionId];
+        var httpData = {
+            "platform_type": "test",
+            "content": msg,
+            "from_customer": false
+        };
+        return sendRestApiReq("POST", components, httpData);
+    };
+
+    s.getMessages = function(transactionId) {
+        var components = ["get_messages", transactionId];
+        return sendRestApiReq("GET", components);
+    };
+
+    s.getDelegator = function(delegatorId) {
+        var components = ["get_delegator", delegatorId];
+        return sendRestApiReq("GET", components);
     };
 
     return s;
