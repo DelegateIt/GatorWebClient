@@ -31,13 +31,19 @@ GAT.webapi = function() {
         };
 
         this.notify = function(response) {
-           this.result = response;
-           this._successCallback(this.result);
+            this.result = response;
+            var callback = this._successCallback;
+            GAT.view.updateAfter(function() {
+                callback(response);
+            });
         };
 
         this.notifyError = function(error) {
+            var callback = this.errorCallback;
             this.error = error;
-            this._errorCallback(this.error);
+            GAT.view.updateAfter(function() {
+                callback(error);
+            });
         };
     };
 

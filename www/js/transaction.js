@@ -16,8 +16,6 @@ GAT.transaction = function() {
 
     s.myDelegatorId = 0;
 
-    s.onNewTransaction = []; // [function, ...]
-
     s.Customer = function(firstName, lastName, id) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -88,8 +86,6 @@ GAT.transaction = function() {
         var onCustomerLoad = function(transaction) {
             s.activeTransactions[transaction.id] = transaction;
             callback(transaction);
-            for (var i = 0; i < s.onNewTransaction.length; i++)
-                s.onNewTransaction[i](transaction);
         };
 
         var transaction = new s.Transaction();

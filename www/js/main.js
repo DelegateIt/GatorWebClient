@@ -2,6 +2,14 @@
 
 var GAT = GAT || {};
 
+GAT.view = function() {
+    var s = {};
+
+    s.updateAfter = null;
+
+    return s;
+}();
+
 angular.module("app", ["ngRoute"])
 .config(["$routeProvider", function($routeProvider) {
     $routeProvider.
@@ -17,9 +25,9 @@ angular.module("app", ["ngRoute"])
             redirectTo: "/transaction/"
         });
 }])
-.controller("mainCtrl", ["$scope",
-        function($scope, $routeParams, contentView) {
-    //Nothing for now
+.controller("mainCtrl", ["$scope", "$timeout",
+        function($scope, $timeout) {
+    GAT.view.updateAfter = $timeout;
 }])
 .controller("transactionCtl", ["$scope", "$routeParams",
         function($scope, $routeParams, contentView) {
@@ -58,10 +66,6 @@ angular.module("app", ["ngRoute"])
             $scope.selected = transaction;
         });
     }
-
-    GAT.transaction.onNewTransaction.push(function() {
-        $scope.$apply();
-    });
 
 }])
 .controller("receiptItemCtrl", ["$scope", function($scope) {
