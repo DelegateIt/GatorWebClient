@@ -81,6 +81,18 @@ GAT.transaction = function() {
             });
     };
 
+    var updateTransacationFromResp = function(transaction, resp) {
+        transaction.messages = [];
+        transaction.state = resp.status;
+        transaction.id = resp.uuid;
+        if (resp.hasOwnProperty("messages")) {
+            for (var i = 0; i < resp.messages.length; i++) {
+                var m = new s.Message(resp.messages[i].content, resp.messages[i].from_customer);
+                transaction.messages.push(m);
+            }
+        }
+    };
+
     var onTransactionLoad = function(transResp, callback) {
 
         var onCustomerLoad = function(transaction) {
@@ -89,14 +101,7 @@ GAT.transaction = function() {
         };
 
         var transaction = new s.Transaction();
-        transaction.state = transResp.status;
-        transaction.id = transResp.uuid;
-        if (transResp.hasOwnProperty("messages")) {
-            for (var i = 0; i < transResp.messages.length; i++) {
-                var m = new s.Message(transResp.messages[i].content, transResp.messages[i].from_customer);
-                transaction.messages.push(m);
-            }
-        }
+        updateTransacationFromResp(transaction, transResp);
         loadCustomer(transaction, transResp.customer_uuid, onCustomerLoad);
     };
 
@@ -122,6 +127,22 @@ GAT.transaction = function() {
                 }
             });
     };
+
+    var onTransactionRefresh = function(resp) {
+        var transaction = s.activeTransactions[resp.transaction.uuid];
+        updateTransacationFromResp(transaction, resp.transaction);
+    };
+
+    var refreshActiveTransactions = function() {
+        for (var id in s.activeTransactions) {
+            GAT.webapi.getTransaction(id).onSuccess(onTransactionRefresh);
+        }
+    };
+
+    setInterval(function() {
+        GAT.view.updateAfter(refreshActiveTransactions);
+    }, 5000);
+
 
     return s;
 }();
