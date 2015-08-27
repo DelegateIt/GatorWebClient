@@ -102,6 +102,23 @@ angular.module("app", ["ngRoute"])
 }])
 .controller("receiptModCtrl", ["$scope", function($scope) {
 
+    $("#EditReceiptModal").on("show.bs.modal", function (evnt) {
+        GAT.view.updateAfter(function() {
+            $scope.addItem();
+        });
+    });
+
+    $("#EditReceiptModal").on("hide.bs.modal", function (evnt) {
+        GAT.view.updateAfter(function() {
+            var size = $scope.getReceipt().items.length;
+            for (var i = size - 1; i >= 0; i--) {
+                var item = $scope.getReceipt().items[i];
+                if (item.name.trim() == "" || item.cost.trim() == "")
+                    $scope.deleteItem(i);
+            };
+        });
+    });
+
     $scope.addItem = function() {
         $scope.getReceipt().addItem("", 0.0);
     };

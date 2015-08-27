@@ -11,11 +11,11 @@
             </table>
             <div class="panel-footer">
                 <p class="ng-cloak">There are {{getUnhelpedCustomerCount()}} unhelped customers</p>
-                <button data-ng-click="addCustomer()" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-plus"></span> Add customer</button>
+                <button data-ng-disabled="getUnhelpedCustomerCount() === 0" data-ng-click="addCustomer()" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-plus"></span> Add customer</button>
             </div>
         </div>
     </div>
-    <div class="col-md-7">
+    <div class="col-md-7" data-ng-hide="selected === null">
         <div class="panel panel-default">
             <div class="panel-heading">
                 Messages
@@ -44,7 +44,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3" data-ng-hide="selected === null">
         <div class="panel panel-default">
             <div class="panel-heading">Receipt</div>
             <table class="table">
