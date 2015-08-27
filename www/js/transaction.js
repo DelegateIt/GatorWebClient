@@ -170,12 +170,15 @@ GAT.transaction = function() {
     s.initialize = function() {
         refresherThread();
 
-        setInterval(function() {
+        var updateCustomerCount = function() {
             GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
                 onSuccess(function(r) {
                     s.unhelpedCustomerCount = r.transactions.length;
                 });
-        }, 10000);
+        };
+
+        updateCustomerCount();
+        setInterval(updateCustomerCount, 10000);
 
     };
 
