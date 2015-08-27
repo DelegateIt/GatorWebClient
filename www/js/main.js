@@ -33,8 +33,8 @@ angular.module("app", ["ngRoute"])
         function($scope, $timeout) {
     //Nothing here yet
 }])
-.controller("transactionCtl", ["$scope", "$routeParams",
-        function($scope, $routeParams, contentView) {
+.controller("transactionCtl", ["$scope", "$routeParams", "$location",
+        function($scope, $routeParams, $location) {
 
     $scope.selected = null;
 
@@ -74,7 +74,7 @@ angular.module("app", ["ngRoute"])
 
     $scope.addCustomer = function() {
         GAT.transaction.retreiveNewCustomer(function(transaction) {
-            $scope.selected = transaction;
+            $location.path("/transaction/" + transaction.id);
         });
     };
 
