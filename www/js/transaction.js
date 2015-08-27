@@ -92,10 +92,13 @@ GAT.transaction = function() {
     };
 
     var updateTransacationFromResp = function(transaction, resp) {
-        transaction.messages = [];
         transaction.state = resp.status;
         transaction.id = resp.uuid;
-        if (resp.hasOwnProperty("messages")) {
+        var count = transaction.messages.length;
+        if (resp.hasOwnProperty("messages") && (resp.messages.length != count ||
+                    transaction.messages[count - 1].content != resp.messages[count - 1].content)) {
+
+            transaction.messages = [];
             for (var i = 0; i < resp.messages.length; i++) {
                 var m = new s.Message(resp.messages[i].content, resp.messages[i].from_customer);
                 transaction.messages.push(m);
@@ -130,6 +133,7 @@ GAT.transaction = function() {
     s.retreiveNewCustomer = function(callback) {
         GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
             onSuccess(function(resp) {
+                s.unhelpedCustomerCount = resp.transactions.length;
                 if (resp.transactions.length != 0) {
                     s.unhelpedCustomerCount--;
                     var transResp = resp.transactions[0];
@@ -139,26 +143,41 @@ GAT.transaction = function() {
             });
     };
 
-    var onTransactionRefresh = function(resp) {
-        var transaction = s.activeTransactions[resp.transaction.uuid];
-        updateTransacationFromResp(transaction, resp.transaction);
+    var refresherThread = function() {
+        var waitTime = 6000;
+        var count = 0;
+
+        var load = function() {
+            var keys = Object.keys(s.activeTransactions);
+            if (keys.length == 0) {
+                setTimeout(load, waitTime);
+            } else {
+                var transactionId = keys[count % keys.length];
+                GAT.webapi.getTransaction(transactionId).
+                    onSuccess(function(resp) {
+                        var transaction = s.activeTransactions[resp.transaction.uuid];
+                        updateTransacationFromResp(transaction, resp.transaction);
+                        count++;
+                        setTimeout(load, waitTime);
+                    });
+            }
+        };
+
+        load();
     };
 
-    var refreshActiveTransactions = function() {
-        GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
-            onSuccess(function(r) {
-                s.unhelpedCustomerCount = r.transactions.length;
-            });
 
-        for (var id in s.activeTransactions) {
-            GAT.webapi.getTransaction(id).onSuccess(onTransactionRefresh);
-        }
+    s.initialize = function() {
+        refresherThread();
+
+        setInterval(function() {
+            GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
+                onSuccess(function(r) {
+                    s.unhelpedCustomerCount = r.transactions.length;
+                });
+        }, 10000);
+
     };
-
-    setInterval(function() {
-        GAT.view.updateAfter(refreshActiveTransactions);
-    }, 5000);
-
 
     return s;
 }();

@@ -25,9 +25,13 @@ angular.module("app", ["ngRoute"])
             redirectTo: "/transaction/"
         });
 }])
+.run(["$timeout", function($timeout) {
+    GAT.view.updateAfter = $timeout;
+    GAT.transaction.initialize();
+}])
 .controller("mainCtrl", ["$scope", "$timeout",
         function($scope, $timeout) {
-    GAT.view.updateAfter = $timeout;
+    //Nothing here yet
 }])
 .controller("transactionCtl", ["$scope", "$routeParams",
         function($scope, $routeParams, contentView) {
