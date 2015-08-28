@@ -16,8 +16,6 @@ GAT.transaction = function() {
 
     s.activeTransactions = {}; // {transactionId: Transaction}
 
-    s.myDelegatorId = 0;
-
     s.Customer = function(firstName, lastName, id) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -137,14 +135,14 @@ GAT.transaction = function() {
                 if (resp.transactions.length != 0) {
                     s.unhelpedCustomerCount--;
                     var transResp = resp.transactions[0];
-                    GAT.webapi.updateTransaction(transResp.uuid, s.myDelegatorId, s.states.HELPED);
+                    GAT.webapi.updateTransaction(transResp.uuid, GAT.delegator.me.id, s.states.HELPED);
                     onTransactionLoad(transResp, callback);
                 }
             });
     };
 
     var refresherThread = function() {
-        var waitTime = 6000;
+        var waitTime = 1000;
         var count = 0;
 
         var load = function() {

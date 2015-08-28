@@ -1,39 +1,81 @@
 "use strict";
 
-var GAT = GAT || {};
-
-GAT.view = function() {
-    var s = {};
-
-    s.updateAfter = null;
-
-    return s;
-}();
-
-angular.module("app", ["ngRoute"])
+angular.module("app", ["ngRoute", "ngCookies"])
 .config(["$routeProvider", function($routeProvider) {
     $routeProvider.
         when("/transaction/", {
             "templateUrl": "/routes/transaction.html",
-            "controller": "transactionCtl"
+            "controller": "transactionCtrl"
         }).
         when("/transaction/:transactionId/", {
             "templateUrl": "/routes/transaction.html",
-            "controller": "transactionCtl"
+            "controller": "transactionCtrl"
+        }).
+        when("/login/", {
+            "templateUrl": "/routes/login.html",
+            "controller": "loginCtrl"
         }).
         otherwise({
-            redirectTo: "/transaction/"
+            redirectTo: "/login/"
         });
 }])
-.run(["$timeout", function($timeout) {
+.run(["$timeout", "$location", function($timeout, $location) {
     GAT.view.updateAfter = $timeout;
     GAT.transaction.initialize();
+
 }])
-.controller("mainCtrl", ["$scope", "$timeout",
-        function($scope, $timeout) {
-    //Nothing here yet
+.controller("mainCtrl", ["$scope", "$location", "$cookies",
+        function($scope, $location, $cookies) {
+    $scope.$on('$routeChangeSuccess', function() {
+
+        if (GAT.delegator.isLoggedIn() && $location.path() === "/login/")
+            $location.path("/transaction/");
+
+        if (GAT.delegator.isLoggedIn() === false) {
+            if (typeof($cookies.get("delegatorId")) !== "undefined")
+                GAT.delegator.login($cookies.get("delegatorId"));
+            else if ($location.path() != "/login/")
+                $location.path("/login/");
+        }
+    });
 }])
-.controller("transactionCtl", ["$scope", "$routeParams", "$location",
+.controller("navCtrl", ["$scope", "$location", "$cookies",
+        function($scope, $location, $cookies) {
+
+    $scope.isActive = function(page) {
+        return $location.path().startsWith(page);
+    };
+}])
+.controller("loginCtrl", ["$scope", "$location", "$cookies",
+        function($scope, $location, $cookies) {
+
+    $scope.isLoggedIn = GAT.delegator.isLoggedIn;
+
+    $scope.getDelegatorName = function() {
+        if (!GAT.delegator.isLoggedIn())
+            return "";
+        return GAT.delegator.me.name;
+    };
+
+    $scope.getDelegators = function() {
+        return GAT.delegator.everybody;
+    };
+
+    $scope.login = GAT.delegator.login;
+    $scope.logout = GAT.delegator.logout;
+
+    GAT.delegator.saveLogin = function(delegatorId) {
+        $cookies.put("delegatorId", delegatorId);
+        $location.path("/transaction/");
+    };
+
+    GAT.delegator.deleteSavedLogin = function() {
+        $cookies.remove("delegatorId");
+        $location.path("/login/");
+    };
+
+}])
+.controller("transactionCtrl", ["$scope", "$routeParams", "$location",
         function($scope, $routeParams, $location) {
 
     $scope.selected = null;
@@ -127,4 +169,51 @@ angular.module("app", ["ngRoute"])
         $scope.getReceipt().deleteItem(index);
     };
 }]);
+
+var GAT = GAT || {};
+
+GAT.view = function() {
+    var s = {};
+
+    s.updateAfter = null;
+
+    return s;
+}();
+
+GAT.delegator = function() {
+    var s = {};
+
+    var Delegator = function(name, id) {
+        this.name = name;
+        this.id = id;
+    };
+
+    s.everybody = {
+        0: new Delegator("Jon Doe", 0),
+        1: new Delegator("Jane Doe", 1)
+    };
+
+    s.me = null;
+
+    s.isLoggedIn = function() {
+        return s.me !== null;
+    };
+
+    s.login = function(delegatorId) {
+        s.me = s.everybody[delegatorId];
+        s.saveLogin(delegatorId);
+    };
+
+    s.logout = function() {
+        s.me = null;
+        s.deleteSavedLogin();
+    };
+
+    //overwritten by angular code
+    s.saveLogin = function() { };
+    //overwritten by angular code
+    s.deleteSavedLogin = function() { };
+
+    return s;
+}();
 
