@@ -83,6 +83,8 @@ GAT.transaction = function() {
     var loadCustomer = function(transaction, customerId, callback) {
         GAT.webapi.getCustomer(customerId).
             onSuccess(function(c) {
+                if (typeof(c.first_name) === "undefined")
+                    c.first_name = "SMS user #" + Math.round(Math.random() * 20);
                 var customer = new s.Customer(c.first_name, c.last_name, c.uuid);
                 transaction.customer = customer;
                 callback(transaction);
@@ -142,7 +144,7 @@ GAT.transaction = function() {
     };
 
     var refresherThread = function() {
-        var waitTime = 1000;
+        var waitTime = 3000;
         var count = 0;
 
         var load = function() {
@@ -168,6 +170,19 @@ GAT.transaction = function() {
     s.initialize = function() {
         refresherThread();
 
+        var updateDelegatorInfo = function() {
+            if (GAT.delegator.isLoggedIn()) {
+                GAT.webapi.getDelegator(GAT.delegator.me.id).onSuccess(function(r) {
+                    var transactionIds = [];
+                    if (r.hasOwnProperty("transaction_uuids"))
+                        transactionIds = r["transaction_uuids"];
+                    for (var i in transactionIds) {
+                        s.loadTransaction(transactionIds[i], function() {});
+                    }
+                });
+            }
+        };
+
         var updateCustomerCount = function() {
             GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
                 onSuccess(function(r) {
@@ -175,8 +190,10 @@ GAT.transaction = function() {
                 });
         };
 
+        updateDelegatorInfo()
         updateCustomerCount();
         setInterval(updateCustomerCount, 10000);
+        setInterval(updateDelegatorInfo, 10000);
 
     };
 

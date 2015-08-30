@@ -48,7 +48,8 @@ GAT.webapi = function() {
     };
 
     var formatUrl = function(components) {
-        var url = "http://localhost:8000/";
+        //var url = "http://localhost:8000/";
+        var url = "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
         for (var i = 0; i < components.length; i++) {
             url += encodeURIComponent(components[i]) + "/";
         }
@@ -122,7 +123,7 @@ GAT.webapi = function() {
     s.sendMessage = function(transactionId, msg) {
         var components = ["send_message", transactionId];
         var httpData = {
-            "platform_type": "test",
+            "platform_type": "web_client",
             "content": msg,
             "from_customer": false
         };
@@ -135,7 +136,7 @@ GAT.webapi = function() {
     };
 
     s.getDelegator = function(delegatorId) {
-        var components = ["get_delegator", delegatorId];
+        var components = ["delegator", delegatorId];
         return sendRestApiReq("GET", components);
     };
 

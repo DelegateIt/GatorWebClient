@@ -19,7 +19,9 @@ angular.module("app", ["ngRoute", "ngCookies"])
             redirectTo: "/login/"
         });
 }])
-.run(["$timeout", "$location", function($timeout, $location) {
+.run(["$timeout", "$cookies", function($timeout, $cookies) {
+    if (typeof($cookies.get("delegatorId")) !== "undefined")
+        GAT.delegator.login($cookies.get("delegatorId"));
     GAT.view.updateAfter = $timeout;
     GAT.transaction.initialize();
 
@@ -189,8 +191,9 @@ GAT.delegator = function() {
     };
 
     s.everybody = {
-        0: new Delegator("Jon Doe", 0),
-        1: new Delegator("Jane Doe", 1)
+        "0": new Delegator("Jon Doe", 0),
+        "1": new Delegator("Jane Doe", 1),
+        "7581433783743299856": new Delegator("George Farcasiu", "7581433783743299856")
     };
 
     s.me = null;
