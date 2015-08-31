@@ -77,6 +77,33 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
 }])
+.controller("tranStatCtrl", ["$scope",
+        function($scope) {
+
+    $scope.getStatus = function() {
+        return $scope.selected.state;
+    };
+
+    $scope.getStates = function() {
+        return GAT.transaction.states;
+    };
+
+    $scope.getDelegators = function() {
+        return GAT.delegator.everybody;
+    };
+
+    $scope.getLoggedInDelegator = function() {
+        return GAT.delegator.me;
+    };
+
+    $scope.setState = function(newState) {
+        GAT.transaction.setState($scope.selected.id, newState);
+    };
+
+    $scope.reassign = function(delegatorId) {
+        GAT.transaction.reassign($scope.selected.id, delegatorId);
+    };
+}])
 .controller("transactionCtrl", ["$scope", "$routeParams", "$location",
         function($scope, $routeParams, $location) {
 
@@ -104,7 +131,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
     $scope.finalizeReceipt = function() {
-        $scope.selected.setState(GAT.transaction.states.CONFIRMED);
+        GAT.transaction.setState($scope.selected.id, GAT.transaction.states.CONFIRMED);
         $scope.sendMessageText = "Thank you for using DelegateIt!\n";
         $scope.sendMessageText += "Here is your transaction list\n";
         $scope.sendMessageText += "Please accept or deny the charges\n";
@@ -113,7 +140,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
             $scope.sendMessageText += items[i].name + "  $" + items[i].cost + "\n";
         }
         $scope.sendMessage();
-
     };
 
     $scope.addCustomer = function() {

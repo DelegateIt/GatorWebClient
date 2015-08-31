@@ -4,7 +4,10 @@
             <div class="panel-heading">Customers</div>
             <table class="table">
                 <tbody>
-                    <tr data-ng-repeat="(tId, t) in getTransactions()" data-ng-class="{'info': t.id == selected.id}">
+                    <tr
+                            data-ng-repeat="(tId, t) in getTransactions()"
+                            data-ng-class="{'info': t.id == selected.id}"
+                            data-ng-hide="t.state === 'completed'">
                         <td><a href="#/transaction/{{t.id}}">{{t.customer.firstName + " " + t.customer.lastName}}</a></td>
                     </tr>
                 </tbody>
@@ -63,6 +66,39 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li><a href data-ng-click="finalizeReceipt()">Are you sure? Yes</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3" data-ng-controller="tranStatCtrl" data-ng-hide="selected === null">
+        <div class="panel panel-default">
+            <div class="panel-heading">Transaction</div>
+            <div class="panel-body">
+                <div class="dropdown">
+                    <label>State </label>
+                    <button class="btn btn-default dropdown-toggle pull-right" type="button" data-toggle="dropdown">
+                        {{selected.state}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu pull-right">
+                        <li data-ng-repeat="state in getStates()">
+                            <a href data-ng-click="setState(state)">{{state}}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div style="padding-bottom: 10px">
+                </div>
+                <div class="dropdown">
+                    <label>Assigned </label>
+                    <button class="btn btn-default dropdown-toggle pull-right" type="button" data-toggle="dropdown">
+                        {{getLoggedInDelegator().name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu pull-right">
+                        <li data-ng-repeat="dlg in getDelegators()">
+                            <a href data-ng-click="reassign(dlg.id)">{{dlg.name}}</a>
+                        </li>
                     </ul>
                 </div>
             </div>

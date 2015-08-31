@@ -28,18 +28,11 @@ GAT.transaction = function() {
         this.messages = [];
         this.state = s.states.STARTED;
         this.id = null;
+        this.delegatorId = null;
 
         this.sendMessage = function(content) {
             this.messages.push(new s.Message(content, false));
             GAT.webapi.sendMessage(this.id, content);
-        };
-
-        this.setState = function(state) {
-            var _this = this;
-            GAT.webapi.updateTransaction(this.id, null, state).
-                onSuccess(function() {
-                    _this.state = state;
-                });
         };
     };
 
@@ -80,6 +73,24 @@ GAT.transaction = function() {
         };
     };
 
+    s.reassign = function(transactionId, delegatorId) {
+        //TODO reassign
+        /*GAT.webapi.updateTransaction(transactionId, delegatorId, null).
+            onSuccess(function(resp) {
+                if (transactionId in s.activeTransactions)
+                    delete s.activeTransactions[transactionId];
+            });*/
+    };
+
+    s.setState = function(transactionId, newState) {
+        if (!(transactionId in s.activeTransactions))
+            return;
+        GAT.webapi.updateTransaction(transactionId, null, newState).
+            onSuccess(function() {
+                s.activeTransactions[transactionId].state = newState;
+            });
+    };
+
     var loadCustomer = function(transaction, customerId, callback) {
         GAT.webapi.getCustomer(customerId).
             onSuccess(function(c) {
@@ -94,6 +105,7 @@ GAT.transaction = function() {
     var updateTransacationFromResp = function(transaction, resp) {
         transaction.state = resp.status;
         transaction.id = resp.uuid;
+        transaction.delegatorId = resp.delegator_uuid;
         var count = transaction.messages.length;
         if (resp.hasOwnProperty("messages") && (resp.messages.length != count ||
                     transaction.messages[count - 1].content != resp.messages[count - 1].content)) {
