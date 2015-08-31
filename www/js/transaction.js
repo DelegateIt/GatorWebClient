@@ -209,5 +209,10 @@ GAT.transaction = function() {
 
     };
 
+    s.clearData = function() {
+        s.activeTransactions = {};
+        s.unhelpedCustomerCount = 0;
+    };
+
     return s;
 }();

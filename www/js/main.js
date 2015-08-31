@@ -229,11 +229,16 @@ GAT.delegator = function() {
     };
 
     s.login = function(delegatorId) {
-        s.me = s.everybody[delegatorId];
-        s.saveLogin(delegatorId);
+        if (delegatorId in s.everybody) {
+            s.me = s.everybody[delegatorId];
+            s.saveLogin(delegatorId);
+        } else {
+            s.logout();
+        }
     };
 
     s.logout = function() {
+        GAT.transaction.clearData();
         s.me = null;
         s.deleteSavedLogin();
     };
