@@ -23,7 +23,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
     if (typeof($cookies.get("delegatorId")) !== "undefined")
         GAT.delegator.login($cookies.get("delegatorId"));
     GAT.view.updateAfter = $timeout;
-    GAT.transaction.initialize();
 
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
@@ -48,8 +47,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return $location.path().startsWith(page);
     };
 }])
-.controller("loginCtrl", ["$scope", "$location", "$cookies",
-        function($scope, $location, $cookies) {
+.controller("loginCtrl", ["$scope", "$location", "$cookies", "$window",
+        function($scope, $location, $cookies, $window) {
 
     $scope.isLoggedIn = GAT.delegator.isLoggedIn;
 
@@ -73,7 +72,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     GAT.delegator.deleteSavedLogin = function() {
         $cookies.remove("delegatorId");
-        $location.path("/login/");
+        $window.location.reload();
     };
 
 }])
@@ -142,6 +141,13 @@ angular.module("app", ["ngRoute", "ngCookies"])
         $scope.sendMessage();
     };
 
+    $scope.canFinalize = function() {
+        if ($scope.selected === null)
+            return false;
+        return $scope.selected.receipt.canFinalize() &&
+                $scope.selected.state !== GAT.transaction.states.COMPLETED;
+    };
+
     $scope.addCustomer = function() {
         GAT.transaction.retreiveNewCustomer(function(transaction) {
             $location.path("/transaction/" + transaction.id);
@@ -151,7 +157,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
     if (typeof($routeParams.transactionId) !== "undefined") {
         var transactionId = $routeParams.transactionId;
         GAT.transaction.loadTransaction(transactionId, function(transaction) {
-            $scope.selected = transaction;
+            $scope.selected = GAT.transaction.activeTransactions[transactionId];
         });
     }
 
@@ -232,13 +238,13 @@ GAT.delegator = function() {
         if (delegatorId in s.everybody) {
             s.me = s.everybody[delegatorId];
             s.saveLogin(delegatorId);
+            GAT.transaction.initialize();
         } else {
             s.logout();
         }
     };
 
     s.logout = function() {
-        GAT.transaction.clearData();
         s.me = null;
         s.deleteSavedLogin();
     };

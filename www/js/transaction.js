@@ -127,7 +127,10 @@ GAT.transaction = function() {
 
         var transaction = new s.Transaction();
         updateTransacationFromResp(transaction, transResp);
-        loadCustomer(transaction, transResp.customer_uuid, onCustomerLoad);
+        if (transaction.state === s.states.COMPLETED)
+            onCustomerLoad(transaction);
+        else
+            loadCustomer(transaction, transResp.customer_uuid, onCustomerLoad);
     };
 
     s.loadTransaction = function(transactionId, callback) {
@@ -165,13 +168,21 @@ GAT.transaction = function() {
                 setTimeout(load, waitTime);
             } else {
                 var transactionId = keys[count % keys.length];
-                GAT.webapi.getTransaction(transactionId).
-                    onSuccess(function(resp) {
-                        var transaction = s.activeTransactions[resp.transaction.uuid];
-                        updateTransacationFromResp(transaction, resp.transaction);
-                        count++;
-                        setTimeout(load, waitTime);
-                    });
+                if (s.activeTransactions[transactionId].state === s.states.COMPLETED) {
+                    //This will skip updating transactions in the 'confirmed' state which
+                    //saves a lot of cpu and bandwidth, but prevents us from learning about
+                    //changes made to those transactions
+                    count++;
+                    setTimeout(load, 100);
+                } else {
+                    GAT.webapi.getTransaction(transactionId).
+                        onSuccess(function(resp) {
+                            var transaction = s.activeTransactions[resp.transaction.uuid];
+                            updateTransacationFromResp(transaction, resp.transaction);
+                            count++;
+                            setTimeout(load, waitTime);
+                        });
+                }
             }
         };
 
@@ -195,23 +206,17 @@ GAT.transaction = function() {
             }
         };
 
-        var updateCustomerCount = function() {
+        /*var updateCustomerCount = function() {
             GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
                 onSuccess(function(r) {
                     s.unhelpedCustomerCount = r.transactions.length;
                 });
-        };
+        };*/
 
+        //updateCustomerCount();
+        //setInterval(updateCustomerCount, 10000);
         updateDelegatorInfo()
-        updateCustomerCount();
-        setInterval(updateCustomerCount, 10000);
         setInterval(updateDelegatorInfo, 10000);
-
-    };
-
-    s.clearData = function() {
-        s.activeTransactions = {};
-        s.unhelpedCustomerCount = 0;
     };
 
     return s;

@@ -12,10 +12,10 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="panel-footer">
+            <!--<div class="panel-footer">
                 <p class="ng-cloak">There are {{getUnhelpedCustomerCount()}} unhelped customers</p>
                 <button data-ng-disabled="getUnhelpedCustomerCount() === 0" data-ng-click="addCustomer()" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-plus"></span> Add customer</button>
-            </div>
+            </div>-->
         </div>
     </div>
     <div class="col-md-7" data-ng-hide="selected === null">
@@ -40,7 +40,7 @@
                 <div class="input-group">
                     <input data-ng-model="sendMessageText" type="text" class="form-control" placeholder="Send a message">
                     <span class="input-group-btn">
-                        <button class="btn btn-default" type="submit">Send</button>
+                        <button data-ng-disabled="selected.state === 'completed'" class="btn btn-default" type="submit">Send</button>
                     </span>
                 </div>
                 </form>
@@ -61,7 +61,7 @@
             <div class="panel-footer">
                 <button class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                 <div class="btn-group pull-right">
-                    <button data-ng-disabled="!getReceipt().canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+                    <button data-ng-disabled="!canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
                         Finalize <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
