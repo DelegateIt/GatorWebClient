@@ -48,7 +48,6 @@ GAT.transaction = function() {
 
     s.Receipt = function() {
         this.items = [];
-        this.notes = [];
 
         this.addItem = function(name, cost) {
             this.items.push(new s.ReceiptItem(name, cost));
@@ -59,18 +58,14 @@ GAT.transaction = function() {
             this.items.splice(index, 1);
         };
 
-        this.addNote = function(message) {
-            this.notes.push(message);
-            return this.items.length - 1;
+        this.getTotal = function() {
+            var sum = 0.0;
+            for (var i in this.items) {
+                sum += this.items[i].cost;
+            }
+            return sum;
         };
 
-        this.canFinalize = function() {
-            return this.items.length != 0;
-        };
-
-        this.markFinalized = function() {
-
-        };
     };
 
     s.reassign = function(transactionId, delegatorId) {
@@ -216,7 +211,7 @@ GAT.transaction = function() {
         //updateCustomerCount();
         //setInterval(updateCustomerCount, 10000);
         updateDelegatorInfo()
-        setInterval(updateDelegatorInfo, 10000);
+        setInterval(updateDelegatorInfo, 5000);
     };
 
     return s;

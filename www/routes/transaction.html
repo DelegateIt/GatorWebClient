@@ -58,6 +58,7 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="padded"><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
             <div class="panel-footer">
                 <button class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                 <div class="btn-group pull-right">
@@ -129,6 +130,7 @@
                 <div>
                     <button data-ng-click="addItem()" class="btn btn-success" type="button"><span class="glyphicon glyphicon-plus"></span> Add</button>
                 </div>
+                <div class="padded"><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

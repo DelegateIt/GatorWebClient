@@ -1,4 +1,8 @@
 
+.padded {
+    margin: 10px;
+}
+
 .msg {
     padding: 10px;
 }

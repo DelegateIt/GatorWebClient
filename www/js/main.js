@@ -132,19 +132,20 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.finalizeReceipt = function() {
         GAT.transaction.setState($scope.selected.id, GAT.transaction.states.CONFIRMED);
         $scope.sendMessageText = "Thank you for using DelegateIt!\n";
-        $scope.sendMessageText += "Here is your transaction list\n";
-        $scope.sendMessageText += "Please accept or deny the charges\n";
+        $scope.sendMessageText += "Here is your list of purchases totaling $";
+        $scope.sendMessageText += $scope.selected.receipt.getTotal() + ": \n";
         var items = $scope.selected.receipt.items;
         for (var i = 0; i < items.length; i++) {
-            $scope.sendMessageText += items[i].name + "  $" + items[i].cost + "\n";
+            $scope.sendMessageText += items[i].name + " \n";
         }
         $scope.sendMessage();
+        $scope.sendMessageText = "";
     };
 
     $scope.canFinalize = function() {
         if ($scope.selected === null)
             return false;
-        return $scope.selected.receipt.canFinalize() &&
+        return $scope.selected.receipt.items.length !== 0 &&
                 $scope.selected.state !== GAT.transaction.states.COMPLETED;
     };
 
@@ -169,7 +170,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
     $scope.onCostChange = function() {
-        $scope.item.cost = $scope.itemCost;
+        $scope.item.cost = parseFloat($scope.itemCost);
     };
 
     $scope.itemName = $scope.item.name;
@@ -189,7 +190,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
             var size = $scope.getReceipt().items.length;
             for (var i = size - 1; i >= 0; i--) {
                 var item = $scope.getReceipt().items[i];
-                if (item.name.trim() == "" || item.cost.trim() == "")
+                if (item.name.trim() == "" || item.cost === 0.0)
                     $scope.deleteItem(i);
             };
         });
