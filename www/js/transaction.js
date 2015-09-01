@@ -116,11 +116,14 @@ GAT.transaction = function() {
     var onTransactionLoad = function(transResp, callback) {
 
         var onCustomerLoad = function(transaction) {
-            s.activeTransactions[transaction.id] = transaction;
-            callback(transaction);
+            if (!(transaction.id in s.activeTransactions))
+                s.activeTransactions[transaction.id] = transaction;
+            callback(s.activeTransactions[transaction.id]);
         };
 
-        var transaction = new s.Transaction();
+        var transaction = s.activeTransactions[transResp.uuid];
+        if (typeof(transaction) === "undefined")
+            transaction = new s.Transaction();
         updateTransacationFromResp(transaction, transResp);
         if (transaction.state === s.states.COMPLETED)
             onCustomerLoad(transaction);
