@@ -10,7 +10,7 @@ GAT.webapi = function() {
     //TODO register bad responses ie. result != 0
     var s = {};
 
-    var debug = true;
+    var debug = false;
 
     var Future = function() {
         this._successCallback = function() { };
@@ -39,7 +39,7 @@ GAT.webapi = function() {
         };
 
         this.notifyError = function(error) {
-            var callback = this.errorCallback;
+            var callback = this._errorCallback;
             this.error = error;
             GAT.view.updateAfter(function() {
                 callback(error);
@@ -70,23 +70,26 @@ GAT.webapi = function() {
                     try {
                         var rsp = JSON.parse(http.responseText);
                         if (debug)
-                            console.log("RPC response", rsp);
-                        future.notify(rsp);
+                            console.log("API response", rsp);
+                        if (rsp.result !== 0) {
+                            console.log("API error", rsp);
+                            future.notifyError(rsp);
+                        } else {
+                            future.notify(rsp);
+                        }
                     } catch(e) {
-                        if (debug)
-                            console.log("RPC parse error", e);
+                        console.log("API response parse error", e);
                         future.notifyError(e.toString());
                     }
                 } else {
-                    if (debug)
-                        console.log("RPC HTTP error", http.status, http.responseText);
+                    console.log("API HTTP error", http.status, http.responseText);
                     future.notifyError("HTTP " + http.status);
                 }
             }
         };
 
         if (debug)
-            console.log("RPC request", method, url, data);
+            console.log("API request", method, url, data);
 
         if (typeof(data) !== "undefined")
             http.send(JSON.stringify(data));
