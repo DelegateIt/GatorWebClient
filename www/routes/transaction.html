@@ -60,7 +60,7 @@
             </table>
             <div class="padded"><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
             <div class="panel-footer">
-                <button class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                 <div class="btn-group pull-right">
                     <button data-ng-disabled="!canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
                         Finalize <span class="caret"></span>
@@ -101,6 +101,11 @@
                             <a href data-ng-click="reassign(dlg.id)">{{dlg.name}}</a>
                         </li>
                     </ul>
+                </div>
+                <div style="padding-bottom: 10px">
+                </div>
+                <div>
+                    <label>Paid </label><span class="pull-right">{{isPaidFor()}}</span>
                 </div>
             </div>
         </div>

@@ -10,7 +10,10 @@ GAT.webapi = function() {
     //TODO register bad responses ie. result != 0
     var s = {};
 
-    var debug = false;
+    var debug = true;
+
+    s.url = Object.freeze("http://backend-lb-125133299.us-west-2.elb.amazonaws.com/");
+    //s.url = Object.freeze("http://localhost:8000/");
 
     var Future = function() {
         this._successCallback = function() { };
@@ -48,12 +51,11 @@ GAT.webapi = function() {
     };
 
     var formatUrl = function(components) {
-        //var url = "http://localhost:8000/";
-        var url = "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
+        var custom = s.url;
         for (var i = 0; i < components.length; i++) {
-            url += encodeURIComponent(components[i]) + "/";
+            custom += encodeURIComponent(components[i]) + "/";
         }
-        return url.substring(0, url.length - 1);
+        return custom.substring(0, custom.length - 1);
     };
 
     var sendRestApiReq = function(method, urlComponents, data) {
@@ -99,32 +101,34 @@ GAT.webapi = function() {
     };
 
     s.getTransactionsWithStatus = function(transStatus) {
-        var components = ["get_transactions_with_status", transStatus];
+        var components = ["core", "get_transactions_with_status", transStatus];
         return sendRestApiReq("GET", components);
     };
 
     s.getTransaction = function(transactionId) {
-        var components = ["transaction", transactionId];
+        var components = ["core", "transaction", transactionId];
         return sendRestApiReq("GET", components);
     };
 
-    s.updateTransaction = function(transactionId, delegatorId, transStatus) {
-        var components = ["transaction", transactionId];
+    s.updateTransaction = function(transactionId, delegatorId, transStatus, receipt) {
+        var components = ["core", "transaction", transactionId];
         var httpData = {};
         if (delegatorId !== null)
             httpData["delegator_uuid"] = delegatorId;
         if (transStatus !== null)
             httpData["status"] = transStatus;
+        if (receipt !== null)
+            httpData["receipt"] = receipt;
         return sendRestApiReq("PUT", components, httpData);
     };
 
     s.getCustomer = function(customerId) {
-        var components = ["customer", customerId];
+        var components = ["core", "customer", customerId];
         return sendRestApiReq("GET", components);
     };
 
     s.sendMessage = function(transactionId, msg) {
-        var components = ["send_message", transactionId];
+        var components = ["core", "send_message", transactionId];
         var httpData = {
             "platform_type": "web_client",
             "content": msg,
@@ -134,12 +138,12 @@ GAT.webapi = function() {
     };
 
     s.getMessages = function(transactionId) {
-        var components = ["get_messages", transactionId];
+        var components = ["core", "get_messages", transactionId];
         return sendRestApiReq("GET", components);
     };
 
     s.getDelegator = function(delegatorId) {
-        var components = ["delegator", delegatorId];
+        var components = ["core", "delegator", delegatorId];
         return sendRestApiReq("GET", components);
     };
 

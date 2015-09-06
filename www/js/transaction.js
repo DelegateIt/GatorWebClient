@@ -47,6 +47,7 @@ GAT.transaction = function() {
     };
 
     s.Receipt = function() {
+        this.chargeId = null;
         this.items = [];
 
         this.addItem = function(name, cost) {
@@ -86,6 +87,27 @@ GAT.transaction = function() {
             });
     };
 
+    s.finalize = function(transactionId) {
+        var transaction = s.activeTransactions[transactionId];
+        var rawReceipt = {
+            "items": []
+        };
+
+        for (var i in transaction.receipt.items) {
+            var item = transaction.receipt.items[i];
+            rawReceipt.items.push({
+                "name": item.name,
+                "cents": Math.round(item.cost * 100)
+            });
+        }
+
+        GAT.webapi.updateTransaction(transactionId, null, null, rawReceipt).
+            onSuccess(function(resp) {
+                console.log("updated receipt");
+            });
+        return GAT.webapi.url + "core/payment/uiform/" + transactionId;
+    };
+
     var loadCustomer = function(transaction, customerId, callback) {
         GAT.webapi.getCustomer(customerId).
             onSuccess(function(c) {
@@ -97,10 +119,20 @@ GAT.transaction = function() {
             });
     };
 
-    var updateTransacationFromResp = function(transaction, resp) {
+    var updateTransacationFromResp = function(transaction, resp, updateReceipt) {
         transaction.state = resp.status;
         transaction.id = resp.uuid;
         transaction.delegatorId = resp.delegator_uuid;
+        if ("receipt" in resp) {
+            if ("stripe_charge_id" in resp.receipt)
+                transaction.receipt.chargeId = resp.receipt.stripe_charge_id;
+            if (updateReceipt) {
+                for (var i in resp.receipt.items) {
+                    var item = resp.receipt.items[i];
+                    transaction.receipt.items.push(new s.ReceiptItem(item.name, item.cents / 100.0));
+                }
+            }
+        }
         var count = transaction.messages.length;
         if (resp.hasOwnProperty("messages") && (resp.messages.length != count ||
                     transaction.messages[count - 1].content != resp.messages[count - 1].content)) {
@@ -124,7 +156,7 @@ GAT.transaction = function() {
         var transaction = s.activeTransactions[transResp.uuid];
         if (typeof(transaction) === "undefined")
             transaction = new s.Transaction();
-        updateTransacationFromResp(transaction, transResp);
+        updateTransacationFromResp(transaction, transResp, true);
         if (transaction.state === s.states.COMPLETED)
             onCustomerLoad(transaction);
         else
@@ -176,7 +208,7 @@ GAT.transaction = function() {
                     GAT.webapi.getTransaction(transactionId).
                         onSuccess(function(resp) {
                             var transaction = s.activeTransactions[resp.transaction.uuid];
-                            updateTransacationFromResp(transaction, resp.transaction);
+                            updateTransacationFromResp(transaction, resp.transaction, false);
                             count++;
                             setTimeout(load, waitTime);
                         });

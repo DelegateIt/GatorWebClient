@@ -102,6 +102,12 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.reassign = function(delegatorId) {
         GAT.transaction.reassign($scope.selected.id, delegatorId);
     };
+
+    $scope.isPaidFor = function() {
+        if ($scope.selected === null)
+            return false;
+        return $scope.selected.receipt.chargeId !== null;
+    };
 }])
 .controller("transactionCtrl", ["$scope", "$routeParams", "$location",
         function($scope, $routeParams, $location) {
@@ -115,6 +121,18 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.sendMessageText = "";
 
     $scope.getTransactions = function() {
+        if ($scope.selected === null) {
+            var keys = Object.keys(GAT.transaction.activeTransactions);
+            var transactionId = null;
+            for (var i in keys) {
+                var t = GAT.transaction.activeTransactions[keys[i]];
+                if (t.state !== GAT.transaction.states.COMPLETED)
+                    transactionId = keys[i];
+            }
+            if (transactionId !== null) {
+                $location.path("/transaction/" + transactionId);
+            }
+        }
         return GAT.transaction.activeTransactions;
     };
 
@@ -130,14 +148,11 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
     $scope.finalizeReceipt = function() {
-        GAT.transaction.setState($scope.selected.id, GAT.transaction.states.CONFIRMED);
-        $scope.sendMessageText = "Thank you for using DelegateIt!\n";
-        $scope.sendMessageText += "Here is your list of purchases totaling $";
-        $scope.sendMessageText += $scope.selected.receipt.getTotal() + ": \n";
-        var items = $scope.selected.receipt.items;
-        for (var i = 0; i < items.length; i++) {
-            $scope.sendMessageText += items[i].name + " \n";
-        }
+        $scope.sendMessageText = "You can confirm your order with the link.\n ";
+        $scope.sendMessageText += "Thank you for using DelegateIt!\n ";
+        var paymentUrl = GAT.transaction.finalize($scope.selected.id);
+        console.log("PAYMENT_URL", paymentUrl);
+        $scope.sendMessageText += paymentUrl;
         $scope.sendMessage();
         $scope.sendMessageText = "";
     };
@@ -146,7 +161,14 @@ angular.module("app", ["ngRoute", "ngCookies"])
         if ($scope.selected === null)
             return false;
         return $scope.selected.receipt.items.length !== 0 &&
-                $scope.selected.state !== GAT.transaction.states.COMPLETED;
+                $scope.selected.state !== GAT.transaction.states.COMPLETED &&
+                $scope.selected.receipt.chargeId === null;
+    };
+
+    $scope.canEdit = function() {
+        if ($scope.selected === null)
+            return false;
+        return $scope.selected.receipt.chargeId === null;
     };
 
     $scope.addCustomer = function() {
@@ -226,7 +248,8 @@ GAT.delegator = function() {
     s.everybody = {
         "0": new Delegator("Jon Doe", 0),
         "1": new Delegator("Jane Doe", 1),
-        "7581433783743299856": new Delegator("George Farcasiu", "7581433783743299856")
+        "7581433783743299856": new Delegator("George Farcasiu", "7581433783743299856"),
+        "11898242030392920202": new Delegator("Austin Middleton", "11898242030392920202")
     };
 
     s.me = null;
