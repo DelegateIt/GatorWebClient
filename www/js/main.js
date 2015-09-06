@@ -20,10 +20,11 @@ angular.module("app", ["ngRoute", "ngCookies"])
         });
 }])
 .run(["$timeout", "$cookies", function($timeout, $cookies) {
-    if (typeof($cookies.get("delegatorId")) !== "undefined")
-        GAT.delegator.login($cookies.get("delegatorId"));
     GAT.view.updateAfter = $timeout;
-
+    GAT.delegator.loadList(function() {
+        if (typeof($cookies.get("delegatorId")) !== "undefined")
+            GAT.delegator.login($cookies.get("delegatorId"));
+    });
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
         function($scope, $location, $cookies) {
@@ -32,11 +33,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
         if (GAT.delegator.isLoggedIn() && $location.path() === "/login/")
             $location.path("/transaction/");
 
-        if (GAT.delegator.isLoggedIn() === false) {
-            if (typeof($cookies.get("delegatorId")) !== "undefined")
-                GAT.delegator.login($cookies.get("delegatorId"));
-            else if ($location.path() != "/login/")
-                $location.path("/login/");
+        if (!GAT.delegator.isLoggedIn() && $location.path() !== "/login/") {
+            $location.path("/login/");
         }
     });
 }])
@@ -240,17 +238,14 @@ GAT.view = function() {
 GAT.delegator = function() {
     var s = {};
 
-    var Delegator = function(name, id) {
+    var Delegator = function(name, id, phone, email) {
         this.name = name;
         this.id = id;
+        this.phone = phone;
+        this.email = email;
     };
 
-    s.everybody = {
-        "0": new Delegator("Jon Doe", 0),
-        "1": new Delegator("Jane Doe", 1),
-        "7581433783743299856": new Delegator("George Farcasiu", "7581433783743299856"),
-        "11898242030392920202": new Delegator("Austin Middleton", "11898242030392920202")
-    };
+    s.everybody = {};
 
     s.me = null;
 
@@ -277,6 +272,18 @@ GAT.delegator = function() {
     s.saveLogin = function() { };
     //overwritten by angular code
     s.deleteSavedLogin = function() { };
+
+    s.loadList = function(callback) {
+        GAT.webapi.getDelegatorList().
+            onSuccess(function(resp) {
+                for (var i in resp.delegators) {
+                    var dlg = resp.delegators[i];
+                    s.everybody[dlg.uuid] = new Delegator(dlg.first_name + " " + dlg.last_name,
+                            dlg.uuid, dlg.phone_number, dlg.email)
+                }
+                callback();
+            });
+    };
 
     return s;
 }();

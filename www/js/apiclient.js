@@ -147,5 +147,10 @@ GAT.webapi = function() {
         return sendRestApiReq("GET", components);
     };
 
+    s.getDelegatorList = function() {
+        var components = ["core", "delegator"];
+        return sendRestApiReq("GET", components);
+    };
+
     return s;
 }();
