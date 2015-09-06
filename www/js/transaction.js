@@ -48,6 +48,7 @@ GAT.transaction = function() {
 
     s.Receipt = function() {
         this.chargeId = null;
+        this.notes = "";
         this.items = [];
 
         this.addItem = function(name, cost) {
@@ -90,6 +91,7 @@ GAT.transaction = function() {
     s.finalize = function(transactionId) {
         var transaction = s.activeTransactions[transactionId];
         var rawReceipt = {
+            "notes": transaction.receipt.notes,
             "items": []
         };
 
@@ -127,6 +129,7 @@ GAT.transaction = function() {
             if ("stripe_charge_id" in resp.receipt)
                 transaction.receipt.chargeId = resp.receipt.stripe_charge_id;
             if (updateReceipt) {
+                transaction.receipt.notes = resp.receipt.notes;
                 for (var i in resp.receipt.items) {
                     var item = resp.receipt.items[i];
                     transaction.receipt.items.push(new s.ReceiptItem(item.name, item.cents / 100.0));

@@ -58,7 +58,13 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="padded"><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
+            <div class="panel-body" data-ng-hide="getReceipt().notes == ''">
+                <div>
+                    <label>Notes</label>
+                    <pre style="word-wrap:normal">{{getReceipt().notes}}</pre>
+                </div>
+                <div><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
+            </div>
             <div class="panel-footer">
                 <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                 <div class="btn-group pull-right">
@@ -133,9 +139,13 @@
                     </div>
                 </div>
                 <div>
+                    <span class="padded"><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</span>
                     <button data-ng-click="addItem()" class="btn btn-success" type="button"><span class="glyphicon glyphicon-plus"></span> Add</button>
                 </div>
-                <div class="padded"><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
+                <div class="input-group" style="padding-top:30px">
+                    <span class="input-group-addon">Notes</span>
+                    <textarea data-ng-model="getReceipt().notes" class="form-control"></textarea>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
