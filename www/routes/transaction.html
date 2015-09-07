@@ -84,7 +84,7 @@
             <div class="panel-body">
                 <div class="dropdown">
                     <label>State </label>
-                    <button class="btn btn-default dropdown-toggle pull-right" type="button" data-toggle="dropdown">
+                    <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
                         {{selected.state}}
                         <span class="caret"></span>
                     </button>
@@ -94,11 +94,9 @@
                         </li>
                     </ul>
                 </div>
-                <div style="padding-bottom: 10px">
-                </div>
                 <div class="dropdown">
                     <label>Assigned </label>
-                    <button class="btn btn-default dropdown-toggle pull-right" type="button" data-toggle="dropdown">
+                    <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
                         {{getLoggedInDelegator().name}}
                         <span class="caret"></span>
                     </button>
@@ -108,10 +106,8 @@
                         </li>
                     </ul>
                 </div>
-                <div style="padding-bottom: 10px">
-                </div>
                 <div>
-                    <label>Paid </label><span class="pull-right">{{isPaidFor()}}</span>
+                    <label>Paid </label><span class="padded">{{isPaidFor()}}</span>
                 </div>
             </div>
         </div>
