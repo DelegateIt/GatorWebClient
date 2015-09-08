@@ -109,6 +109,9 @@
                 <div>
                     <label>Paid </label><span class="padded">{{isPaidFor()}}</span>
                 </div>
+                <div data-ng-show="isPrompted()">
+                    <label>Payment URL </label><span class="padded" style="word-wrap:break-word">{{getPaymentUrl()}}</span>
+                </div>
             </div>
         </div>
     </div>

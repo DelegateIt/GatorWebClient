@@ -101,6 +101,20 @@ angular.module("app", ["ngRoute", "ngCookies"])
         GAT.transaction.reassign($scope.selected.id, delegatorId);
     };
 
+    $scope.isPrompted = function() {
+        if ($scope.selected === null)
+            return false;
+        var state = $scope.selected.state;
+        return (state == GAT.transaction.states.PROPOSED || state == GAT.transaction.states.CONFIRMED ||
+                state == GAT.transaction.states.PENDING || state == GAT.transaction.states.COMPLETED);
+    };
+
+    $scope.getPaymentUrl = function() {
+        if ($scope.selected === null)
+            return "";
+        return GAT.transaction.generatePaymentUrl($scope.selected.id);
+    };
+
     $scope.isPaidFor = function() {
         if ($scope.selected === null)
             return false;
@@ -146,13 +160,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
     $scope.finalizeReceipt = function() {
-        $scope.sendMessageText = "You can confirm your order with the link.\n ";
-        $scope.sendMessageText += "Thank you for using DelegateIt!\n ";
-        var paymentUrl = GAT.transaction.finalize($scope.selected.id);
-        console.log("PAYMENT_URL", paymentUrl);
-        $scope.sendMessageText += paymentUrl;
-        $scope.sendMessage();
-        $scope.sendMessageText = "";
+        GAT.transaction.finalize($scope.selected.id);
+        $scope.sendMessageText = GAT.transaction.generatePaymentUrl($scope.selected.id);
     };
 
     $scope.canFinalize = function() {

@@ -5,12 +5,14 @@ var GAT = GAT || {};
 GAT.transaction = function() {
     var s = {};
 
-    s.states = {
+    s.states = Object.freeze({
         "STARTED": "started",
         "HELPED": "helped",
+        "PROPOSED": "proposed",
         "CONFIRMED": "confirmed",
+        "PENDING": "pending",
         "COMPLETED": "completed"
-    };
+    });
 
     s.unhelpedCustomerCount = 0;
 
@@ -70,6 +72,10 @@ GAT.transaction = function() {
 
     };
 
+    s.generatePaymentUrl = function(transactionId) {
+        return GAT.webapi.url + "core/payment/uiform/" + transactionId;
+    };
+
     s.reassign = function(transactionId, delegatorId) {
         //TODO reassign
         /*GAT.webapi.updateTransaction(transactionId, delegatorId, null).
@@ -103,11 +109,7 @@ GAT.transaction = function() {
             });
         }
 
-        GAT.webapi.updateTransaction(transactionId, null, null, rawReceipt).
-            onSuccess(function(resp) {
-                console.log("updated receipt");
-            });
-        return GAT.webapi.url + "core/payment/uiform/" + transactionId;
+        GAT.webapi.updateTransaction(transactionId, null, s.states.PROPOSED, rawReceipt);
     };
 
     var loadCustomer = function(transaction, customerId, callback) {
