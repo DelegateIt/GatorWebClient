@@ -132,6 +132,17 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.sendMessageText = "";
 
+    $scope.isCustomerListEmpty = function() {
+        var state = GAT.transaction.states.COMPLETED
+        if ($scope.selected !== null && $scope.selected.state !== state)
+            return false;
+        for (var i in GAT.transaction.activeTransactions) {
+            if (GAT.transaction.activeTransactions[i].state !== state)
+                return false;
+        }
+        return true;
+    };
+
     $scope.getTransactions = function() {
         if ($scope.selected === null) {
             var keys = Object.keys(GAT.transaction.activeTransactions);

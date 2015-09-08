@@ -4,6 +4,7 @@
             <div class="panel-heading">Customers</div>
             <table class="table">
                 <tbody>
+                    <tr data-ng-show="isCustomerListEmpty()"><td class="text-muted">No customers</td></tr>
                     <tr
                             data-ng-repeat="(tId, t) in getTransactions()"
                             data-ng-class="{'info': t.id == selected.id}"

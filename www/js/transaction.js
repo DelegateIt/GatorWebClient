@@ -116,7 +116,7 @@ GAT.transaction = function() {
         GAT.webapi.getCustomer(customerId).
             onSuccess(function(c) {
                 if (typeof(c.first_name) === "undefined")
-                    c.first_name = "SMS user #" + Math.round(Math.random() * 20);
+                    c.first_name = "SMS user #" + customerId.substring(0, 3);
                 var customer = new s.Customer(c.first_name, c.last_name, c.uuid);
                 transaction.customer = customer;
                 callback(transaction);
