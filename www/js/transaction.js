@@ -73,7 +73,7 @@ GAT.transaction = function() {
     };
 
     s.generatePaymentUrl = function(transactionId) {
-        return GAT.webapi.url + "core/payment/uiform/" + transactionId;
+        return GAT.webapi.getUrl + "core/payment/uiform/" + transactionId;
     };
 
     s.reassign = function(transactionId, delegatorId) {

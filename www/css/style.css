@@ -1,3 +1,12 @@
+.test-mode {
+    position: absolute;
+    font-weight: bold;
+    top: 20px;
+    right: 20px;
+    background-color: #FFD92F;
+    border-radius: 15px;
+    padding: 10px;
+}
 
 .padded {
     margin: 10px;

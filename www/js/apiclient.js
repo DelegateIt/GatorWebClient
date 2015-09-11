@@ -12,8 +12,12 @@ GAT.webapi = function() {
 
     var debug = true;
 
-    s.url = Object.freeze("http://backend-lb-125133299.us-west-2.elb.amazonaws.com/");
-    //s.url = Object.freeze("http://localhost:8000/");
+    s.getUrl = function() {
+        if (GAT.delegator.isInTestMode())
+            return "http://localhost:8000/";
+        else
+            return "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
+    };
 
     var Future = function() {
         this._successCallback = function() { };
@@ -51,7 +55,7 @@ GAT.webapi = function() {
     };
 
     var formatUrl = function(components) {
-        var custom = s.url;
+        var custom = s.getUrl();
         for (var i = 0; i < components.length; i++) {
             custom += encodeURIComponent(components[i]) + "/";
         }

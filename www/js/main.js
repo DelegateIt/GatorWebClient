@@ -28,6 +28,9 @@ angular.module("app", ["ngRoute", "ngCookies"])
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
         function($scope, $location, $cookies) {
+
+    $scope.isTestMode = GAT.delegator.isInTestMode;
+
     $scope.$on('$routeChangeSuccess', function() {
 
         if (GAT.delegator.isLoggedIn() && $location.path() === "/login/")
@@ -263,11 +266,16 @@ GAT.delegator = function() {
         this.id = id;
         this.phone = phone;
         this.email = email;
+        this.test = name === "Test Delegator";
     };
 
     s.everybody = {};
 
     s.me = null;
+
+    s.isInTestMode = function() {
+        return s.me !== null && s.me.test;
+    };
 
     s.isLoggedIn = function() {
         return s.me !== null;
