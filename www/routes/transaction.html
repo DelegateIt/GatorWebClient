@@ -63,6 +63,7 @@
                                     <div class="panel-heading">Receipt</div>
                                     <table class="table">
                                         <tbody>
+                                            <tr data-ng-show="getReceipt().items.length === 0" class="text-muted"><td>Receipt is empty</td></tr>
                                             <tr data-ng-repeat="item in getReceipt().items">
                                                 <td>{{item.name}}</td>
                                                 <td>${{item.cost}}</td>
