@@ -13,105 +13,120 @@
                     </tr>
                 </tbody>
             </table>
-            <!--<div class="panel-footer">
-                <p class="ng-cloak">There are {{getUnhelpedCustomerCount()}} unhelped customers</p>
-                <button data-ng-disabled="getUnhelpedCustomerCount() === 0" data-ng-click="addCustomer()" class="btn btn-primary" type="button"><span class="glyphicon glyphicon-plus"></span> Add customer</button>
-            </div>-->
         </div>
     </div>
-    <div class="col-md-7" data-ng-hide="selected === null">
+    <div data-ng-show="selected === null" class="col-md-10">
         <div class="panel panel-default">
-            <div class="panel-heading">
-                Messages
+            <div class="panel-body text-muted text-center">
+                Click on a customer to view their messages
             </div>
-            <div class="panel-body" style="max-height:500px; overflow-y:scroll">
-                <div data-ng-repeat="msg in selected.messages">
-                    <div
-                            data-ng-class="{
-                                'msg-sent': !msg.fromCustomer,
-                                'msg-recv': msg.fromCustomer
-                            }"
-                            class="well well-sm msg">
-                        <div data-ng-repeat="line in msg.content.split('\n')">{{line}}</div>
+        </div>
+    </div>
+    <div data-ng-hide="selected === null" class="col-md-10">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href data-target="#messages-tab" role="tab" data-toggle="tab">Messages</a></li>
+            <li role="presentation"><a href data-target="#info-tab" role="tab" data-toggle="tab">Customer Info</a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="messages-tab">
+                <div class="panel panel-default tabbed-panel">
+                    <div class="panel-body" style="max-height:500px; overflow-y:scroll">
+                        <div data-ng-repeat="msg in selected.messages">
+                            <div
+                                    data-ng-class="{
+                                        'msg-sent': !msg.fromCustomer,
+                                        'msg-recv': msg.fromCustomer
+                                    }"
+                                    class="well well-sm msg">
+                                <div data-ng-repeat="line in msg.content.split('\n')">{{line}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <form data-ng-submit="sendMessage()">
+                        <div class="input-group">
+                            <input data-ng-model="sendMessageText" type="text" class="form-control" placeholder="Send a message">
+                            <span class="input-group-btn">
+                                <button data-ng-disabled="selected.state === 'completed'" class="btn btn-default" type="submit">Send</button>
+                            </span>
+                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
-            <div class="panel-footer">
-                <form data-ng-submit="sendMessage()">
-                <div class="input-group">
-                    <input data-ng-model="sendMessageText" type="text" class="form-control" placeholder="Send a message">
-                    <span class="input-group-btn">
-                        <button data-ng-disabled="selected.state === 'completed'" class="btn btn-default" type="submit">Send</button>
-                    </span>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3" data-ng-hide="selected === null">
-        <div class="panel panel-default">
-            <div class="panel-heading">Receipt</div>
-            <table class="table">
-                <tbody>
-                    <tr data-ng-repeat="item in getReceipt().items">
-                        <td>{{item.name}}</td>
-                        <td>${{item.cost}}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="panel-body" data-ng-hide="getReceipt().notes == ''">
-                <div>
-                    <label>Notes</label>
-                    <pre style="word-wrap:normal">{{getReceipt().notes}}</pre>
-                </div>
-                <div><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
-            </div>
-            <div class="panel-footer">
-                <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
-                <div class="btn-group pull-right">
-                    <button data-ng-disabled="!canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
-                        Finalize <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href data-ng-click="finalizeReceipt()">Are you sure? Yes</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3" data-ng-controller="tranStatCtrl" data-ng-hide="selected === null">
-        <div class="panel panel-default">
-            <div class="panel-heading">Transaction</div>
-            <div class="panel-body">
-                <div class="dropdown">
-                    <label>State </label>
-                    <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
-                        {{selected.state}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu pull-right">
-                        <li data-ng-repeat="state in getStates()">
-                            <a href data-ng-click="setState(state)">{{state}}</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="dropdown">
-                    <label>Assigned </label>
-                    <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
-                        {{getLoggedInDelegator().name}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu pull-right">
-                        <li data-ng-repeat="dlg in getDelegators()">
-                            <a href data-ng-click="reassign(dlg.id)">{{dlg.name}}</a>
-                        </li>
-                    </ul>
-                </div>
-                <div>
-                    <label>Paid </label><span class="padded">{{isPaidFor()}}</span>
-                </div>
-                <div data-ng-show="isPrompted()">
-                    <label>Payment URL </label><span class="padded" style="word-wrap:break-word">{{getPaymentUrl()}}</span>
+            <div role="tabpanel" class="tab-pane" id="info-tab">
+                <div class="panel panel-default tabbed-panel">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6" data-ng-hide="selected === null">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Receipt</div>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr data-ng-repeat="item in getReceipt().items">
+                                                <td>{{item.name}}</td>
+                                                <td>${{item.cost}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="panel-body" data-ng-hide="getReceipt().notes == ''">
+                                        <div>
+                                            <label>Notes</label>
+                                            <pre style="word-wrap:normal">{{getReceipt().notes}}</pre>
+                                        </div>
+                                        <div><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
+                                    </div>
+                                    <div class="panel-footer">
+                                        <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                                        <div class="btn-group pull-right">
+                                            <button data-ng-disabled="!canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+                                                Finalize <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href data-ng-click="finalizeReceipt()">Are you sure? Yes</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" data-ng-controller="tranStatCtrl" data-ng-hide="selected === null">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Transaction</div>
+                                    <div class="panel-body">
+                                        <div class="dropdown">
+                                            <label>State </label>
+                                            <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
+                                                {{selected.state}}
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li data-ng-repeat="state in getStates()">
+                                                    <a href data-ng-click="setState(state)">{{state}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="dropdown">
+                                            <label>Assigned </label>
+                                            <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
+                                                {{getLoggedInDelegator().name}}
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li data-ng-repeat="dlg in getDelegators()">
+                                                    <a href data-ng-click="reassign(dlg.id)">{{dlg.name}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <label>Paid </label><span class="padded">{{isPaidFor()}}</span>
+                                        </div>
+                                        <div data-ng-show="isPrompted()">
+                                            <label>Payment URL </label><span class="padded" style="word-wrap:break-word">{{getPaymentUrl()}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
                 </div>
             </div>
         </div>

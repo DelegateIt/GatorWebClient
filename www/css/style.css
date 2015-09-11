@@ -1,5 +1,10 @@
+.tabbed-panel {
+    border-top: none;
+}
+
 .test-mode {
-    position: absolute;
+    z-index: 999;
+    position: fixed;
     font-weight: bold;
     top: 20px;
     right: 20px;
