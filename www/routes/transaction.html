@@ -9,7 +9,7 @@
                             data-ng-repeat="(tId, t) in getTransactions()"
                             data-ng-class="{'info': t.id == selected.id}"
                             data-ng-hide="t.state === 'completed'">
-                        <td><a href="#/transaction/{{t.id}}">{{t.customer.firstName + " " + t.customer.lastName}}</a></td>
+                        <td><a href="#/transaction/{{t.id}}">{{t.customer.name}}</a></td>
                     </tr>
                 </tbody>
             </table>
@@ -60,6 +60,59 @@
                         <div class="row">
                             <div class="col-md-6" data-ng-hide="selected === null">
                                 <div class="panel panel-default">
+                                    <div class="panel-heading">Customer Info</div>
+                                    <div class="panel-body">
+                                        <div>
+                                            <label>Name </label> <span class="indent">{{selected.customer.name}}</span>
+                                        </div>
+                                        <div data-ng-show="selected.customer.phone !== null">
+                                            <label>Phone number </label> <span class="indent">{{selected.customer.phone}}</span>
+                                        </div>
+                                        <div data-ng-show="selected.customer.email !== null">
+                                            <label>Email </label> <span class="indent">{{selected.customer.email}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" data-ng-controller="tranStatCtrl" data-ng-hide="selected === null">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Transaction</div>
+                                    <div class="panel-body">
+                                        <div class="dropdown v-space">
+                                            <label>State </label>
+                                            <button class="btn btn-default dropdown-toggle indent" type="button" data-toggle="dropdown">
+                                                {{selected.state}}
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu indent">
+                                                <li data-ng-repeat="state in getStates()">
+                                                    <a href data-ng-click="setState(state)">{{state}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="dropdown v-space">
+                                            <label>Assigned </label>
+                                            <button class="btn btn-default dropdown-toggle indent" type="button" data-toggle="dropdown">
+                                                {{getLoggedInDelegator().name}}
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu indent">
+                                                <li data-ng-repeat="dlg in getDelegators()">
+                                                    <a href data-ng-click="reassign(dlg.id)">{{dlg.name}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <label>Paid </label><span class="indent">{{isPaidFor()}}</span>
+                                        </div>
+                                        <div data-ng-show="isPrompted()">
+                                            <label>Payment URL </label><span class="padded" style="word-wrap:break-word">{{getPaymentUrl()}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" data-ng-hide="selected === null">
+                                <div class="panel panel-default">
                                     <div class="panel-heading">Receipt</div>
                                     <table class="table">
                                         <tbody>
@@ -90,41 +143,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6" data-ng-controller="tranStatCtrl" data-ng-hide="selected === null">
+                            <div class="col-md-6">
                                 <div class="panel panel-default">
-                                    <div class="panel-heading">Transaction</div>
-                                    <div class="panel-body">
-                                        <div class="dropdown">
-                                            <label>State </label>
-                                            <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
-                                                {{selected.state}}
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li data-ng-repeat="state in getStates()">
-                                                    <a href data-ng-click="setState(state)">{{state}}</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="dropdown">
-                                            <label>Assigned </label>
-                                            <button class="btn btn-default dropdown-toggle padded" type="button" data-toggle="dropdown">
-                                                {{getLoggedInDelegator().name}}
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li data-ng-repeat="dlg in getDelegators()">
-                                                    <a href data-ng-click="reassign(dlg.id)">{{dlg.name}}</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <label>Paid </label><span class="padded">{{isPaidFor()}}</span>
-                                        </div>
-                                        <div data-ng-show="isPrompted()">
-                                            <label>Payment URL </label><span class="padded" style="word-wrap:break-word">{{getPaymentUrl()}}</span>
-                                        </div>
-                                    </div>
+                                    <div class="panel-heading">Past transactions</div>
+                                    <table class="table" style="max-height:200px; overflow-y:scroll;">
+                                        <tbody>
+                                            <tr data-ng-repeat="tId in selected.customer.transactionIds">
+                                                <td class="text-center"><a href data-ng-click="switchToTransaction(tId)">#{{$index}}</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                     </div>

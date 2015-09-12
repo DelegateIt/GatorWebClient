@@ -18,10 +18,12 @@ GAT.transaction = function() {
 
     s.activeTransactions = {}; // {transactionId: Transaction}
 
-    s.Customer = function(firstName, lastName, id) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    s.Customer = function(name, id, phone, email, transactionIds) {
+        this.name = name;
         this.id = id;
+        this.phone = phone;
+        this.email = email;
+        this.transactionIds = transactionIds;
     };
 
     s.Transaction = function() {
@@ -115,9 +117,19 @@ GAT.transaction = function() {
     var loadCustomer = function(transaction, customerId, callback) {
         GAT.webapi.getCustomer(customerId).
             onSuccess(function(c) {
-                if (typeof(c.first_name) === "undefined")
-                    c.first_name = "SMS user #" + customerId.substring(0, 3);
-                var customer = new s.Customer(c.first_name, c.last_name, c.uuid);
+                var name = "SMS user #" + customerId.substring(0, 3);
+                if ("first_name" in c && "last_name" in c)
+                    name = c.first_name + c.last_name;
+                var phone = null;
+                if ("phone_number" in c)
+                    phone = c.phone_number;
+                var email = null;
+                if ("email" in c)
+                    email = c.email;
+                var transactionIds = [];
+                if ("transaction_uuids" in c)
+                    transactionIds = c.transaction_uuids;
+                var customer = new s.Customer(name, c.uuid, phone, email, transactionIds);
                 transaction.customer = customer;
                 callback(transaction);
             });
@@ -204,7 +216,7 @@ GAT.transaction = function() {
             } else {
                 var transactionId = keys[count % keys.length];
                 if (s.activeTransactions[transactionId].state === s.states.COMPLETED) {
-                    //This will skip updating transactions in the 'confirmed' state which
+                    //This will skip updating transactions in the 'completed' state which
                     //saves a lot of cpu and bandwidth, but prevents us from learning about
                     //changes made to those transactions
                     count++;

@@ -194,8 +194,12 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.addCustomer = function() {
         GAT.transaction.retreiveNewCustomer(function(transaction) {
-            $location.path("/transaction/" + transaction.id);
+            $scope.switchToTransaction(transaction.id);
         });
+    };
+
+    $scope.switchToTransaction = function(transactionId) {
+        $location.path("/transaction/" + transactionId);
     };
 
     if (typeof($routeParams.transactionId) !== "undefined") {

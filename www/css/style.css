@@ -13,8 +13,17 @@
     padding: 10px;
 }
 
+.v-space {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 .padded {
     margin: 10px;
+}
+
+.indent {
+    margin-left:15px;
 }
 
 .msg {
