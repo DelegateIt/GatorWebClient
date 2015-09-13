@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .ng-cloak { display:none; }
-    </style>
 </head>
 
 <body data-ng-app="app" data-ng-controller="mainCtrl">
-    <div data-ng-show="isTestMode()" class="test-mode">
+    <div data-ng-show="isTestMode()" class="test-mode ng-cloak">
         TEST MODE
     </div>
     <div class="container" style="padding-top:20px">
@@ -33,7 +30,7 @@
                         <a href="#/transactions/">Transactions</a>
                     </li>
                 </ul>
-                <ul data-ng-controller="loginCtrl" data-ng-hide="!isLoggedIn()" class="nav navbar-nav navbar-right">
+                <ul data-ng-controller="loginCtrl" data-ng-hide="!isLoggedIn()" class="nav navbar-nav navbar-right ng-cloak">
                     <li class="navbar-text">Hello, {{getDelegatorName()}}</li>
                     <li class="navbar-right">
                         <button data-ng-click="logout()" type="button" class="logout-btn btn btn-default navbar-btn">Logout</button>
