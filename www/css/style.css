@@ -2,6 +2,10 @@
     display: none;
 }
 
+.message-input {
+    resize: none;
+}
+
 .tabbed-panel {
     border-top: none;
 }

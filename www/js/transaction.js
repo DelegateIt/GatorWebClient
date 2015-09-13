@@ -33,11 +33,6 @@ GAT.transaction = function() {
         this.state = s.states.STARTED;
         this.id = null;
         this.delegatorId = null;
-
-        this.sendMessage = function(content) {
-            this.messages.push(new s.Message(content, false));
-            GAT.webapi.sendMessage(this.id, content);
-        };
     };
 
     s.ReceiptItem = function(name, cost) {
@@ -72,6 +67,14 @@ GAT.transaction = function() {
             return sum;
         };
 
+    };
+
+    s.sendMessage = function(transactionId, message) {
+        return GAT.webapi.sendMessage(transactionId, message, "web_client", false).
+            onSuccess(function() {
+                if (transactionId in s.activeTransactions)
+                    s.activeTransactions[transactionId].messages.push(new s.Message(message, false));
+            });
     };
 
     s.generatePaymentUrl = function(transactionId) {

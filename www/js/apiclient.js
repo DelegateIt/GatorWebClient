@@ -16,6 +16,7 @@ GAT.webapi = function() {
         if (GAT.delegator.isInTestMode())
             return "http://localhost:8000/";
         else
+            return "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
     };
 
     var formatUrl = function(components) {
@@ -95,12 +96,12 @@ GAT.webapi = function() {
         return sendRestApiReq("GET", components);
     };
 
-    s.sendMessage = function(transactionId, msg) {
+    s.sendMessage = function(transactionId, msg, platformType, fromCustomer) {
         var components = ["core", "send_message", transactionId];
         var httpData = {
-            "platform_type": "web_client",
+            "platform_type": platformType,
             "content": msg,
-            "from_customer": false
+            "from_customer": fromCustomer
         };
         return sendRestApiReq("POST", components, httpData);
     };

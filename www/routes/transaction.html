@@ -44,7 +44,7 @@
             <li role="presentation"><a href data-target="#info-tab" role="tab" data-toggle="tab">Customer Info</a></li>
         </ul>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade in active" id="messages-tab">
+            <div data-ng-controller="messageCtrl" role="tabpanel" class="tab-pane fade in active" id="messages-tab">
                 <div class="panel panel-default tabbed-panel">
                     <div class="panel-body" style="max-height:500px; overflow-y:scroll">
                         <div data-ng-repeat="msg in selected.messages">
@@ -57,16 +57,19 @@
                                 <div data-ng-repeat="line in msg.content.split('\n')">{{line}}</div>
                             </div>
                         </div>
+                        <div>
+                            <div data-ng-hide="tmpMessageText === ''" class="msg-sent msg well well-sm">
+                                <div data-ng-repeat="tline in tmpMessageText.split('\n')">{{tline}}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="panel-footer">
-                        <form data-ng-submit="sendMessage()">
                         <div class="input-group">
-                            <input data-ng-model="sendMessageText" type="text" class="form-control" placeholder="Send a message">
+                            <textarea data-ng-model="sendMessageText" data-ng-disabled="tmpMessageText !== ''" class="form-control message-input" rows="1" id="messageInput" placeholder="Send a message"></textarea>
                             <span class="input-group-btn">
-                                <button data-ng-disabled="selected.state === 'completed'" class="btn btn-default" type="submit">Send</button>
+                                <button data-ng-click="sendMessage()" data-ng-disabled="selected.state === 'completed'" data-loading-text="Sending..." class="btn btn-default" id="sendMsgBtn" type="button">Send</button>
                             </span>
                         </div>
-                        </form>
                     </div>
                 </div>
             </div>

@@ -80,6 +80,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
 .controller("tranStatCtrl", ["$scope",
         function($scope) {
 
+    autosize($("#messageInput"));
+
     $scope.getStatus = function() {
         return $scope.selected.state;
     };
@@ -133,8 +135,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return GAT.transaction.unhelpedCustomerCount;
     };
 
-    $scope.sendMessageText = "";
-
     $scope.isCustomerListEmpty = function() {
         var state = GAT.transaction.states.COMPLETED
         if ($scope.selected !== null && $scope.selected.state !== state)
@@ -168,14 +168,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return $scope.selected.receipt;
     };
 
-    $scope.sendMessage = function() {
-        $scope.selected.sendMessage($scope.sendMessageText);
-        $scope.sendMessageText = "";
-    };
-
     $scope.finalizeReceipt = function() {
         GAT.transaction.finalize($scope.selected.id);
-        $scope.sendMessageText = GAT.transaction.generatePaymentUrl($scope.selected.id);
+        //TODO is this the best way to handle the url?
+        //$scope.sendMessageText = GAT.transaction.generatePaymentUrl($scope.selected.id);
     };
 
     $scope.canFinalize = function() {
@@ -208,6 +204,24 @@ angular.module("app", ["ngRoute", "ngCookies"])
             $scope.selected = GAT.transaction.activeTransactions[transactionId];
         });
     }
+
+}])
+.controller("messageCtrl", ["$scope", function($scope) {
+
+    $scope.sendMessageText = "";
+
+    $scope.tmpMessageText = "";
+
+    $scope.sendMessage = function($event) {
+        $("#sendMsgBtn").button("loading");
+        $scope.tmpMessageText = $scope.sendMessageText;
+        GAT.transaction.sendMessage($scope.selected.id, $scope.sendMessageText).
+            onResponse(function() {
+                $scope.tmpMessageText = "";
+                $("#sendMsgBtn").button("reset");
+            });
+        $scope.sendMessageText = "";
+    };
 
 }])
 .controller("receiptItemCtrl", ["$scope", function($scope) {
