@@ -16,42 +16,6 @@ GAT.webapi = function() {
         if (GAT.delegator.isInTestMode())
             return "http://localhost:8000/";
         else
-            return "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
-    };
-
-    var Future = function() {
-        this._successCallback = function() { };
-        this._errorCallback = function() { };
-
-        this.onSuccess = function(callback) {
-            this._successCallback = callback;
-            if ("result" in this)
-                this._successCallback(this.result);
-            return this;
-        };
-
-        this.onError = function(callback) {
-            this._errorCallback = callback;
-            if ("error" in this)
-                this._errorCallback(this.error);
-            return this;
-        };
-
-        this.notify = function(response) {
-            this.result = response;
-            var callback = this._successCallback;
-            GAT.view.updateAfter(function() {
-                callback(response);
-            });
-        };
-
-        this.notifyError = function(error) {
-            var callback = this._errorCallback;
-            this.error = error;
-            GAT.view.updateAfter(function() {
-                callback(error);
-            });
-        };
     };
 
     var formatUrl = function(components) {
@@ -64,7 +28,7 @@ GAT.webapi = function() {
 
     var sendRestApiReq = function(method, urlComponents, data) {
         var url = formatUrl(urlComponents);
-        var future = new Future();
+        var future = new GAT.utils.Future();
         var http = new XMLHttpRequest();
 
         http.open(method, url, true);

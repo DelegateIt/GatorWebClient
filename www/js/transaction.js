@@ -88,11 +88,10 @@ GAT.transaction = function() {
     };
 
     s.setState = function(transactionId, newState) {
-        if (!(transactionId in s.activeTransactions))
-            return;
-        GAT.webapi.updateTransaction(transactionId, null, newState).
+        return GAT.webapi.updateTransaction(transactionId, null, newState).
             onSuccess(function() {
-                s.activeTransactions[transactionId].state = newState;
+                if (transactionId in s.activeTransactions)
+                    s.activeTransactions[transactionId].state = newState;
             });
     };
 
@@ -111,7 +110,10 @@ GAT.transaction = function() {
             });
         }
 
-        GAT.webapi.updateTransaction(transactionId, null, s.states.PROPOSED, rawReceipt);
+        return GAT.webapi.updateTransaction(transactionId, null, s.states.PROPOSED, rawReceipt).
+            onSuccess(function() {
+                transaction.state = s.states.PROPOSED;
+            });
     };
 
     var loadCustomer = function(transaction, customerId, callback) {
