@@ -106,14 +106,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
         GAT.transaction.reassign($scope.selected.id, delegatorId);
     };
 
-    $scope.isPrompted = function() {
-        if ($scope.selected === null)
-            return false;
-        var state = $scope.selected.state;
-        return (state == GAT.transaction.states.PROPOSED || state == GAT.transaction.states.CONFIRMED ||
-                state == GAT.transaction.states.PENDING || state == GAT.transaction.states.COMPLETED);
-    };
-
     $scope.getPaymentUrl = function() {
         if ($scope.selected === null)
             return "";
@@ -133,6 +125,14 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.getUnhelpedCustomerCount = function() {
         return GAT.transaction.unhelpedCustomerCount;
+    };
+
+    $scope.isPrompted = function() {
+        if ($scope.selected === null)
+            return false;
+        var state = $scope.selected.state;
+        return (state == GAT.transaction.states.PROPOSED || state == GAT.transaction.states.CONFIRMED ||
+                state == GAT.transaction.states.PENDING || state == GAT.transaction.states.COMPLETED);
     };
 
     $scope.isCustomerListEmpty = function() {
@@ -212,6 +212,16 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.tmpMessageText = "";
 
+    var updateTextInputSize = function() {
+        //When this function is called, angular has not finished updating the view,
+        //So any changes to #messageInput during the update won't be reflected in the
+        //DOM at this point in time. So we wait a bit for the DOM to be updated, then
+        //resize the input text
+        setTimeout(function() {
+            autosize.update($("#messageInput"));
+        }, 300);
+    };
+
     $scope.sendMessage = function($event) {
         $("#sendMsgBtn").button("loading");
         $scope.tmpMessageText = $scope.sendMessageText;
@@ -221,6 +231,16 @@ angular.module("app", ["ngRoute", "ngCookies"])
                 $("#sendMsgBtn").button("reset");
             });
         $scope.sendMessageText = "";
+        updateTextInputSize();
+    };
+
+    $scope.sendReceipt = function() {
+        var text = $scope.sendMessageText === "" ? "" : "\r\n";
+        for (var i in $scope.selected.receipt.items)
+            text += $scope.selected.receipt.items[i].name + "\r\n";
+        text += GAT.transaction.generatePaymentUrl($scope.selected.id);
+        $scope.sendMessageText += text;
+        updateTextInputSize();
     };
 
 }])
