@@ -123,8 +123,23 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.selected = null;
 
-    $scope.getUnhelpedCustomerCount = function() {
-        return GAT.transaction.unhelpedCustomerCount;
+    $scope.isCustomerListEmpty = function() {
+        for (var i in GAT.transaction.active)
+            return false;
+        return true;
+    };
+
+    $scope.getCustomerName = function(customerId) {
+        var c = GAT.transaction.getCustomer(customerId);
+        if (typeof(c) === "undefined")
+            return "Loading...";
+        return c.name;
+    };
+
+    $scope.getCustomer = function() {
+        if ($scope.selected === null)
+            return null;
+        return GAT.transaction.getCustomer($scope.selected.customerId);
     };
 
     $scope.isPrompted = function() {
@@ -135,31 +150,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
                 state == GAT.transaction.states.PENDING || state == GAT.transaction.states.COMPLETED);
     };
 
-    $scope.isCustomerListEmpty = function() {
-        var state = GAT.transaction.states.COMPLETED
-        if ($scope.selected !== null && $scope.selected.state !== state)
-            return false;
-        for (var i in GAT.transaction.activeTransactions) {
-            if (GAT.transaction.activeTransactions[i].state !== state)
-                return false;
-        }
-        return true;
-    };
-
     $scope.getTransactions = function() {
-        if ($scope.selected === null) {
-            var keys = Object.keys(GAT.transaction.activeTransactions);
-            var transactionId = null;
-            for (var i in keys) {
-                var t = GAT.transaction.activeTransactions[keys[i]];
-                if (t.state !== GAT.transaction.states.COMPLETED)
-                    transactionId = keys[i];
-            }
-            if (transactionId !== null) {
-                $location.path("/transaction/" + transactionId);
-            }
-        }
-        return GAT.transaction.activeTransactions;
+        return GAT.transaction.active;
     };
 
     $scope.getReceipt = function() {
@@ -170,8 +162,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.finalizeReceipt = function() {
         GAT.transaction.finalize($scope.selected.id);
-        //TODO is this the best way to handle the url?
-        //$scope.sendMessageText = GAT.transaction.generatePaymentUrl($scope.selected.id);
     };
 
     $scope.canFinalize = function() {
@@ -188,20 +178,14 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return $scope.selected.receipt.chargeId === null;
     };
 
-    $scope.addCustomer = function() {
-        GAT.transaction.retreiveNewCustomer(function(transaction) {
-            $scope.switchToTransaction(transaction.id);
-        });
-    };
-
     $scope.switchToTransaction = function(transactionId) {
         $location.path("/transaction/" + transactionId);
     };
 
     if (typeof($routeParams.transactionId) !== "undefined") {
         var transactionId = $routeParams.transactionId;
-        GAT.transaction.loadTransaction(transactionId, function(transaction) {
-            $scope.selected = GAT.transaction.activeTransactions[transactionId];
+        GAT.transaction.loadTransaction(transactionId).onSuccess(function() {
+            $scope.selected = GAT.transaction.getTransaction(transactionId);
         });
     }
 
@@ -323,7 +307,7 @@ GAT.delegator = function() {
         if (delegatorId in s.everybody) {
             s.me = s.everybody[delegatorId];
             s.saveLogin(delegatorId);
-            GAT.transaction.initialize();
+            GAT.transaction.initialize(delegatorId);
         } else {
             s.logout();
         }

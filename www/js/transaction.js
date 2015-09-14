@@ -14,9 +14,13 @@ GAT.transaction = function() {
         "COMPLETED": "completed"
     });
 
-    s.unhelpedCustomerCount = 0;
+    var customerCache = {};
 
-    s.activeTransactions = {}; // {transactionId: Transaction}
+    var transactionCache = {};
+
+    var loader = new GAT.utils.BackgroundLoader(true);
+
+    s.active = {};
 
     s.Customer = function(name, id, phone, email, transactionIds) {
         this.name = name;
@@ -27,7 +31,7 @@ GAT.transaction = function() {
     };
 
     s.Transaction = function() {
-        this.customer = null;
+        this.customerId = null;
         this.receipt = new s.Receipt();
         this.messages = [];
         this.state = s.states.STARTED;
@@ -72,8 +76,8 @@ GAT.transaction = function() {
     s.sendMessage = function(transactionId, message) {
         return GAT.webapi.sendMessage(transactionId, message, "web_client", false).
             onSuccess(function() {
-                if (transactionId in s.activeTransactions)
-                    s.activeTransactions[transactionId].messages.push(new s.Message(message, false));
+                if (transactionId in transactionCache)
+                    transactionCache[transactionId].messages.push(new s.Message(message, false));
             });
     };
 
@@ -85,21 +89,26 @@ GAT.transaction = function() {
         //TODO reassign
         /*GAT.webapi.updateTransaction(transactionId, delegatorId, null).
             onSuccess(function(resp) {
-                if (transactionId in s.activeTransactions)
-                    delete s.activeTransactions[transactionId];
+                if (transactionId in transactionCache)
+                    delete transactionCache[transactionId];
             });*/
     };
 
     s.setState = function(transactionId, newState) {
         return GAT.webapi.updateTransaction(transactionId, null, newState).
             onSuccess(function() {
-                if (transactionId in s.activeTransactions)
-                    s.activeTransactions[transactionId].state = newState;
+                if (transactionId in transactionCache) {
+                    transactionCache[transactionId].state = newState;
+                }
+                if (newState === s.states.COMPLETED && transactionId in s.active)
+                    delete s.active[transactionId];
+                if (newState != s.states.COMPLETED && !(transactionId in s.active))
+                    s.active[transactionId] = transactionCache[transactionId];
             });
     };
 
     s.finalize = function(transactionId) {
-        var transaction = s.activeTransactions[transactionId];
+        var transaction = transactionCache[transactionId];
         var rawReceipt = {
             "notes": transaction.receipt.notes,
             "items": []
@@ -119,8 +128,18 @@ GAT.transaction = function() {
             });
     };
 
-    var loadCustomer = function(transaction, customerId, callback) {
-        GAT.webapi.getCustomer(customerId).
+    s.getCustomer = function(customerId) {
+        return customerCache[customerId];
+    };
+
+    var loadCustomer = function(transaction, customerId) {
+        if (customerId in customerCache) {
+            var future = new GAT.utils.Future();
+            future.notify({}, true);
+            return future;
+        }
+
+        return GAT.webapi.getCustomer(customerId).
             onSuccess(function(c) {
                 var name = "SMS user #" + customerId.substring(0, 3);
                 if ("first_name" in c && "last_name" in c)
@@ -135,8 +154,7 @@ GAT.transaction = function() {
                 if ("transaction_uuids" in c)
                     transactionIds = c.transaction_uuids;
                 var customer = new s.Customer(name, c.uuid, phone, email, transactionIds);
-                transaction.customer = customer;
-                callback(transaction);
+                customerCache[customerId] = customer;
             });
     };
 
@@ -144,6 +162,7 @@ GAT.transaction = function() {
         transaction.state = resp.status;
         transaction.id = resp.uuid;
         transaction.delegatorId = resp.delegator_uuid;
+        transaction.customerId = resp.customer_uuid;
         if ("receipt" in resp) {
             if ("stripe_charge_id" in resp.receipt)
                 transaction.receipt.chargeId = resp.receipt.stripe_charge_id;
@@ -167,46 +186,33 @@ GAT.transaction = function() {
         }
     };
 
-    var onTransactionLoad = function(transResp, callback) {
-
-        var onCustomerLoad = function(transaction) {
-            if (!(transaction.id in s.activeTransactions))
-                s.activeTransactions[transaction.id] = transaction;
-            callback(s.activeTransactions[transaction.id]);
-        };
-
-        var transaction = s.activeTransactions[transResp.uuid];
-        if (typeof(transaction) === "undefined")
-            transaction = new s.Transaction();
+    var onTransactionLoad = function(transResp) {
+        var transaction = transResp.uuid in transactionCache ? transactionCache[transResp.uuid] : new s.Transaction();
         updateTransacationFromResp(transaction, transResp, true);
-        if (transaction.state === s.states.COMPLETED)
-            onCustomerLoad(transaction);
-        else
-            loadCustomer(transaction, transResp.customer_uuid, onCustomerLoad);
+        if (!(transaction.id in transactionCache))
+            transactionCache[transaction.id] = transaction;
+        if (transaction.state != s.states.COMPLETED && !(transaction.id in s.active))
+            s.active[transaction.id] = transaction;
+
+        loader.add(function() {
+            return loadCustomer(transaction, transResp.customer_uuid);
+        });
     };
 
-    s.loadTransaction = function(transactionId, callback) {
-        if (s.activeTransactions.hasOwnProperty(transactionId)) {
-            callback(s.activeTransactions[transactionId]);
-            return;
+    s.getTransaction = function(transactionId) {
+        return transactionCache[transactionId];
+    };
+
+    s.loadTransaction = function(transactionId) {
+        if (transactionId in transactionCache) {
+            var future = new GAT.utils.Future();
+            future.notify({}, true);
+            return future;
         }
 
-        GAT.webapi.getTransaction(transactionId).
+        return GAT.webapi.getTransaction(transactionId).
             onSuccess(function(t) {
-                onTransactionLoad(t.transaction, callback);
-            });
-    };
-
-    s.retreiveNewCustomer = function(callback) {
-        GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
-            onSuccess(function(resp) {
-                s.unhelpedCustomerCount = resp.transactions.length;
-                if (resp.transactions.length != 0) {
-                    s.unhelpedCustomerCount--;
-                    var transResp = resp.transactions[0];
-                    GAT.webapi.updateTransaction(transResp.uuid, GAT.delegator.me.id, s.states.HELPED);
-                    onTransactionLoad(transResp, callback);
-                }
+                onTransactionLoad(t.transaction);
             });
     };
 
@@ -215,12 +221,12 @@ GAT.transaction = function() {
         var count = 0;
 
         var load = function() {
-            var keys = Object.keys(s.activeTransactions);
+            var keys = Object.keys(s.active);
             if (keys.length == 0) {
                 setTimeout(load, waitTime);
             } else {
                 var transactionId = keys[count % keys.length];
-                if (s.activeTransactions[transactionId].state === s.states.COMPLETED) {
+                if (transactionCache[transactionId].state === s.states.COMPLETED) {
                     //This will skip updating transactions in the 'completed' state which
                     //saves a lot of cpu and bandwidth, but prevents us from learning about
                     //changes made to those transactions
@@ -229,7 +235,7 @@ GAT.transaction = function() {
                 } else {
                     GAT.webapi.getTransaction(transactionId).
                         onSuccess(function(resp) {
-                            var transaction = s.activeTransactions[resp.transaction.uuid];
+                            var transaction = transactionCache[resp.transaction.uuid];
                             updateTransacationFromResp(transaction, resp.transaction, false);
                             count++;
                             setTimeout(load, waitTime);
@@ -241,34 +247,29 @@ GAT.transaction = function() {
         load();
     };
 
+    var checkForNewTransactions = function(delegatorId) {
+        return GAT.webapi.getDelegator(delegatorId).
+            onSuccess(function(resp) {
+                var transactionIds = [];
+                if ("transaction_uuids" in resp)
+                    transactionIds = resp.transaction_uuids;
+                for (var i in transactionIds) {
+                    if (transactionIds[i] in transactionCache)
+                        continue;
+                    loader.add(function() {
+                        return s.loadTransaction(transactionIds[i]);
+                    });
+                }
+            });
+    };
 
-    s.initialize = function() {
+    s.initialize = function(delegatorId) {
         refresherThread();
-
-        var updateDelegatorInfo = function() {
-            if (GAT.delegator.isLoggedIn()) {
-                GAT.webapi.getDelegator(GAT.delegator.me.id).onSuccess(function(r) {
-                    var transactionIds = [];
-                    if (r.hasOwnProperty("transaction_uuids"))
-                        transactionIds = r["transaction_uuids"];
-                    for (var i in transactionIds) {
-                        s.loadTransaction(transactionIds[i], function() {});
-                    }
-                });
-            }
-        };
-
-        /*var updateCustomerCount = function() {
-            GAT.webapi.getTransactionsWithStatus(s.states.STARTED).
-                onSuccess(function(r) {
-                    s.unhelpedCustomerCount = r.transactions.length;
-                });
-        };*/
-
-        //updateCustomerCount();
-        //setInterval(updateCustomerCount, 10000);
-        updateDelegatorInfo()
-        setInterval(updateDelegatorInfo, 5000);
+        checkForNewTransactions(delegatorId);
+        setInterval(function() {
+            checkForNewTransactions(delegatorId);
+        }, 5000);
+        loader.start();
     };
 
     return s;

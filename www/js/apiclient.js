@@ -46,7 +46,8 @@ GAT.webapi = function() {
                             console.log("API error", rsp);
                             future.notifyError(rsp);
                         } else {
-                            future.notify(rsp);
+                            var success = "result" in rsp && rsp.result === 0;
+                            future.notify(rsp, success);
                         }
                     } catch(e) {
                         console.log("API response parse error", e);

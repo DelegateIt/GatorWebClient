@@ -9,9 +9,8 @@
                             <li data-ng-show="isCustomerListEmpty()" class="text-muted">No customers</li>
                             <li
                                     data-ng-repeat="(tId, t) in getTransactions()"
-                                    data-ng-class="{'active': t.id == selected.id}"
-                                    data-ng-hide="t.state === 'completed'">
-                                <a data-ng-href="#/transaction/{{t.id}}">{{t.customer.name}}</a>
+                                    data-ng-class="{'active': t.id == selected.id}">
+                                <a data-ng-href="#/transaction/{{t.id}}">{{getCustomerName(t.customerId)}}</a>
                             </li>
                         </ul>
                     </div>
@@ -38,7 +37,7 @@
         </div>
     </div>
     <div data-ng-hide="selected === null" class="col-md-10">
-        <h3>{{selected.customer.name}}</h3>
+        <h3>{{getCustomer().name}}</h3>
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href data-target="#messages-tab" role="tab" data-toggle="tab">Messages</a></li>
             <li role="presentation"><a href data-target="#info-tab" role="tab" data-toggle="tab">Customer Info</a></li>
@@ -83,13 +82,13 @@
                                     <div class="panel-heading">Customer Info</div>
                                     <div class="panel-body">
                                         <div>
-                                            <label>Name </label> <span class="indent">{{selected.customer.name}}</span>
+                                            <label>Name </label> <span class="indent">{{getCustomer().name}}</span>
                                         </div>
-                                        <div data-ng-show="selected.customer.phone !== null">
-                                            <label>Phone number </label> <span class="indent">{{selected.customer.phone}}</span>
+                                        <div data-ng-show="getCustomer().phone !== null">
+                                            <label>Phone number </label> <span class="indent">{{getCustomer().phone}}</span>
                                         </div>
-                                        <div data-ng-show="selected.customer.email !== null">
-                                            <label>Email </label> <span class="indent">{{selected.customer.email}}</span>
+                                        <div data-ng-show="getCustomer().email !== null">
+                                            <label>Email </label> <span class="indent">{{getCustomer().email}}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -153,7 +152,7 @@
                                     <div class="panel-footer">
                                         <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                                         <div class="btn-group pull-right">
-                                            <button data-ng-disabled="!canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown">
+                                            <button data-ng-disabled="!canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown" data-loading-text="Finalizing...">
                                                 Finalize <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu">
@@ -168,7 +167,7 @@
                                     <div class="panel-heading">Past transactions</div>
                                     <table class="table" style="max-height:200px; overflow-y:scroll;">
                                         <tbody>
-                                            <tr data-ng-repeat="tId in selected.customer.transactionIds">
+                                            <tr data-ng-repeat="tId in getCustomer().transactionIds">
                                                 <td class="text-center"><a href data-ng-click="switchToTransaction(tId)">#{{$index}}</a></td>
                                             </tr>
                                         </tbody>
