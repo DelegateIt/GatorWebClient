@@ -104,5 +104,47 @@ GAT.utils = function() {
         return this._loadInProgress;
     };
 
+    s.logger = function() {
+        var logger = {};
+
+        logger.levels = Object.freeze({
+            "debug": 0,
+            "info": 1,
+            "warning": 2,
+            "error": 3
+        });
+
+        logger.minLevel = "info";
+
+        logger.Handler = function(level, callback) {
+            this.levelIndex = logger.levels[level];
+            this.callback = callback;
+        };
+
+        logger.handlers = {};
+
+        logger.log = function(level, message, data) {
+            var levelIndex = logger.levels[level];
+            if (levelIndex < logger.levels[logger.minLevel])
+                return;
+            for (var key in logger.handlers) {
+                var handler = logger.handlers[key];
+                if (levelIndex >= handler.levelIndex) {
+                    handler.callback(level, message, data);
+                }
+            }
+        };
+
+        logger.handlers["browser-console"] = new logger.Handler("debug",
+            function(level, message, data) {
+                var date = new Date();
+                var time = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+                console.log(time, level, message, data);
+            }
+        );
+
+        return logger;
+    }();
+
     return s;
 }();

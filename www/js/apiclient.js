@@ -19,6 +19,13 @@ GAT.webapi = function() {
             return "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
     };
 
+    var notify = function(future, futureData, success, logMsg, logData) {
+        var logLevel = success ? "debug" : "warning";
+        GAT.utils.logger.log(logLevel, logMsg, logData);
+        if (future !== null)
+            future.notify(futureData, success);
+    };
+
     var formatUrl = function(components) {
         var custom = s.getUrl();
         for (var i = 0; i < components.length; i++) {
@@ -40,28 +47,27 @@ GAT.webapi = function() {
                 if (http.status == 200) {
                     try {
                         var rsp = JSON.parse(http.responseText);
-                        if (debug)
-                            console.log("API response", rsp);
-                        if (rsp.result !== 0) {
-                            console.log("API error", rsp);
-                            future.notifyError(rsp);
-                        } else {
-                            var success = "result" in rsp && rsp.result === 0;
-                            future.notify(rsp, success);
-                        }
+                        var success = "result" in rsp && rsp.result === 0;
+                        notify(future, rsp, success, "Received API response: " + url, {"url": url, "response": rsp});
                     } catch(e) {
-                        console.log("API response parse error", e);
-                        future.notifyError(e.toString());
+                        var data = {
+                            "exception": e,
+                            "error_msg": "The server sent a malformed response"
+                        };
+                        notify(future, data, false, data.error_message, data);
                     }
                 } else {
-                    console.log("API HTTP error", http.status, http.responseText);
-                    future.notifyError("HTTP " + http.status);
+                    var data = {
+                        "status": http.status,
+                        "response": http.responseText,
+                        "error_message": "The server responded with an error"
+                    };
+                    notify(future, data, false, data.error_message, data);
                 }
             }
         };
 
-        if (debug)
-            console.log("API request", method, url, data);
+        notify(null, null, true, "Sent API request: " + url, {"url": url, "req": data});
 
         if (typeof(data) !== "undefined")
             http.send(JSON.stringify(data));

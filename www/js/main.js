@@ -268,6 +268,18 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.deleteItem = function(index) {
         $scope.getReceipt().deleteItem(index);
     };
+}])
+.controller("alertCtrl", ["$scope", function($scope) {
+    $scope.alerts = [];
+    $scope.remove = function(index) {
+        $scope.alerts.splice(index, 1);
+    };
+
+    GAT.utils.logger.handlers["ui-alert"] = new GAT.utils.logger.Handler("warning",
+        function(level, message) {
+            $scope.alerts.push("Whoa, something didn't go right. " + message);
+        }
+    );
 }]);
 
 var GAT = GAT || {};

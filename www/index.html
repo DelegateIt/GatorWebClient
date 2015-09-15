@@ -43,6 +43,12 @@
                 Please turn on javascript to view this website
             </div>
         </noscript>
+        <div data-ng-controller="alertCtrl">
+            <div data-ng-repeat="msg in alerts track by $index" class="alert alert-danger fade in ng-cloak">
+                {{msg}}
+                <button data-ng-click="remove($index)" type="button" class="close"><span>&times;</span></button>
+            </div>
+        </div>
         <div data-ng-view>
         </div>
     </div>
