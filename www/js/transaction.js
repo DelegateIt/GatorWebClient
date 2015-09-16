@@ -143,7 +143,7 @@ GAT.transaction = function() {
             onSuccess(function(c) {
                 var name = "SMS user #" + customerId.substring(0, 3);
                 if ("first_name" in c && "last_name" in c)
-                    name = c.first_name + c.last_name;
+                    name = c.first_name + " "+ c.last_name;
                 var phone = null;
                 if ("phone_number" in c)
                     phone = c.phone_number;
@@ -151,8 +151,10 @@ GAT.transaction = function() {
                 if ("email" in c)
                     email = c.email;
                 var transactionIds = [];
-                if ("transaction_uuids" in c)
-                    transactionIds = c.transaction_uuids;
+                if ("active_transaction_uuids" in c)
+                    transactionIds = c.active_transaction_uuids;
+                if ("inactive_transaction_uuids" in c)
+                    transactionIds.push.apply(transactionIds, c.inactive_transaction_uuids);
                 var customer = new s.Customer(name, c.uuid, phone, email, transactionIds);
                 customerCache[customerId] = customer;
             });
@@ -247,18 +249,24 @@ GAT.transaction = function() {
         load();
     };
 
+    var backgroundLoadTransaction = function(transactionId) {
+        loader.add(function() {
+            return s.loadTransaction(transactionId);
+        });
+    };
+
     var checkForNewTransactions = function(delegatorId) {
         return GAT.webapi.getDelegator(delegatorId).
             onSuccess(function(resp) {
                 var transactionIds = [];
-                if ("transaction_uuids" in resp)
-                    transactionIds = resp.transaction_uuids;
+                if ("active_transaction_uuids" in resp)
+                    transactionIds = resp.active_transaction_uuids;
+                if ("inactive_transaction_uuids" in resp)
+                    transactionIds.push.apply(transactionIds, resp.inactive_transaction_uuids);
                 for (var i in transactionIds) {
                     if (transactionIds[i] in transactionCache)
                         continue;
-                    loader.add(function() {
-                        return s.loadTransaction(transactionIds[i]);
-                    });
+                    backgroundLoadTransaction(transactionIds[i]);
                 }
             });
     };
