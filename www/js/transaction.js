@@ -63,12 +63,34 @@ GAT.transaction = function() {
             this.items.splice(index, 1);
         };
 
-        this.getTotal = function() {
+        this.getCostSum = function() {
             var sum = 0.0;
             for (var i in this.items) {
                 sum += this.items[i].cost;
             }
             return sum;
+        };
+
+        this.getFee = function() {
+            var sum = this.getCostSum();
+            var extra = 0.0;
+            if (sum < 20.0)
+                extra = sum * 0.18;
+            else if (sum < 50.0)
+                extra = sum * 0.15;
+            else if (sum < 100.0)
+                extra = sum * 0.125;
+            else if (sum < 250.0)
+                extra = sum * 0.10;
+            else
+                extra = sum * 0.08;
+            return extra;
+        };
+
+        this.getTotal = function() {
+            var sum = this.getCostSum();
+            var fee = this.getFee();
+            return sum + fee;
         };
 
     };
@@ -82,7 +104,7 @@ GAT.transaction = function() {
     };
 
     s.generatePaymentUrl = function(transactionId) {
-        return GAT.webapi.getUrl() + "core/payment/uiform/" + transactionId;
+        return GAT.webapi.getUrl() + "payment/uiform/" + transactionId;
     };
 
     s.reassign = function(transactionId, delegatorId) {
@@ -108,9 +130,12 @@ GAT.transaction = function() {
     };
 
     s.finalize = function(transactionId) {
+        if (!(transactionId in transactionCache))
+            throw "Cannot finalize transaction. The transaction is not cached";
         var transaction = transactionCache[transactionId];
         var rawReceipt = {
-            "notes": transaction.receipt.notes,
+            "total": Math.floor(transaction.receipt.getTotal() * 100),
+            "notes": transaction.receipt.notes === "" ? " ": transaction.receipt.notes,
             "items": []
         };
 
