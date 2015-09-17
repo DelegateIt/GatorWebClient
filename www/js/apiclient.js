@@ -48,7 +48,8 @@ GAT.webapi = function() {
                     try {
                         var rsp = JSON.parse(http.responseText);
                         var success = "result" in rsp && rsp.result === 0;
-                        notify(future, rsp, success, "Received API response: " + url, {"url": url, "response": rsp});
+                        var logMsg = success ? "Received API response: " + url : rsp.error_message;
+                        notify(future, rsp, success, logMsg, {"url": url, "response": rsp});
                     } catch(e) {
                         var data = {
                             "exception": e,

@@ -277,9 +277,12 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     GAT.utils.logger.handlers["ui-alert"] = new GAT.utils.logger.Handler("warning",
         function(level, message) {
-            $scope.alerts.push("Whoa, something didn't go right. " + message);
-            if ($scope.alerts.length > 2)
-                $scope.alerts.shift();
+            var alertMsg = "Whoa, something didn't go right. " + message;
+            if ($scope.alerts.indexOf(alertMsg) === -1) {
+                $scope.alerts.push(alertMsg);
+                if ($scope.alerts.length > 2)
+                    $scope.alerts.shift();
+            }
         }
     );
 }]);

@@ -142,8 +142,8 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <div class="panel-body" data-ng-hide="getReceipt().notes == ''">
-                                        <div>
+                                    <div class="panel-body">
+                                        <div data-ng-hide="getReceipt().notes.trim() == ''">
                                             <label>Notes</label>
                                             <pre style="word-wrap:normal">{{getReceipt().notes}}</pre>
                                         </div>
