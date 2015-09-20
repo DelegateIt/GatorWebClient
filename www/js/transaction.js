@@ -37,6 +37,8 @@ GAT.transaction = function() {
         this.state = s.states.STARTED;
         this.id = null;
         this.delegatorId = null;
+        this.startTimestamp = 0;
+        this.paymentUrl = "";
     };
 
     s.ReceiptItem = function(name, cost) {
@@ -101,10 +103,6 @@ GAT.transaction = function() {
                 if (transactionId in transactionCache)
                     transactionCache[transactionId].messages.push(new s.Message(message, false));
             });
-    };
-
-    s.generatePaymentUrl = function(transactionId) {
-        return GAT.webapi.getUrl() + "payment/uiform/" + transactionId;
     };
 
     s.reassign = function(transactionId, delegatorId) {
@@ -190,6 +188,9 @@ GAT.transaction = function() {
         transaction.id = resp.uuid;
         transaction.delegatorId = resp.delegator_uuid;
         transaction.customerId = resp.customer_uuid;
+        transaction.startTimestamp = resp.timestamp;
+        if ("payment_url" in resp)
+            transaction.paymentUrl = resp.payment_url;
         if ("receipt" in resp) {
             if ("stripe_charge_id" in resp.receipt)
                 transaction.receipt.chargeId = resp.receipt.stripe_charge_id;

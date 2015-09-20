@@ -66,7 +66,7 @@
                         <div class="input-group">
                             <textarea data-ng-model="sendMessageText" data-ng-disabled="tmpMessageText !== ''" class="form-control message-input" rows="1" id="messageInput" placeholder="Send a message"></textarea>
                             <span class="input-group-btn">
-                                <button data-ng-click="sendReceipt()" data-ng-disabled="!isPrompted()" class="btn btn-default" type="button">Insert receipt</button>
+                                <button data-ng-click="insertReceipt()" data-ng-disabled="selected.paymentUrl == ''" class="btn btn-default" type="button">Insert receipt</button>
                                 <button data-ng-click="sendMessage()" data-ng-disabled="selected.state === 'completed'" data-loading-text="Sending..." class="btn btn-success" id="sendMsgBtn" type="button">Send</button>
                             </span>
                         </div>
@@ -124,8 +124,8 @@
                                         <div>
                                             <label>Paid </label><span class="indent">{{isPaidFor()}}</span>
                                         </div>
-                                        <div data-ng-show="isPrompted()">
-                                            <label>Payment URL </label><span class="padded" style="word-wrap:break-word">{{getPaymentUrl()}}</span>
+                                        <div data-ng-show="selected.paymentUrl != ''">
+                                            <label>Payment URL </label><span class="padded" style="word-wrap:break-word">{{selected.paymentUrl}}</span>
                                         </div>
                                     </div>
                                 </div>

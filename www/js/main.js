@@ -106,12 +106,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
         GAT.transaction.reassign($scope.selected.id, delegatorId);
     };
 
-    $scope.getPaymentUrl = function() {
-        if ($scope.selected === null)
-            return "";
-        return GAT.transaction.generatePaymentUrl($scope.selected.id);
-    };
-
     $scope.isPaidFor = function() {
         if ($scope.selected === null)
             return false;
@@ -140,14 +134,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
         if ($scope.selected === null)
             return null;
         return GAT.transaction.getCustomer($scope.selected.customerId);
-    };
-
-    $scope.isPrompted = function() {
-        if ($scope.selected === null)
-            return false;
-        var state = $scope.selected.state;
-        return (state == GAT.transaction.states.PROPOSED || state == GAT.transaction.states.CONFIRMED ||
-                state == GAT.transaction.states.PENDING || state == GAT.transaction.states.COMPLETED);
     };
 
     $scope.getTransactions = function() {
@@ -218,11 +204,11 @@ angular.module("app", ["ngRoute", "ngCookies"])
         updateTextInputSize();
     };
 
-    $scope.sendReceipt = function() {
+    $scope.insertReceipt = function() {
         var text = $scope.sendMessageText === "" ? "" : "\r\n";
         for (var i in $scope.selected.receipt.items)
             text += $scope.selected.receipt.items[i].name + "\r\n";
-        text += GAT.transaction.generatePaymentUrl($scope.selected.id);
+        text += $scope.selected.paymentUrl;
         $scope.sendMessageText += text;
         updateTextInputSize();
     };
