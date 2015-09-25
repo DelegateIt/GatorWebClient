@@ -148,3 +148,52 @@ GAT.utils = function() {
 
     return s;
 }();
+
+GAT.Updater = function() {
+    this._socketio = null;
+    this._events = {}; //{eventName : {registered: bool, callback: function}}
+};
+
+GAT.Updater.prototype._register = function(eventName, eventObj) {
+    if (this._socketio === null || eventObj.registered)
+        return;
+    eventObj.registered = true;
+    this._socketio.on(eventName, function(resp) {
+        GAT.view.updateAfter(function() {
+            try {
+                var obj = JSON.parse(resp);
+                eventObj.callback(obj);
+            } catch (e) {
+                var error = {
+                    "exception": e,
+                    "response": resp
+                };
+                GAT.utils.logger.log("error", "An error occured while updating the transaction", error);
+            }
+        });
+    });
+    console.log("EMIT", eventName);
+    this._socketio.emit("register_transaction", {"transaction_uuid": eventName});
+};
+
+GAT.Updater.prototype.watch = function(eventName, callback) {
+    if (eventName in this._events)
+        return false;
+    var eventObj = {
+        "registered": false,
+        "callback": callback
+    };
+    this._events[eventName] = eventObj
+    this._register(eventName, eventObj);
+};
+
+GAT.Updater.prototype.connect = function(url) {
+    this._socketio = io(url);
+    this._socketio.on("connect", function() {
+        GAT.utils.logger.log("info", "connected to socketio", url);
+    });
+    var keys = Object.keys(this._events);
+    for (var i in keys)
+        this._register(keys[i], this._events[keys[i]]);
+};
+

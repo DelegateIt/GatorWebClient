@@ -5,6 +5,8 @@ var GAT = GAT || {};
 GAT.transaction = function() {
     var s = {};
 
+    var updater = new GAT.Updater();
+
     s.states = Object.freeze({
         "STARTED": "started",
         "HELPED": "helped",
@@ -185,6 +187,16 @@ GAT.transaction = function() {
             });
     };
 
+    var updateTransaction = function(transResp) {
+        if (!(transResp.uuid in transactionCache)) {
+            GAT.utils.logger.log("warning", "Received update from unwatched transaction", transResp);
+            return;
+        }
+        var transaction = transactionCache[transResp.uuid];
+        console.log("UPDATING", transaction, transResp);
+        updateTransacationFromResp(transaction, transResp, false);
+    };
+
     var updateTransacationFromResp = function(transaction, resp, updateReceipt) {
         transaction.state = resp.status;
         transaction.id = resp.uuid;
@@ -223,6 +235,7 @@ GAT.transaction = function() {
             transactionCache[transaction.id] = transaction;
         if (transaction.state != s.states.COMPLETED && !(transaction.id in s.active))
             s.active[transaction.id] = transaction;
+        updater.watch(transaction.id, updateTransaction);
 
         loader.add(function() {
             return loadCustomer(transaction, transResp.customer_uuid);
@@ -261,37 +274,6 @@ GAT.transaction = function() {
         return future;
     };
 
-    var refresherThread = function() {
-        var waitTime = 3000;
-        var count = 0;
-
-        var load = function() {
-            var keys = Object.keys(s.active);
-            if (keys.length == 0) {
-                setTimeout(load, waitTime);
-            } else {
-                var transactionId = keys[count % keys.length];
-                if (transactionCache[transactionId].state === s.states.COMPLETED) {
-                    //This will skip updating transactions in the 'completed' state which
-                    //saves a lot of cpu and bandwidth, but prevents us from learning about
-                    //changes made to those transactions
-                    count++;
-                    setTimeout(load, 100);
-                } else {
-                    GAT.webapi.getTransaction(transactionId).
-                        onSuccess(function(resp) {
-                            var transaction = transactionCache[resp.transaction.uuid];
-                            updateTransacationFromResp(transaction, resp.transaction, false);
-                            count++;
-                            setTimeout(load, waitTime);
-                        });
-                }
-            }
-        };
-
-        load();
-    };
-
     var backgroundLoadTransaction = function(transactionId) {
         loader.add(function() {
             return s.loadTransaction(transactionId);
@@ -314,13 +296,10 @@ GAT.transaction = function() {
             });
     };
 
-    s.initialize = function(delegatorId) {
+    s.initialize = function(delegatorId, socketIoHost) {
+        updater.connect(socketIoHost);
         myDelegatorId = delegatorId;
-        refresherThread();
         checkForNewTransactions(delegatorId);
-        setInterval(function() {
-            checkForNewTransactions(delegatorId);
-        }, 5000);
         loader.start();
     };
 
