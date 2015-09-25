@@ -21,15 +21,22 @@ angular.module("app", ["ngRoute", "ngCookies"])
 }])
 .run(["$timeout", "$cookies", function($timeout, $cookies) {
     GAT.view.updateAfter = $timeout;
-    GAT.delegator.loadList(function() {
-        if (typeof($cookies.get("delegatorId")) !== "undefined")
-            GAT.delegator.login($cookies.get("delegatorId"));
+    findSocketioIp(function(socketioIp) {
+        GAT.delegator.onLogin.push(function(delegatorId) {
+            GAT.transaction.initialize(delegatorId, socketioIp);
+        });
+        GAT.delegator.loadList(function() {
+            if (typeof($cookies.get("delegatorId")) !== "undefined")
+                GAT.delegator.login($cookies.get("delegatorId"));
+        });
     });
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
         function($scope, $location, $cookies) {
 
-    $scope.isTestMode = GAT.delegator.isInTestMode;
+    $scope.isTestMode = function() {
+        return GAT.isInTestMode;
+    };
 
     $scope.$on('$routeChangeSuccess', function() {
 
@@ -281,7 +288,35 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 }]);
 
+var findSocketioIp = function(callback) {
+    var isTestMode = null;
+    var socketioIp = null;
+    var onResponse = function(test, ip) {
+        socketioIp = test ? null : ip;
+        if (isTestMode === null) {
+            isTestMode = test;
+            GAT.isInTestMode = test;
+            GAT.utils.logger.log("info", "Setting test mode to " + isTestMode);
+            GAT.webapi.setTestMode(test);
+        }
+        if (socketioIp !== null) {
+            GAT.utils.logger.log("info", "Using socketio host: " + socketioIp);
+            callback(socketioIp);
+        }
+    };
+    GAT.webapi.setTestMode(true);
+    GAT.webapi.getServerIp(true).onSuccess(function(resp) {
+        onResponse(true, resp.ip);
+    });
+    GAT.webapi.setTestMode(false);
+    GAT.webapi.getServerIp().onSuccess(function(resp) {
+        onResponse(false, resp.ip);
+    });
+};
+
 var GAT = GAT || {};
+
+GAT.isInTestMode = false;
 
 GAT.view = function() {
     var s = {};
@@ -299,16 +334,13 @@ GAT.delegator = function() {
         this.id = id;
         this.phone = phone;
         this.email = email;
-        this.test = name === "Test Delegator";
     };
+
+    s.onLogin = [];
 
     s.everybody = {};
 
     s.me = null;
-
-    s.isInTestMode = function() {
-        return s.me !== null && s.me.test;
-    };
 
     s.isLoggedIn = function() {
         return s.me !== null;
@@ -318,7 +350,8 @@ GAT.delegator = function() {
         if (delegatorId in s.everybody) {
             s.me = s.everybody[delegatorId];
             s.saveLogin(delegatorId);
-            GAT.transaction.initialize(delegatorId);
+            for (var i in s.onLogin)
+                s.onLogin[i](delegatorId);
         } else {
             s.logout();
         }

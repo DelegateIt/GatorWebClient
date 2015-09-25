@@ -7,21 +7,28 @@ var has = function(obj, property) {
 };
 
 GAT.webapi = function() {
-    //TODO register bad responses ie. result != 0
     var s = {};
 
     var debug = true;
 
-    s.getUrl = function() {
-        if (GAT.delegator.isInTestMode())
-            return "http://localhost:8000/";
+    var url = "";
+
+    s.setTestMode = function(isTest) {
+        if (isTest)
+            url = "http://localhost:8000/";
         else
-            return "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
+            url = "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
     };
 
-    var notify = function(future, futureData, success, logMsg, logData) {
-        var logLevel = success ? "debug" : "warning";
-        GAT.utils.logger.log(logLevel, logMsg, logData);
+    s.getUrl = function() {
+        return url;
+    };
+
+    var notify = function(future, futureData, success, logMsg, logData, noLog) {
+        if (!noLog) {
+            var logLevel = success ? "debug" : "warning";
+            GAT.utils.logger.log(logLevel, logMsg, logData);
+        }
         if (future !== null)
             future.notify(futureData, success);
     };
@@ -34,7 +41,8 @@ GAT.webapi = function() {
         return custom.substring(0, custom.length - 1);
     };
 
-    var sendRestApiReq = function(method, urlComponents, data) {
+    var sendRestApiReq = function(method, urlComponents, data, noLog) {
+        noLog = (typeof(noLog) === "undefined") ? false : noLog;
         var url = formatUrl(urlComponents);
         var future = new GAT.utils.Future();
         var http = new XMLHttpRequest();
@@ -49,13 +57,13 @@ GAT.webapi = function() {
                         var rsp = JSON.parse(http.responseText);
                         var success = "result" in rsp && rsp.result === 0;
                         var logMsg = success ? "Received API response: " + url : rsp.error_message;
-                        notify(future, rsp, success, logMsg, {"url": url, "response": rsp});
+                        notify(future, rsp, success, logMsg, {"url": url, "response": rsp}, noLog);
                     } catch(e) {
                         var data = {
                             "exception": e,
                             "error_msg": "The server sent a malformed response"
                         };
-                        notify(future, data, false, data.error_message, data);
+                        notify(future, data, false, data.error_message, data, noLog);
                     }
                 } else {
                     var data = {
@@ -63,14 +71,14 @@ GAT.webapi = function() {
                         "response": http.responseText,
                         "error_message": "The server responded with an error"
                     };
-                    notify(future, data, false, data.error_message, data);
+                    notify(future, data, false, data.error_message, data, noLog);
                 }
             }
         };
 
-        notify(null, null, true, "Sent API request: " + url, {"url": url, "req": data});
+        notify(null, null, true, "Sent API request: " + url, {"url": url, "req": data}, noLog);
 
-        if (typeof(data) !== "undefined")
+        if (typeof(data) !== "undefined" && data !== null)
             http.send(JSON.stringify(data));
         else
             http.send();
@@ -129,10 +137,17 @@ GAT.webapi = function() {
         return sendRestApiReq("GET", components);
     };
 
+    s.getServerIp = function(noLog) {
+        var components = ["streams", "get_server_ip"];
+        return sendRestApiReq("GET", components, null, noLog);
+    };
+
     s.findUnhelpedTransaction = function(delegatorId) {
         var components = ["core", "assign_transaction", delegatorId];
         return sendRestApiReq("GET", components);
     };
+
+    s.setTestMode(false);
 
     return s;
 }();
