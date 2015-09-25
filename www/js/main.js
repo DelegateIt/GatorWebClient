@@ -271,6 +271,14 @@ angular.module("app", ["ngRoute", "ngCookies"])
             }
         }
     );
+}])
+.controller("addCustomerCtrl", ["$scope", function($scope) {
+    $scope.addCustomer = function() {
+        $("#addCustomerBtn").button("loading");
+        GAT.transaction.findUnhelped().onResponse(function() {
+            $("#addCustomerBtn").button("reset");
+        });
+    };
 }]);
 
 var GAT = GAT || {};

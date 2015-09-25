@@ -129,5 +129,10 @@ GAT.webapi = function() {
         return sendRestApiReq("GET", components);
     };
 
+    s.findUnhelpedTransaction = function(delegatorId) {
+        var components = ["core", "assign_transaction", delegatorId];
+        return sendRestApiReq("GET", components);
+    };
+
     return s;
 }();

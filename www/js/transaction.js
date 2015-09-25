@@ -14,6 +14,8 @@ GAT.transaction = function() {
         "COMPLETED": "completed"
     });
 
+    var myDelegatorId = null;
+
     var customerCache = {};
 
     var transactionCache = {};
@@ -244,6 +246,21 @@ GAT.transaction = function() {
             });
     };
 
+    s.findUnhelped = function() {
+        var future = new GAT.utils.Future();
+        GAT.webapi.findUnhelpedTransaction(myDelegatorId).
+            onSuccess(function(resp) {
+                s.loadTransaction(resp.transaction_uuid).
+                    onResponse(function(success) {
+                        future.notify(success, {});
+                    });
+            }).
+            onError(function(resp) {
+                future.notify(false, {});
+            });
+        return future;
+    };
+
     var refresherThread = function() {
         var waitTime = 3000;
         var count = 0;
@@ -298,6 +315,7 @@ GAT.transaction = function() {
     };
 
     s.initialize = function(delegatorId) {
+        myDelegatorId = delegatorId;
         refresherThread();
         checkForNewTransactions(delegatorId);
         setInterval(function() {
