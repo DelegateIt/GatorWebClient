@@ -16,28 +16,27 @@ GAT.utils = function() {
     };
 
     s.Future = function() {
-        this._successCallbacks = [];
-        this._errorCallbacks = [];
-        this._respCallbacks = [];
+        this._callbacks = []; //{type: string, callback: function}
         this._response = null;
+        this._success = null;
     };
 
     s.Future.prototype.onSuccess = function(callback) {
-        this._successCallbacks.push(callback);
+        this._callbacks.push({"type": "success", "callback": callback});
         if (this._response !== null)
             this._notifyCallbacks();
         return this;
     };
 
     s.Future.prototype.onError = function(callback) {
-        this._errorCallbacks.push(callback);
+        this._callbacks.push({"type": "error", "callback": callback});
         if (this._response !== null)
             this._notifyCallbacks();
         return this;
     };
 
     s.Future.prototype.onResponse = function(callback) {
-        this._respCallbacks.push(callback);
+        this._callbacks.push({"type": "all", "callback": callback});
         if (this._response !== null)
             this._notifyCallbacks();
         return this;
@@ -45,15 +44,16 @@ GAT.utils = function() {
 
     s.Future.prototype._notifyCallbacks = function() {
         if (this._response !== null) {
-            var success = this._success;
-            var callbacks = success ? this._successCallbacks : this._errorCallbacks;
-            var respCallbacks = this._respCallbacks;
-            var response = this._response;
+            var _this = this;
+            var type = this._success ? "success" : "error";
             GAT.view.updateAfter(function() {
-                for (var i in callbacks)
-                    callbacks[i](response);
-                for (var i in respCallbacks)
-                    respCallbacks[i](success, response);
+                while (_this._callbacks.length > 0) {
+                    var cb = _this._callbacks.shift();
+                    if (cb.type === "all")
+                        cb.callback(_this._success, _this._response);
+                    else if (cb.type === type)
+                        cb.callback(_this._response);
+                }
             });
         }
     };
