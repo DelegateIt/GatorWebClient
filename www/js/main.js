@@ -109,10 +109,16 @@ angular.module("app", ["ngRoute", "ngCookies"])
         GAT.transaction.reassign($scope.selected.id, delegatorId);
     };
 
+    $scope.getDateString = function() {
+        if ($scope.selected === null)
+            return null;
+        return GAT.utils.toDateString($scope.selected.startTimestamp);
+    };
+
     $scope.isPaidFor = function() {
         if ($scope.selected === null)
-            return false;
-        return $scope.selected.receipt.chargeId !== null;
+            return "no";
+        return ($scope.selected.receipt.chargeId !== null) ? "yes" : "no";
     };
 }])
 .controller("transactionCtrl", ["$scope", "$routeParams", "$location",
@@ -182,6 +188,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
         var transactionId = $routeParams.transactionId;
         GAT.transaction.load(transactionId).onSuccess(function() {
             $scope.selected = GAT.transaction.cache[transactionId];
+            GAT.customer.deepLoad($scope.selected.customerId);
         });
     }
 
@@ -288,6 +295,19 @@ angular.module("app", ["ngRoute", "ngCookies"])
         GAT.delegator.me.findUnhelpedTransaction().onResponse(function() {
             $("#addCustomerBtn").button("reset");
         });
+    };
+}]).
+controller("pastTransactionCtrl", ["$scope", function($scope) {
+    $scope.getTitle = function(transactionId, index) {
+        if (transactionId in GAT.transaction.cache) {
+            var transaction = GAT.transaction.cache[transactionId];
+            var receiptItem = "";
+            if (transaction.receipt.items.length !== 0)
+                receiptItem = transaction.receipt.items[0].name + "  -  ";
+            return receiptItem + GAT.utils.toDateString(transaction.startTimestamp);
+        } else {
+            return "#" + index;
+        }
     };
 }]);
 

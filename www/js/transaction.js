@@ -206,6 +206,15 @@ GAT.transaction = function() {
         return future;
     };
 
+    s.loadList = function(transactionIds) {
+        for (var i in transactionIds) {
+            var id = transactionIds[i];
+            if (id in s.cache)
+                continue;
+            s.load(id);
+        }
+    };
+
     s.initialize = function(socketIoHost) {
         updater.connect(socketIoHost);
         loader.start();

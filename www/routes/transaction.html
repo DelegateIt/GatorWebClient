@@ -130,6 +130,9 @@
                                             </ul>
                                         </div>
                                         <div>
+                                            <label>Started </label><span class="indent">{{getDateString()}}</span>
+                                        </div>
+                                        <div>
                                             <label>Paid </label><span class="indent">{{isPaidFor()}}</span>
                                         </div>
                                         <div data-ng-show="selected.paymentUrl != ''">
@@ -171,12 +174,12 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="panel panel-default">
+                                <div class="panel panel-default" data-ng-controller="pastTransactionCtrl">
                                     <div class="panel-heading">Past transactions</div>
                                     <table class="table" style="max-height:200px; overflow-y:scroll;">
                                         <tbody>
                                             <tr data-ng-repeat="tId in getCustomer().transactionIds">
-                                                <td class="text-center"><a href data-ng-click="switchToTransaction(tId)">#{{$index}}</a></td>
+                                                <td class="text-center"><a href data-ng-click="switchToTransaction(tId)">{{getTitle(tId, $index)}}</a></td>
                                             </tr>
                                         </tbody>
                                     </table>

@@ -9,6 +9,12 @@ GAT.utils = function() {
         subclass.prototype.constructor = subclass;
     };
 
+    s.toDateString = function(seconds) {
+        var date = new Date(seconds);
+        var str = date.getMonth() + "/" + date.getDate() + "  " + date.getHours() + ":" + date.getMinutes();
+        return str;
+    };
+
     s.Future = function() {
         this._successCallbacks = [];
         this._errorCallbacks = [];

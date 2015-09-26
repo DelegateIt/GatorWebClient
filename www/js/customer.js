@@ -56,6 +56,21 @@ GAT.customer = function() {
         return future;
     };
 
+    s.deepLoad = function(customerId) {
+        var load = function() {
+            var customer = s.cache[customerId];
+            GAT.transaction.loadList(customer.transactionIds);
+        };
+
+        if (customerId in s.cache) {
+            load();
+        } else {
+            s.load(customerId).onSuccess(function() {
+                load();
+            });
+        }
+    };
+
     return s;
 }();
 
