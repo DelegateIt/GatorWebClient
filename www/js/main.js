@@ -22,10 +22,11 @@ angular.module("app", ["ngRoute", "ngCookies"])
 .run(["$timeout", "$location", "$cookies", "$window", function($timeout, $location, $cookies, $window) {
     GAT.view.updateAfter = $timeout;
     findSocketioIp(function(socketioIp) {
+        GAT.transaction.initialize(socketioIp);
         GAT.delegator.onLogin.push(function(delegatorId) {
             $cookies.put("delegatorId", delegatorId);
             $location.path("/transaction/");
-            GAT.transaction.initialize(delegatorId, socketioIp);
+            GAT.delegator.me.checkForNewTransactions();
         });
         GAT.delegator.onLogout.push(function() {
             $cookies.remove("delegatorId");
@@ -120,8 +121,9 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.selected = null;
 
     $scope.isCustomerListEmpty = function() {
-        for (var i in GAT.transaction.active)
-            return false;
+        for (var i in GAT.transaction.cache)
+            if ($scope.isTransactionActive(GAT.transaction.cache[i]))
+                return false;
         return true;
     };
 
@@ -138,8 +140,13 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return GAT.transaction.getCustomer($scope.selected.customerId);
     };
 
+    $scope.isTransactionActive = function(transaction) {
+        return transaction.state !== GAT.transaction.states.COMPLETED &&
+                transaction.delegatorId == GAT.delegator.me.id;
+    };
+
     $scope.getTransactions = function() {
-        return GAT.transaction.active;
+        return GAT.transaction.cache
     };
 
     $scope.getReceipt = function() {
@@ -172,8 +179,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     if (typeof($routeParams.transactionId) !== "undefined") {
         var transactionId = $routeParams.transactionId;
-        GAT.transaction.loadTransaction(transactionId).onSuccess(function() {
-            $scope.selected = GAT.transaction.getTransaction(transactionId);
+        GAT.transaction.load(transactionId).onSuccess(function() {
+            $scope.selected = GAT.transaction.cache[transactionId];
         });
     }
 
@@ -277,7 +284,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
 .controller("addCustomerCtrl", ["$scope", function($scope) {
     $scope.addCustomer = function() {
         $("#addCustomerBtn").button("loading");
-        GAT.transaction.findUnhelped().onResponse(function() {
+        GAT.delegator.me.findUnhelpedTransaction().onResponse(function() {
             $("#addCustomerBtn").button("reset");
         });
     };

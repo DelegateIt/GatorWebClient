@@ -8,8 +8,37 @@ GAT.delegator = function() {
         this.id = id;
         this.phone = phone;
         this.email = email;
-        this.active = [];
-        this.inactive = [];
+    };
+
+    Delegator.prototype.checkForNewTransactions = function() {
+        return GAT.webapi.getDelegator(this.id).
+            onSuccess(function(resp) {
+                var transactionIds = [];
+                if ("active_transaction_uuids" in resp)
+                    transactionIds = resp.active_transaction_uuids;
+                if ("inactive_transaction_uuids" in resp)
+                    transactionIds.push.apply(transactionIds, resp.inactive_transaction_uuids);
+                for (var i in transactionIds) {
+                    if (transactionIds[i] in GAT.transaction.cache)
+                        continue;
+                    GAT.transaction.load(transactionIds[i]);
+                }
+            });
+    };
+
+    Delegator.prototype.findUnhelpedTransaction = function() {
+        var future = new GAT.utils.Future();
+        GAT.webapi.findUnhelpedTransaction(this.id).
+            onSuccess(function(resp) {
+                GAT.transaction.load(resp.transaction_uuid).
+                    onResponse(function(success) {
+                        future.notify(success, {});
+                    });
+            }).
+            onError(function(resp) {
+                future.notify(false, {});
+            });
+        return future;
     };
 
     s.onLogin = [];
