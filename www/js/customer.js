@@ -6,8 +6,6 @@ GAT.customer = function() {
     s.cache = {};
 
     var loader = new GAT.utils.BackgroundLoader();
-    //TODO autostart loader
-    loader.start();
 
     var Customer = function() {
         this.name = null;

@@ -217,7 +217,6 @@ GAT.transaction = function() {
 
     s.initialize = function(socketIoHost) {
         updater.connect(socketIoHost);
-        loader.start();
     };
 
     return s;

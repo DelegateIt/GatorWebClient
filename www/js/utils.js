@@ -70,9 +70,9 @@ GAT.utils = function() {
         this.notify({"error": error});
     };
 
-    s.BackgroundLoader = function() {
+    s.BackgroundLoader = function(startLoading) {
         this._queue = [];
-        this._stopLoading = true;
+        this._stopLoading = false;
         this._loadInProgress = false;
     };
 
