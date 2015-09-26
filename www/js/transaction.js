@@ -159,7 +159,7 @@ GAT.transaction = function() {
         return customerCache[customerId];
     };
 
-    var loadCustomer = function(transaction, customerId) {
+    var loadCustomer = function(customerId) {
         if (customerId in customerCache) {
             var future = new GAT.utils.Future();
             future.notify({}, true);
@@ -238,7 +238,7 @@ GAT.transaction = function() {
         updater.watch(transaction.id, updateTransaction);
 
         loader.add(function() {
-            return loadCustomer(transaction, transResp.customer_uuid);
+            return loadCustomer(transResp.customer_uuid);
         });
     };
 
@@ -257,6 +257,15 @@ GAT.transaction = function() {
             onSuccess(function(t) {
                 onTransactionLoad(t.transaction);
             });
+    };
+
+    s.deepLoadCustomer = function(customerId) {
+        s.loadCustomer(customerId).onSuccess(function() {
+            var c = customerCache[customerId];
+            for (var i in c.transactionIds) {
+                backgroundLoadTransaction(c.transactionIds[i]);
+            }
+        });
     };
 
     s.findUnhelped = function() {

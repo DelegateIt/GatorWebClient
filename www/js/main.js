@@ -19,13 +19,19 @@ angular.module("app", ["ngRoute", "ngCookies"])
             redirectTo: "/login/"
         });
 }])
-.run(["$timeout", "$cookies", function($timeout, $cookies) {
+.run(["$timeout", "$location", "$cookies", "$window", function($timeout, $location, $cookies, $window) {
     GAT.view.updateAfter = $timeout;
     findSocketioIp(function(socketioIp) {
         GAT.delegator.onLogin.push(function(delegatorId) {
+            $cookies.put("delegatorId", delegatorId);
+            $location.path("/transaction/");
             GAT.transaction.initialize(delegatorId, socketioIp);
         });
-        GAT.delegator.loadList(function() {
+        GAT.delegator.onLogout.push(function() {
+            $cookies.remove("delegatorId");
+            $window.location.reload();
+        });
+        GAT.delegator.loadList().onSuccess(function() {
             if (typeof($cookies.get("delegatorId")) !== "undefined")
                 GAT.delegator.login($cookies.get("delegatorId"));
         });
@@ -55,8 +61,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return $location.path().startsWith(page);
     };
 }])
-.controller("loginCtrl", ["$scope", "$location", "$cookies", "$window",
-        function($scope, $location, $cookies, $window) {
+.controller("loginCtrl", ["$scope", function($scope) {
 
     $scope.isLoggedIn = GAT.delegator.isLoggedIn;
 
@@ -72,16 +77,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.login = GAT.delegator.login;
     $scope.logout = GAT.delegator.logout;
-
-    GAT.delegator.saveLogin = function(delegatorId) {
-        $cookies.put("delegatorId", delegatorId);
-        $location.path("/transaction/");
-    };
-
-    GAT.delegator.deleteSavedLogin = function() {
-        $cookies.remove("delegatorId");
-        $window.location.reload();
-    };
 
 }])
 .controller("tranStatCtrl", ["$scope",
@@ -322,62 +317,6 @@ GAT.view = function() {
     var s = {};
 
     s.updateAfter = null;
-
-    return s;
-}();
-
-GAT.delegator = function() {
-    var s = {};
-
-    var Delegator = function(name, id, phone, email) {
-        this.name = name;
-        this.id = id;
-        this.phone = phone;
-        this.email = email;
-    };
-
-    s.onLogin = [];
-
-    s.everybody = {};
-
-    s.me = null;
-
-    s.isLoggedIn = function() {
-        return s.me !== null;
-    };
-
-    s.login = function(delegatorId) {
-        if (delegatorId in s.everybody) {
-            s.me = s.everybody[delegatorId];
-            s.saveLogin(delegatorId);
-            for (var i in s.onLogin)
-                s.onLogin[i](delegatorId);
-        } else {
-            s.logout();
-        }
-    };
-
-    s.logout = function() {
-        s.me = null;
-        s.deleteSavedLogin();
-    };
-
-    //overwritten by angular code
-    s.saveLogin = function() { };
-    //overwritten by angular code
-    s.deleteSavedLogin = function() { };
-
-    s.loadList = function(callback) {
-        GAT.webapi.getDelegatorList().
-            onSuccess(function(resp) {
-                for (var i in resp.delegators) {
-                    var dlg = resp.delegators[i];
-                    s.everybody[dlg.uuid] = new Delegator(dlg.first_name + " " + dlg.last_name,
-                            dlg.uuid, dlg.phone_number, dlg.email)
-                }
-                callback();
-            });
-    };
 
     return s;
 }();
