@@ -16,19 +16,9 @@ GAT.transaction = function() {
         "COMPLETED": "completed"
     });
 
-    var customerCache = {};
-
     s.cache = {};
 
     var loader = new GAT.utils.BackgroundLoader(true);
-
-    s.Customer = function(name, id, phone, email, transactionIds) {
-        this.name = name;
-        this.id = id;
-        this.phone = phone;
-        this.email = email;
-        this.transactionIds = transactionIds;
-    };
 
     s.Transaction = function() {
         this.customerId = null;
@@ -147,38 +137,6 @@ GAT.transaction = function() {
             });
     };
 
-    s.getCustomer = function(customerId) {
-        return customerCache[customerId];
-    };
-
-    var loadCustomer = function(customerId) {
-        if (customerId in customerCache) {
-            var future = new GAT.utils.Future();
-            future.notify({}, true);
-            return future;
-        }
-
-        return GAT.webapi.getCustomer(customerId).
-            onSuccess(function(c) {
-                var name = "SMS user #" + customerId.substring(0, 3);
-                if ("first_name" in c && "last_name" in c)
-                    name = c.first_name + " "+ c.last_name;
-                var phone = null;
-                if ("phone_number" in c)
-                    phone = c.phone_number;
-                var email = null;
-                if ("email" in c)
-                    email = c.email;
-                var transactionIds = [];
-                if ("active_transaction_uuids" in c)
-                    transactionIds = c.active_transaction_uuids;
-                if ("inactive_transaction_uuids" in c)
-                    transactionIds.push.apply(transactionIds, c.inactive_transaction_uuids);
-                var customer = new s.Customer(name, c.uuid, phone, email, transactionIds);
-                customerCache[customerId] = customer;
-            });
-    };
-
     var updateTransaction = function(transResp) {
         if (!(transResp.uuid in s.cache)) {
             GAT.utils.logger.log("warning", "Received update from unwatched transaction", transResp);
@@ -226,25 +184,22 @@ GAT.transaction = function() {
         if (!(transaction.id in s.cache))
             s.cache[transaction.id] = transaction;
         updater.watch(transaction.id, updateTransaction);
-
-        loader.add(function() {
-            return loadCustomer(transResp.customer_uuid);
-        });
+        GAT.customer.load(transaction.customerId);
     };
 
     s.load = function(transactionId) {
         var future = new GAT.utils.Future();
         if (transactionId in s.cache) {
-            future.notify({}, true);
+            future.notify(s.cache[transactionId], true);
         } else {
             loader.add(function() {
                 return GAT.webapi.getTransaction(transactionId).
                     onSuccess(function(t) {
                         onTransactionLoad(t.transaction);
-                        future.notify(true, {});
+                        future.notify(true, s.cache[transactionId]);
                     }).
-                    onError(function() {
-                        future.notify(false, {});
+                    onError(function(resp) {
+                        future.notify(false, resp);
                     });
             });
         }

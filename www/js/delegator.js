@@ -31,8 +31,8 @@ GAT.delegator = function() {
         GAT.webapi.findUnhelpedTransaction(this.id).
             onSuccess(function(resp) {
                 GAT.transaction.load(resp.transaction_uuid).
-                    onResponse(function(success) {
-                        future.notify(success, {});
+                    onResponse(function(success, resp) {
+                        future.notify(success, resp);
                     });
             }).
             onError(function(resp) {

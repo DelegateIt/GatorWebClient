@@ -128,16 +128,17 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
     $scope.getCustomerName = function(customerId) {
-        var c = GAT.transaction.getCustomer(customerId);
-        if (typeof(c) === "undefined")
+        if (customerId in GAT.customer.cache)
+            return GAT.customer.cache[customerId].name;
+        else
             return "Loading...";
-        return c.name;
     };
 
     $scope.getCustomer = function() {
-        if ($scope.selected === null)
+        if ($scope.selected !== null && $scope.selected.customerId in GAT.customer.cache)
+            return GAT.customer.cache[$scope.selected.customerId];
+        else
             return null;
-        return GAT.transaction.getCustomer($scope.selected.customerId);
     };
 
     $scope.isTransactionActive = function(transaction) {
