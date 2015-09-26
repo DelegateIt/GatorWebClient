@@ -5,6 +5,8 @@ GAT.customer = function() {
 
     s.cache = {};
 
+    var loadInProgress = {}; //{customerId: Future}
+
     var loader = new GAT.utils.BackgroundLoader();
 
     var Customer = function() {
@@ -36,17 +38,22 @@ GAT.customer = function() {
     };
 
     s.load = function(customerId) {
+        if (customerId in loadInProgress)
+            return loadInProgress[customerId];
         var future = new GAT.utils.Future();
         if (customerId in s.cache) {
             future.notify(s.cache[customerId], true);
         } else {
+            loadInProgress[customerId] = future;
             loader.add(function() {
                 return GAT.webapi.getCustomer(customerId).
                     onSuccess(function(resp) {
                         updateFromResp(resp);
+                        delete loadInProgress[customerId];
                         future.notify(true, s.cache[customerId]);
                     }).
                     onError(function(resp) {
+                        delete loadInProgress[customerId];
                         future.notify(false, resp);
                     });
             });

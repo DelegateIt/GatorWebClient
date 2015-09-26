@@ -18,6 +18,8 @@ GAT.transaction = function() {
 
     s.cache = {};
 
+    var loadInProgress = {}; //{transactionId: Future}
+
     var loader = new GAT.utils.BackgroundLoader(true);
 
     s.Transaction = function() {
@@ -188,17 +190,22 @@ GAT.transaction = function() {
     };
 
     s.load = function(transactionId) {
+        if (transactionId in loadInProgress)
+            return loadInProgress[transactionId];
         var future = new GAT.utils.Future();
         if (transactionId in s.cache) {
             future.notify(s.cache[transactionId], true);
         } else {
+            loadInProgress[transactionId] = future;
             loader.add(function() {
                 return GAT.webapi.getTransaction(transactionId).
                     onSuccess(function(t) {
                         onTransactionLoad(t.transaction);
+                        delete loadInProgress[transactionId];
                         future.notify(true, s.cache[transactionId]);
                     }).
                     onError(function(resp) {
+                        delete loadInProgress[transactionId];
                         future.notify(false, resp);
                     });
             });
