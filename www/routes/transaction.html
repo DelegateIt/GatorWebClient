@@ -61,7 +61,7 @@
                                         'msg-recv': msg.fromCustomer
                                     }"
                                     class="well well-sm">
-                                <div data-ng-repeat="line in msg.content.split('\n')">{{line}}</div>
+                                <div data-ng-repeat="line in msg.content.split('\n') track by $index">{{line}}</div>
                             </div>
                         </div>
                         <div>
