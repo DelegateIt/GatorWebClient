@@ -54,18 +54,18 @@
             <div data-ng-controller="messageCtrl" role="tabpanel" class="tab-pane fade in active" id="messages-tab">
                 <div class="panel panel-default tabbed-panel">
                     <div class="panel-body" style="max-height:500px; overflow-y:scroll">
-                        <div data-ng-repeat="msg in selected.messages">
+                        <div data-ng-repeat="msg in selected.messages" class="clearfix">
                             <div
                                     data-ng-class="{
                                         'msg-sent': !msg.fromCustomer,
                                         'msg-recv': msg.fromCustomer
                                     }"
-                                    class="well well-sm msg">
+                                    class="well well-sm">
                                 <div data-ng-repeat="line in msg.content.split('\n')">{{line}}</div>
                             </div>
                         </div>
                         <div>
-                            <div data-ng-hide="tmpMessageText === ''" class="msg-sent msg well well-sm">
+                            <div data-ng-hide="tmpMessageText === ''" class="msg-sent well well-sm">
                                 <div data-ng-repeat="tline in tmpMessageText.split('\n')">{{tline}}</div>
                             </div>
                         </div>

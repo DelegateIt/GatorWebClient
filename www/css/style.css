@@ -34,16 +34,16 @@
     margin-left:15px;
 }
 
-.msg {
-    padding: 10px;
-}
-
 .msg-sent {
     background-color:#DFF0D8;
+    float: left;
+    clear: both;
 }
 
 .msg-recv {
     text-align:right;
+    float: right;
+    clear: both;
 }
 
 .logout-btn {
