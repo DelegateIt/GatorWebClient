@@ -158,18 +158,10 @@
                                             <label>Notes</label>
                                             <pre style="word-wrap:normal">{{getReceipt().notes}}</pre>
                                         </div>
-                                        <div><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</div>
+                                        <div data-ng-hide="getReceipt().total === null"><label>Total:</label> ${{getReceipt().total / 100|number:2}}</div>
                                     </div>
                                     <div class="panel-footer">
                                         <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
-                                        <div class="btn-group pull-right">
-                                            <button data-ng-disabled="!canFinalize()" class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown" data-loading-text="Finalizing...">
-                                                Finalize <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a href data-ng-click="finalizeReceipt()">Are you sure? Yes</a></li>
-                                            </ul>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -200,7 +192,7 @@
                 <h4 class="modal-title">Edit Receipt</h4>
             </div>
             <div class="modal-body">
-                <div data-ng-repeat="item in getReceipt().items" data-ng-controller="receiptItemCtrl" class="form-inline" style="padding-bottom: 10px">
+                <div data-ng-repeat="item in tempReceipt.items" data-ng-controller="receiptItemCtrl" class="form-inline" style="padding-bottom: 10px">
                     <div class="input-group">
                         <span class="input-group-addon">Item name</span>
                         <input data-ng-model="itemName" data-ng-change="onNameChange()" type="text" class="form-control" value="{{item.name}}">
@@ -216,16 +208,16 @@
                 <div>
                     <button data-ng-click="addItem()" class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span> Add</button>
                 </div>
-                <div class="text-right">
-                    <span class="padded"><label>Total:</label> ${{getReceipt().getTotal()|number:2}}</span>
-                </div>
                 <div class="input-group" style="padding-top:30px">
                     <span class="input-group-addon">Notes</span>
-                    <textarea data-ng-model="getReceipt().notes" class="form-control"></textarea>
+                    <textarea data-ng-model="tempReceipt.notes" class="form-control"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close without saving</button>
+                <button data-ng-click="saveReceipt()" data-ng-disabled="!canSaveReceipt()" id="saveReceiptBtn" class="btn btn-primary" type="button" data-loading-text="Saving...">
+                    Save
+                </button>
             </div>
         </div>
     </div>

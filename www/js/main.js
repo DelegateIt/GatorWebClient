@@ -162,18 +162,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return $scope.selected.receipt;
     };
 
-    $scope.finalizeReceipt = function() {
-        GAT.transaction.finalize($scope.selected.id);
-    };
-
-    $scope.canFinalize = function() {
-        if ($scope.selected === null)
-            return false;
-        return $scope.selected.receipt.items.length !== 0 &&
-                $scope.selected.state !== GAT.transaction.states.COMPLETED &&
-                $scope.selected.receipt.chargeId === null;
-    };
-
     $scope.canEdit = function() {
         if ($scope.selected === null)
             return false;
@@ -247,30 +235,56 @@ angular.module("app", ["ngRoute", "ngCookies"])
 }])
 .controller("receiptModCtrl", ["$scope", function($scope) {
 
+    $scope.tempReceipt = null;
+
+    $scope.saveReceipt = function() {
+        $("#saveReceiptBtn").button("loading");
+        $scope.clearEmpty();
+        GAT.transaction.saveReceipt($scope.selected.id, $scope.tempReceipt).onResponse(function() {
+            $("#saveReceiptBtn").button("reset");
+            $('#EditReceiptModal').modal('hide')
+        });
+    };
+
+    $scope.canSaveReceipt = function() {
+        if ($scope.selected === null)
+            return false;
+        return $scope.tempReceipt !== null &&
+                $scope.tempReceipt.items.length !== 0 &&
+                $scope.tempReceipt.items[0].name !== "" &&
+                $scope.tempReceipt.items[0].cost !== "0.0" &&
+                $scope.selected.state !== GAT.transaction.states.COMPLETED &&
+                $scope.selected.receipt.chargeId === null;
+    };
+
+
+    $scope.addItem = function() {
+        $scope.tempReceipt.items.push(new GAT.transaction.ReceiptItem("", 0.0));
+    };
+
+    $scope.deleteItem = function(index) {
+        $scope.tempReceipt.items.splice(index, 1);
+    };
+
+    $scope.clearEmpty = function() {
+        var size = $scope.tempReceipt.items.length;
+        for (var i = size - 1; i >= 0; i--) {
+            var item = $scope.tempReceipt.items[i];
+            if (item.name.trim() == "" || item.cost === 0.0)
+                $scope.deleteItem(i);
+        };
+    };
+
     $("#EditReceiptModal").on("show.bs.modal", function (evnt) {
         GAT.view.updateAfter(function() {
+            $scope.tempReceipt = JSON.parse(JSON.stringify($scope.selected.receipt));
             $scope.addItem();
         });
     });
 
     $("#EditReceiptModal").on("hide.bs.modal", function (evnt) {
-        GAT.view.updateAfter(function() {
-            var size = $scope.getReceipt().items.length;
-            for (var i = size - 1; i >= 0; i--) {
-                var item = $scope.getReceipt().items[i];
-                if (item.name.trim() == "" || item.cost === 0.0)
-                    $scope.deleteItem(i);
-            };
-        });
+        //Don't do anything
     });
-
-    $scope.addItem = function() {
-        $scope.getReceipt().addItem("", 0.0);
-    };
-
-    $scope.deleteItem = function(index) {
-        $scope.getReceipt().deleteItem(index);
-    };
 }])
 .controller("alertCtrl", ["$scope", function($scope) {
     $scope.alerts = [];

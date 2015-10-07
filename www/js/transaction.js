@@ -44,49 +44,10 @@ GAT.transaction = function() {
     };
 
     s.Receipt = function() {
+        this.total = null;
         this.chargeId = null;
         this.notes = "";
         this.items = [];
-
-        this.addItem = function(name, cost) {
-            this.items.push(new s.ReceiptItem(name, cost));
-            return this.items.length - 1;
-        };
-
-        this.deleteItem = function(index) {
-            this.items.splice(index, 1);
-        };
-
-        this.getCostSum = function() {
-            var sum = 0.0;
-            for (var i in this.items) {
-                sum += this.items[i].cost;
-            }
-            return sum;
-        };
-
-        this.getFee = function() {
-            var sum = this.getCostSum();
-            var extra = 0.0;
-            if (sum < 20.0)
-                extra = sum * 0.18;
-            else if (sum < 50.0)
-                extra = sum * 0.15;
-            else if (sum < 100.0)
-                extra = sum * 0.125;
-            else if (sum < 250.0)
-                extra = sum * 0.10;
-            else
-                extra = sum * 0.08;
-            return extra;
-        };
-
-        this.getTotal = function() {
-            var sum = this.getCostSum();
-            var fee = this.getFee();
-            return sum + fee;
-        };
-
     };
 
     s.sendMessage = function(transactionId, message) {
@@ -110,28 +71,45 @@ GAT.transaction = function() {
             });
     };
 
-    s.finalize = function(transactionId) {
-        if (!(transactionId in s.cache))
-            throw "Cannot finalize transaction. The transaction is not cached";
-        var transaction = s.cache[transactionId];
+    var calculateTotal = function(receipt) {
+        var sum = 0.0;
+        for (var i in receipt.items)
+            sum += receipt.items[i].cost;
+
+        var fee = 0.0;
+        if (sum < 20.0)
+            fee = sum * 0.18;
+        else if (sum < 50.0)
+            fee = sum * 0.15;
+        else if (sum < 100.0)
+            fee = sum * 0.125;
+        else if (sum < 250.0)
+            fee = sum * 0.10;
+        else
+            fee = sum * 0.08;
+
+        return Math.floor((sum + fee) * 100);//USD in cents
+    };
+
+    s.saveReceipt = function(transactionId, receipt) {
         var rawReceipt = {
-            "total": Math.floor(transaction.receipt.getTotal() * 100),
-            "notes": transaction.receipt.notes === "" ? " ": transaction.receipt.notes,
+            "total": calculateTotal(receipt),
+            "notes": receipt.notes,
             "items": []
         };
 
-        for (var i in transaction.receipt.items) {
-            var item = transaction.receipt.items[i];
+        if (rawReceipt.notes === "")
+            delete rawReceipt["notes"];
+
+        for (var i in receipt.items) {
+            var item = receipt.items[i];
             rawReceipt.items.push({
                 "name": item.name,
                 "cents": Math.round(item.cost * 100)
             });
         }
 
-        return GAT.webapi.updateTransaction(transactionId, null, s.states.PROPOSED, rawReceipt).
-            onSuccess(function() {
-                transaction.state = s.states.PROPOSED;
-            });
+        return GAT.webapi.updateTransaction(transactionId, null, s.states.PROPOSED, rawReceipt);
     };
 
     var updateTransaction = function(transResp) {
@@ -155,12 +133,13 @@ GAT.transaction = function() {
         if ("receipt" in resp) {
             if ("stripe_charge_id" in resp.receipt)
                 transaction.receipt.chargeId = resp.receipt.stripe_charge_id;
-            if (updateReceipt) {
+            if ("notes" in resp.receipt)
                 transaction.receipt.notes = resp.receipt.notes;
-                for (var i in resp.receipt.items) {
-                    var item = resp.receipt.items[i];
-                    transaction.receipt.items.push(new s.ReceiptItem(item.name, item.cents / 100.0));
-                }
+            transaction.receipt.total = resp.receipt.total;
+            transaction.receipt.items = [];
+            for (var i in resp.receipt.items) {
+                var item = resp.receipt.items[i];
+                transaction.receipt.items.push(new s.ReceiptItem(item.name, item.cents / 100.0));
             }
         }
         var count = transaction.messages.length;
