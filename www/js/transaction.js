@@ -44,6 +44,7 @@ GAT.transaction = function() {
     };
 
     s.Receipt = function() {
+        this.isSaved =  false;
         this.total = null;
         this.chargeId = null;
         this.notes = "";
@@ -119,10 +120,10 @@ GAT.transaction = function() {
         }
         var transaction = s.cache[transResp.uuid];
         console.log("UPDATING", transaction, transResp);
-        updateTransacationFromResp(transaction, transResp, false);
+        updateTransacationFromResp(transaction, transResp);
     };
 
-    var updateTransacationFromResp = function(transaction, resp, updateReceipt) {
+    var updateTransacationFromResp = function(transaction, resp) {
         transaction.state = resp.status;
         transaction.id = resp.uuid;
         transaction.delegatorId = resp.delegator_uuid;
@@ -131,6 +132,7 @@ GAT.transaction = function() {
         if ("payment_url" in resp)
             transaction.paymentUrl = resp.payment_url;
         if ("receipt" in resp) {
+            transaction.receipt.isSaved = true;
             if ("stripe_charge_id" in resp.receipt)
                 transaction.receipt.chargeId = resp.receipt.stripe_charge_id;
             if ("notes" in resp.receipt)
@@ -156,7 +158,7 @@ GAT.transaction = function() {
 
     var onTransactionLoad = function(transResp) {
         var transaction = transResp.uuid in s.cache ? s.cache[transResp.uuid] : new s.Transaction();
-        updateTransacationFromResp(transaction, transResp, true);
+        updateTransacationFromResp(transaction, transResp);
         if (!(transaction.id in s.cache))
             s.cache[transaction.id] = transaction;
         updater.watch(transaction.id, updateTransaction);
