@@ -98,12 +98,7 @@ GAT.transaction = function() {
     };
 
     s.reassign = function(transactionId, delegatorId) {
-        //TODO reassign
-        /*GAT.webapi.updateTransaction(transactionId, delegatorId, null).
-            onSuccess(function(resp) {
-                if (transactionId in s.cache)
-                    delete s.cache[transactionId];
-            });*/
+        GAT.webapi.updateTransaction(transactionId, delegatorId, null);
     };
 
     s.setState = function(transactionId, newState) {
