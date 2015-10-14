@@ -128,7 +128,7 @@ GAT.transaction = function() {
         transaction.id = resp.uuid;
         transaction.delegatorId = resp.delegator_uuid;
         transaction.customerId = resp.customer_uuid;
-        transaction.startTimestamp = resp.timestamp;
+        transaction.startTimestamp = resp.timestamp / 1000;
         if ("payment_url" in resp)
             transaction.paymentUrl = resp.payment_url;
         if ("receipt" in resp) {
