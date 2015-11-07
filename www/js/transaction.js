@@ -198,8 +198,8 @@ GAT.transaction = function() {
         }
     };
 
-    s.initialize = function(socketIoHost) {
-        updater.connect(socketIoHost);
+    s.initialize = function() {
+        updater.connect(GAT.webapi.getNotifyUrl());
     };
 
     return s;

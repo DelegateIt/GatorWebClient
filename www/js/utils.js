@@ -167,7 +167,7 @@ GAT.Updater.prototype._register = function(eventName, eventObj) {
     this._socketio.on(eventName, function(resp) {
         GAT.view.updateAfter(function() {
             try {
-                var obj = JSON.parse(resp);
+                var obj = resp;
                 eventObj.callback(obj);
             } catch (e) {
                 var error = {

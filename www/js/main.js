@@ -21,28 +21,28 @@ angular.module("app", ["ngRoute", "ngCookies"])
 }])
 .run(["$timeout", "$location", "$cookies", "$window", function($timeout, $location, $cookies, $window) {
     GAT.view.updateAfter = $timeout;
-    findSocketioIp(function(socketioIp) {
-        GAT.transaction.initialize(socketioIp);
-        GAT.delegator.onLogin.push(function(delegatorId) {
-            $cookies.put("delegatorId", delegatorId);
-            $location.path("/transaction/");
-            GAT.delegator.me.checkForNewTransactions();
-        });
-        GAT.delegator.onLogout.push(function() {
-            $cookies.remove("delegatorId");
-            $window.location.reload();
-        });
-        GAT.delegator.loadList().onSuccess(function() {
-            if (typeof($cookies.get("delegatorId")) !== "undefined")
-                GAT.delegator.login($cookies.get("delegatorId"));
-        });
+    GAT.utils.logger.log("info", "Setting api mode to " + GAT.apiMode);
+    GAT.webapi.setApiMode(GAT.apiMode);
+    GAT.transaction.initialize();
+    GAT.delegator.onLogin.push(function(delegatorId) {
+        $cookies.put("delegatorId", delegatorId);
+        $location.path("/transaction/");
+        GAT.delegator.me.checkForNewTransactions();
+    });
+    GAT.delegator.onLogout.push(function() {
+        $cookies.remove("delegatorId");
+        $window.location.reload();
+    });
+    GAT.delegator.loadList().onSuccess(function() {
+        if (typeof($cookies.get("delegatorId")) !== "undefined")
+            GAT.delegator.login($cookies.get("delegatorId"));
     });
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
         function($scope, $location, $cookies) {
 
-    $scope.isTestMode = function() {
-        return GAT.isInTestMode;
+    $scope.getApiMode = function() {
+        return GAT.apiMode;
     };
 
     $scope.$on('$routeChangeSuccess', function() {
@@ -325,35 +325,10 @@ controller("pastTransactionCtrl", ["$scope", function($scope) {
     };
 }]);
 
-var findSocketioIp = function(callback) {
-    var isTestMode = null;
-    var socketioIp = null;
-    var onResponse = function(test, ip) {
-        socketioIp = test ? null : ip;
-        if (isTestMode === null) {
-            isTestMode = test;
-            GAT.isInTestMode = test;
-            GAT.utils.logger.log("info", "Setting test mode to " + isTestMode);
-            GAT.webapi.setTestMode(test);
-        }
-        if (socketioIp !== null) {
-            GAT.utils.logger.log("info", "Using socketio host: " + socketioIp);
-            callback(socketioIp);
-        }
-    };
-    GAT.webapi.setTestMode(true);
-    GAT.webapi.getServerIp(true).onSuccess(function(resp) {
-        onResponse(true, resp.ip);
-    });
-    GAT.webapi.setTestMode(false);
-    GAT.webapi.getServerIp().onSuccess(function(resp) {
-        onResponse(false, resp.ip);
-    });
-};
-
 var GAT = GAT || {};
 
-GAT.isInTestMode = false;
+//apiMode can be 'local', 'test', and 'production
+GAT.apiMode = "local";
 
 GAT.view = function() {
     var s = {};

@@ -9,8 +9,8 @@
 </head>
 
 <body data-ng-app="app" data-ng-controller="mainCtrl">
-    <div data-ng-show="isTestMode()" class="test-mode ng-cloak">
-        TEST MODE
+    <div data-ng-show="getApiMode() != 'production'" class="test-mode ng-cloak">
+        {{getApiMode()}} mode
     </div>
     <div class="container" style="padding-top:20px">
         <nav data-ng-controller="navCtrl" class="navbar navbar-default" role="navigation">
