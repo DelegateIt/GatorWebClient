@@ -8,5 +8,5 @@ For python2: `python -m SimpleHTTPServer 8080`
 
 
 ## Configuring
-By default the web client is set to 'local' mode where it tries to connect to the api running on your localhost. If you'd rather connect to the aws test api change the line at the end of `main.js` from `GAT.apiMode = "local"` to `GAT.apiMode = "test"`. 
+By default the web client is set to 'local' mode where it tries to connect to the api running on your localhost. If you'd rather connect to the aws test api change the line at the end of `main.js` from `GAT.apiMode = "local"` to `GAT.apiMode = "test"`. Also you will have to change the facebook `appId` in `auth.js` to `922314864520407`.
 

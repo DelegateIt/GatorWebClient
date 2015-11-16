@@ -62,7 +62,7 @@ GAT.auth = function() {
 
 window.fbAsyncInit = function() {
     FB.init({
-        appId          : '922040531214507',
+        appId          : '925854587499768',
         cookie         : true,
         xfbml          : true,
         version        : 'v2.5'
