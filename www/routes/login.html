@@ -6,13 +6,10 @@
             <div class="panel-heading">
                 Login
             </div>
-            <table class="table">
-                <tbody>
-                    <tr data-ng-repeat="dlg in getDelegators()">
-                        <td><a href data-ng-click="login(dlg.id)">{{dlg.name}}</a></td>
-                    </tr>
-                </tbody>
-            </table>
+            <div>
+                <fb:login-button class="padded" scope="email" data-size="xlarge" onlogin="GAT.auth.loginDelegator();">
+                </fb:login-button>
+            </div>
         </div>
     </div>
     <div class="col-md-4">

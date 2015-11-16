@@ -52,7 +52,27 @@ GAT.webapi = function() {
         for (var i = 0; i < components.length; i++) {
             custom += encodeURIComponent(components[i]) + "/";
         }
-        return custom.substring(0, custom.length - 1);
+        custom = custom.substring(0, custom.length - 1);
+        if (GAT.auth.isLoggedIn())
+            custom += "?token=" + encodeURIComponent(GAT.auth.getLoggedInUser().apiToken);
+        return custom;
+    };
+
+    var handleResponse = function(httpStatus, responseText, url, future, noLog) {
+        try {
+            var rsp = JSON.parse(responseText);
+            var success = "result" in rsp && rsp.result === 0;
+            var logMsg = success ? "Received API response: " + url : rsp.error_message;
+            notify(future, rsp, success, logMsg, {"url": url, "response": rsp}, noLog);
+            if (rsp.result === 12)
+                GAT.auth.logout();
+        } catch(e) {
+            var data = {
+                "exception": e,
+                "error_msg": "The server sent a malformed response"
+            };
+            notify(future, data, false, data.error_message, data, noLog);
+        }
     };
 
     var sendRestApiReq = function(method, urlComponents, data, noLog) {
@@ -66,27 +86,7 @@ GAT.webapi = function() {
 
         http.onreadystatechange = function() {
             if (http.readyState == 4) {
-                if (http.status == 200) {
-                    try {
-                        var rsp = JSON.parse(http.responseText);
-                        var success = "result" in rsp && rsp.result === 0;
-                        var logMsg = success ? "Received API response: " + url : rsp.error_message;
-                        notify(future, rsp, success, logMsg, {"url": url, "response": rsp}, noLog);
-                    } catch(e) {
-                        var data = {
-                            "exception": e,
-                            "error_msg": "The server sent a malformed response"
-                        };
-                        notify(future, data, false, data.error_message, data, noLog);
-                    }
-                } else {
-                    var data = {
-                        "status": http.status,
-                        "response": http.responseText,
-                        "error_message": "The server responded with an error"
-                    };
-                    notify(future, data, false, data.error_message, data, noLog);
-                }
+                handleResponse(http.status, http.responseText, url, future, noLog);
             }
         };
 
@@ -154,6 +154,15 @@ GAT.webapi = function() {
     s.findUnhelpedTransaction = function(delegatorId) {
         var components = ["core", "assign_transaction", delegatorId];
         return sendRestApiReq("GET", components);
+    };
+
+    s.login = function(type, fbuser_id, fbuser_token) {
+        var components = ["core", "login", type];
+        var httpData = {
+            "fbuser_id": fbuser_id,
+            "fbuser_token": fbuser_token
+        };
+        return sendRestApiReq("POST", components, httpData);
     };
 
     s.setApiMode("local");

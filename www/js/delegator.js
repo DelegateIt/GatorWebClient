@@ -3,6 +3,8 @@ var GAT = GAT || {};
 GAT.delegator = function() {
     var s = {};
 
+    s.cache = {};
+
     var Delegator = function(name, id, phone, email) {
         this.name = name;
         this.id = id;
@@ -10,8 +12,8 @@ GAT.delegator = function() {
         this.email = email;
     };
 
-    Delegator.prototype.checkForNewTransactions = function() {
-        return GAT.webapi.getDelegator(this.id).
+    s.loadAssignedTransactions = function(delegatorId) {
+        return GAT.webapi.getDelegator(delegatorId).
             onSuccess(function(resp) {
                 var transactionIds = [];
                 if ("active_transaction_uuids" in resp)
@@ -26,9 +28,9 @@ GAT.delegator = function() {
             });
     };
 
-    Delegator.prototype.findUnhelpedTransaction = function() {
+    s.assignUnhelpedTransaction = function(delegatorId) {
         var future = new GAT.utils.Future();
-        GAT.webapi.findUnhelpedTransaction(this.id).
+        GAT.webapi.findUnhelpedTransaction(delegatorId).
             onSuccess(function(resp) {
                 GAT.transaction.load(resp.transaction_uuid).
                     onResponse(function(success, resp) {
@@ -41,45 +43,23 @@ GAT.delegator = function() {
         return future;
     };
 
-    s.onLogin = [];
-
-    s.onLogout = [];
-
-    s.everybody = {};
-
-    s.me = null;
-
-    s.isLoggedIn = function() {
-        return s.me !== null;
-    };
-
-    s.login = function(delegatorId) {
-        GAT.utils.logger.log("info", "Logging in delegator", delegatorId);
-        if (delegatorId in s.everybody) {
-            s.me = s.everybody[delegatorId];
-            for (var i in s.onLogin)
-                s.onLogin[i](delegatorId);
-        } else {
-            s.logout();
-        }
-    };
-
-    s.logout = function() {
-        GAT.utils.logger.log("info", "Logging out delegator", s.me);
-        s.me = null;
-        for (var i in s.onLogout)
-            s.onLogout[i]();
-    };
-
-    s.loadList = function(callback) {
+    s.loadList = function() {
         return GAT.webapi.getDelegatorList().
             onSuccess(function(resp) {
                 for (var i in resp.delegators) {
                     var dlg = resp.delegators[i];
-                    s.everybody[dlg.uuid] = new Delegator(dlg.first_name + " " + dlg.last_name,
-                            dlg.uuid, dlg.phone_number, dlg.email)
+                    s.cache[dlg.uuid] = parseDlgtResp(dlg);
                 }
             });
+    };
+
+    var parseDlgtResp = function(resp) {
+        return new Delegator(
+            resp.first_name + resp.last_name,
+            resp.uuid,
+            resp.phone_number,
+            resp.email
+        );
     };
 
     return s;

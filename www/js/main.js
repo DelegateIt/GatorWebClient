@@ -24,19 +24,21 @@ angular.module("app", ["ngRoute", "ngCookies"])
     GAT.utils.logger.log("info", "Setting api mode to " + GAT.apiMode);
     GAT.webapi.setApiMode(GAT.apiMode);
     GAT.transaction.initialize();
-    GAT.delegator.onLogin.push(function(delegatorId) {
-        $cookies.put("delegatorId", delegatorId);
-        $location.path("/transaction/");
-        GAT.delegator.me.checkForNewTransactions();
+    GAT.auth.onLogout.push(function() {
+        $cookies.remove("userlogin");
+        $window.location.reload("/login/");
     });
-    GAT.delegator.onLogout.push(function() {
-        $cookies.remove("delegatorId");
-        $window.location.reload();
+    GAT.auth.onLogin.push(function() {
+        var user = GAT.auth.getLoggedInUser();
+        $cookies.putObject("userlogin", user);
+        GAT.delegator.loadList();
+        GAT.delegator.loadAssignedTransactions(user.id);
+        if($location.path() === "/login/")
+            $location.path("/transaction/");
     });
-    GAT.delegator.loadList().onSuccess(function() {
-        if (typeof($cookies.get("delegatorId")) !== "undefined")
-            GAT.delegator.login($cookies.get("delegatorId"));
-    });
+    if (typeof($cookies.getObject("userlogin")) !== "undefined") {
+        GAT.auth.setUser($cookies.getObject("userlogin"));
+    }
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
         function($scope, $location, $cookies) {
@@ -47,10 +49,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.$on('$routeChangeSuccess', function() {
 
-        if (GAT.delegator.isLoggedIn() && $location.path() === "/login/")
+        if (GAT.auth.isLoggedIn() && $location.path() === "/login/")
             $location.path("/transaction/");
 
-        if (!GAT.delegator.isLoggedIn() && $location.path() !== "/login/") {
+        if (!GAT.auth.isLoggedIn() && $location.path() !== "/login/") {
             $location.path("/login/");
         }
     });
@@ -64,20 +66,17 @@ angular.module("app", ["ngRoute", "ngCookies"])
 }])
 .controller("loginCtrl", ["$scope", function($scope) {
 
-    $scope.isLoggedIn = GAT.delegator.isLoggedIn;
+    $scope.isLoggedIn = GAT.auth.isLoggedIn;
 
     $scope.getDelegatorName = function() {
-        if (!GAT.delegator.isLoggedIn())
-            return "";
-        return GAT.delegator.me.name;
+        var user = GAT.auth.getLoggedInUser();
+        if (user === null || !(user.id in GAT.delegator.cache))
+            return "Loading..";
+
+        return GAT.delegator.cache[user.id].name;
     };
 
-    $scope.getDelegators = function() {
-        return GAT.delegator.everybody;
-    };
-
-    $scope.login = GAT.delegator.login;
-    $scope.logout = GAT.delegator.logout;
+    $scope.logout = GAT.auth.logout;
 
 }])
 .controller("tranStatCtrl", ["$scope",
@@ -94,11 +93,13 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
     $scope.getDelegators = function() {
-        return GAT.delegator.everybody;
+        return GAT.delegator.cache;
     };
 
     $scope.getLoggedInDelegator = function() {
-        return GAT.delegator.me;
+        if (!GAT.auth.isLoggedIn())
+            return null;
+        return GAT.delegator.cache[GAT.auth.getLoggedInUser().id];
     };
 
     $scope.setState = function(newState) {
@@ -149,7 +150,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.isTransactionActive = function(transaction) {
         return transaction.state !== GAT.transaction.states.COMPLETED &&
-                transaction.delegatorId == GAT.delegator.me.id;
+                transaction.delegatorId == GAT.auth.getLoggedInUser().id;
     };
 
     $scope.getTransactions = function() {
@@ -306,7 +307,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
 .controller("addCustomerCtrl", ["$scope", function($scope) {
     $scope.addCustomer = function() {
         $("#addCustomerBtn").button("loading");
-        GAT.delegator.me.findUnhelpedTransaction().onResponse(function() {
+        var delegatorId = GAT.auth.getLoggedInUser().id;
+        GAT.delegator.assignUnhelpedTransaction(delegatorId).onResponse(function() {
             $("#addCustomerBtn").button("reset");
         });
     };
