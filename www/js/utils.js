@@ -167,8 +167,7 @@ GAT.Updater.prototype._register = function(eventName, eventObj) {
     this._socketio.on(eventName, function(resp) {
         GAT.view.updateAfter(function() {
             try {
-                var obj = resp;
-                eventObj.callback(obj);
+                eventObj.callback(resp);
             } catch (e) {
                 var error = {
                     "exception": e,
@@ -195,11 +194,14 @@ GAT.Updater.prototype.watch = function(eventName, callback) {
 
 GAT.Updater.prototype.connect = function(url) {
     this._socketio = io(url);
+    var _this = this;
     this._socketio.on("connect", function() {
         GAT.utils.logger.log("info", "connected to socketio", url);
+        var keys = Object.keys(_this._events);
+        for (var i in keys) {
+            _this._events[keys[i]].registered = false;
+            _this._register(keys[i], _this._events[keys[i]]);
+        }
     });
-    var keys = Object.keys(this._events);
-    for (var i in keys)
-        this._register(keys[i], this._events[keys[i]]);
 };
 
