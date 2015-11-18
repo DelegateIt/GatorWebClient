@@ -66,42 +66,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-drawer-panel id="paperDrawerPanel" force-narrow>
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer>
-
-        <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Menu</span>
-          <paper-icon-button id="paperToggle" icon="chevron-left" paper-drawer-toggle></paper-icon-button>
-        </paper-toolbar>
-
-        <!-- Drawer Content -->
-        <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
-
-          <a data-route="home" href="/" on-click="onDataRouteClick">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
-          </a>
-
-          <a data-route="login" href="/login" on-click="onDataRouteClick">
-            <iron-icon icon="lock"></iron-icon>
-            <span>Login</span>
-          </a>
-
-          <a data-route="order" href="/order" on-click="onDataRouteClick">
-            <iron-icon icon="speaker-notes"></iron-icon>
-            <span>Order</span>
-          </a>
-
-          <a data-route="profile" href="/profile" on-click="onDataRouteClick">
-            <iron-icon icon="account-circle"></iron-icon>
-            <span>Profile</span>
-          </a>
-
-          <a data-route="contact" href="/contact" on-click="onDataRouteClick">
-            <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
-          </a>
-
-        </paper-menu>
+        <left-menu></left-menu>
       </paper-scroll-header-panel>
 
       <!-- Main Area -->
@@ -133,6 +98,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <section data-route="home">
               <paper-material elevation="1">
+                <my-greeting></my-greeting>
+                <my-greeting></my-greeting>
+                <my-greeting></my-greeting>
                 <my-greeting></my-greeting>
 
                 <p class="paper-font-subhead">You now have:</p>
