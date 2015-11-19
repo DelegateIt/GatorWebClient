@@ -63,18 +63,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
 
-    <paper-drawer-panel id="paperDrawerPanel" force-narrow>
+    <paper-drawer-panel id="paperDrawerPanel">
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer>
-        <left-menu></left-menu>
+        <left-menu route="{{route}}"></left-menu>
       </paper-scroll-header-panel>
 
       <!-- Main Area -->
       <paper-scroll-header-panel main condenses keep-condensed-header>
 
         <!-- Main Toolbar -->
-        <paper-toolbar id="mainToolbar" class="tall">
-          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+        <paper-toolbar id="mainToolbar">
+          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle on-click="forceWideDrawer"></paper-icon-button>
           <span class="flex"></span>
 
           <!-- Toolbar icons -->
@@ -83,11 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- Application name -->
           <div class="middle middle-container center horizontal layout">
             <div class="app-name">DelegateIt</div>
-          </div>
-
-          <!-- Application sub title -->
-          <div class="bottom bottom-container center horizontal layout">
-            <div class="bottom-title paper-font-subhead">Your 24/7 concierge.</div>
           </div>
 
         </paper-toolbar>
