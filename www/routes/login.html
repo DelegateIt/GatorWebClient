@@ -4,11 +4,16 @@
     <div class="col-md-4 text-center">
         <div class="panel panel-default">
             <div class="panel-heading">
-                Login
+                Delegator Login
             </div>
             <div>
-                <fb:login-button class="padded" scope="email" data-size="xlarge" onlogin="loginDelegator">
-                </fb:login-button>
+                <button
+                        data-ng-click="login()"
+                        class="btn btn-primary padded"
+                        id="LoginBtn"
+                        data-loading-text="Logging in...">
+                    Login
+                </button>
             </div>
         </div>
     </div>

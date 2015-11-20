@@ -56,12 +56,11 @@ GAT.auth = function() {
 
     s.logout = function() {
         GAT.utils.logger.log("info", "Logging out delegator", user);
-        FB.logout(function(response) {});
         user = null;
+        FB.logout(function(response) {});
         for (var i in s.onLogout)
             s.onLogout[i]();
     };
 
     return s;
 }();
-

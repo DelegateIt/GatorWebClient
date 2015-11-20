@@ -54,16 +54,30 @@
         </div>
     </div>
     <script>
+        var authLoad = function() {
+            var s = {};
+            var fbLoaded = false;
+            var authLoaded = false;
+            var autoLogin = function() {
+                if (fbLoaded && authLoaded) {
+                    GAT.utils.logger.log("info", "Attempting auto login");
+                    loginDelegator();
+                }
+            };
+            s.loadedAuth = function() { authLoaded = true; autoLogin(); };
+            s.loadedFb = function() { fbLoaded = true; autoLogin(); };
+            return s;
+        }();
         window.fbAsyncInit = function() {
             FB.init({
                 appId          : '925854587499768',
                 xfbml          : true,
-                version        : 'v2.5'
+                version        : 'v2.5',
+                status         : true
             });
-            loginDelegator();
+            console.log("Facebook sdk initialized");
+            authLoad.loadedFb();
         };
-
-        //async load the fb sdk
         (function(d) {
             var js = d.getElementById("fb-auth-inject");
             js.src = "//connect.facebook.net/en_US/sdk.js";

@@ -1,7 +1,7 @@
 "use strict";
 
-//gets overwritten in loginCtrl
-var loginDelegator = function() { };
+//gets overwritten in run
+var loginDelegator = function() {};
 
 angular.module("app", ["ngRoute", "ngCookies"])
 .config(["$routeProvider", function($routeProvider) {
@@ -43,8 +43,21 @@ angular.module("app", ["ngRoute", "ngCookies"])
         if($location.path() === "/login/")
             $location.path("/transaction/");
     });
+    loginDelegator =  function() {
+        if (GAT.auth.isLoggedIn())
+            return;
+        GAT.auth.loginDelegator().onError(function(resp) {
+            if ("result" in resp && resp.result === 9) {
+                GAT.utils.logger.log("info", "Delegator account does not exist. Redirecting to register page");
+                $location.path("/register/");
+            }
+        });
+    };
     if (typeof($cookies.getObject("userlogin")) !== "undefined") {
+        GAT.utils.logger.log("info", "Logging in with stored token cookie");
         GAT.auth.setUser($cookies.getObject("userlogin"));
+    } else {
+        authLoad.loadedAuth();
     }
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
@@ -72,7 +85,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return $location.path().startsWith(page);
     };
 }])
-.controller("loginCtrl", ["$scope", "$location", function($scope, $location) {
+.controller("loginCtrl", ["$scope", function($scope) {
 
     $scope.isLoggedIn = GAT.auth.isLoggedIn;
 
@@ -84,12 +97,11 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return GAT.delegator.cache[user.id].name;
     };
 
-    loginDelegator =  function() {
-        GAT.auth.loginDelegator().onError(function(resp) {
-            if (resp.result === 9) {
-                GAT.utils.logger.log("info", "Delegator account does not exist. Redirecting to register page");
-                $location.path("/register/");
-            }
+    $scope.login = function() {
+        $("#LoginBtn").button("loading");
+        FB.login(function(resp) {
+            loginDelegator()
+            $("#LoginBtn").button("reset");
         });
     };
 
