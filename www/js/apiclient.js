@@ -162,6 +162,19 @@ GAT.webapi = function() {
             "fbuser_id": fbuser_id,
             "fbuser_token": fbuser_token
         };
+        return sendRestApiReq("POST", components, httpData, true);
+    };
+
+    s.createDelegator = function(firstName, lastName, phone, email, fbuserId, fbuserToken) {
+        var components = ["core", "delegator"];
+        var httpData = {
+            "first_name": firstName,
+            "last_name": lastName,
+            "phone_number": phone,
+            "email": email,
+            "fbuser_id": fbuserId,
+            "fbuser_token": fbuserToken
+        };
         return sendRestApiReq("POST", components, httpData);
     };
 

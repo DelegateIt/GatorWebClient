@@ -1,5 +1,8 @@
 "use strict";
 
+//gets overwritten in loginCtrl
+var loginDelegator = function() { };
+
 angular.module("app", ["ngRoute", "ngCookies"])
 .config(["$routeProvider", function($routeProvider) {
     $routeProvider.
@@ -14,6 +17,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
         when("/login/", {
             "templateUrl": "/routes/login.html",
             "controller": "loginCtrl"
+        }).
+        when("/register/", {
+            "templateUrl": "/routes/register.html",
+            "controller": "registerCtrl"
         }).
         otherwise({
             redirectTo: "/login/"
@@ -52,7 +59,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
         if (GAT.auth.isLoggedIn() && $location.path() === "/login/")
             $location.path("/transaction/");
 
-        if (!GAT.auth.isLoggedIn() && $location.path() !== "/login/") {
+        if (!GAT.auth.isLoggedIn() && ($location.path() !== "/login/" &&
+                $location.path() !== "/register/")) {
             $location.path("/login/");
         }
     });
@@ -64,7 +72,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return $location.path().startsWith(page);
     };
 }])
-.controller("loginCtrl", ["$scope", function($scope) {
+.controller("loginCtrl", ["$scope", "$location", function($scope, $location) {
 
     $scope.isLoggedIn = GAT.auth.isLoggedIn;
 
@@ -74,6 +82,15 @@ angular.module("app", ["ngRoute", "ngCookies"])
             return "Loading..";
 
         return GAT.delegator.cache[user.id].name;
+    };
+
+    loginDelegator =  function() {
+        GAT.auth.loginDelegator().onError(function(resp) {
+            if (resp.result === 9) {
+                GAT.utils.logger.log("info", "Delegator account does not exist. Redirecting to register page");
+                $location.path("/register/");
+            }
+        });
     };
 
     $scope.logout = GAT.auth.logout;
@@ -324,6 +341,31 @@ controller("pastTransactionCtrl", ["$scope", function($scope) {
         } else {
             return "#" + index;
         }
+    };
+}]).
+controller("registerCtrl", ["$scope", "$location", function($scope, $location) {
+    $scope.firstName = "";
+    $scope.lastName = "";
+    $scope.phoneNumber = "";
+    $scope.email = "";
+
+    $scope.onSubmit = function() {
+
+        FB.getLoginStatus(function(resp) {
+            if (resp.status !== "connected") {
+                GAT.utils.logger.log("warning", "You are not logged into facebook");
+                return;
+            }
+            var fbToken = resp.authResponse.accessToken;
+            var fbId = resp.authResponse.userID;
+            GAT.webapi.createDelegator($scope.firstName, $scope.lastName, $scope.phoneNumber,
+                    $scope.email, fbId, fbToken).onSuccess(function() {
+                        GAT.utils.logger.log("info", "Created delegator");
+                        GAT.auth.loginDelegator().onSuccess(function() {
+                            $location.path("/transaction/");
+                        });
+                    });
+        });
     };
 }]);
 
