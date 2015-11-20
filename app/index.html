@@ -70,7 +70,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-scroll-header-panel>
 
       <!-- Main Area -->
-      <paper-scroll-header-panel main condenses keep-condensed-header>
+      <paper-scroll-header-panel main fixed>
 
         <!-- Main Toolbar -->
         <paper-toolbar id="mainToolbar">
@@ -82,8 +82,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Application name -->
           <div class="middle middle-container center horizontal layout">
-            <div class="app-name">DelegateIt</div>
+            <!-- <img src="../images/logo.png" /> -->
+            <div class="app-name">delegateIt</div>
           </div>
+
+
+          <!-- Application sub title -->
+          <div class="bottom bottom-container center horizontal layout"></div>
 
         </paper-toolbar>
 
@@ -92,7 +97,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
             <section data-route="home">
-              <paper-material elevation="1">
+
+              <app-card elevation="1"></app-card>
+
+              <featured-card></featured-card>
+              <featured-card></featured-card>
+
+              <app-card elevation="1">
+
                 <my-greeting></my-greeting>
                 <my-greeting></my-greeting>
                 <my-greeting></my-greeting>
@@ -101,48 +113,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <p class="paper-font-subhead">You now have:</p>
                 <my-list></my-list>
 
-              </paper-material>
-              <paper-material elevation="1">
+              </app-card>
+              <app-card elevation="1">
                 <p class="paper-font-body2">This is another card.</p>
-              </paper-material>
+              </app-card>
             </section>
 
             <section data-route="login">
-              <paper-material elevation="1">
+              <app-card elevation="1">
                 <p class="paper-font-body2">Please Login.</p>
-              </paper-material>
+              </app-card>
             </section>
 
             <section data-route="order">
-              <paper-material elevation="1">
+              <app-card elevation="1">
                 <h2 class="page-title">Order</h2>
-              </paper-material>
+              </app-card>
             </section>
 
             <section data-route="profile">
-              <paper-material elevation="1">
+              <app-card elevation="1">
                 <h2 class="page-title">Users</h2>
                 <p>This is the users section</p>
                 <a href="/profile/Rob">Rob</a>
-              </paper-material>
+              </app-card>
             </section>
 
             <section data-route="profile-info">
-              <paper-material elevation="1">
+              <app-card elevation="1">
                 <h2 class="page-title">
                   User:
                   <span>{{params.name}}</span>
                 </h2>
                 <div>This is
                   <span>{{params.name}}</span>'s section</div>
-              </paper-material>
+              </app-card>
             </section>
 
             <section data-route="contact">
-              <paper-material elevation="1">
+              <app-card elevation="1">
                 <h2 class="page-title">Contact</h2>
                 <p>This is the contact section</p>
-              </paper-material>
+              </app-card>
             </section>
 
           </iron-pages>

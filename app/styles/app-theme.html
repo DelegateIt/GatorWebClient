@@ -35,6 +35,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     /* Components */
 
+    /* mainToolbar */
+    /*--paper-toolbar-background: #ffffff;*/
+    --paper-toolbar-color: #ffffff;
+
     /* paper-drawer-panel */
     --drawer-menu-color: #ffffff;
     --drawer-border-color: 1px solid #ccc;
@@ -51,38 +55,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     height: 100%;
   }
 
-  paper-material {
-    border-radius: 2px;
-    height: 100%;
-    padding: 16px 0 16px 0;
-    width: calc(98.66% - 16px);
-    margin: 16px auto;
-    background: white;
-  }
-
-  paper-toolbar.tall .app-name {
-    font-size: 40px;
-    font-weight: 300;
-    /* Required for main area's paper-scroll-header-panel custom condensing transformation */
-    -webkit-transform-origin: left center;
-    transform-origin: left center;
-  }
-
   #mainToolbar .middle-container  {
     height: 100%;
     margin-left: 48px;
   }
 
-  #mainToolbar:not(.tall) .middle {
+  #mainToolbar .middle {
     font-size: 18px;
     padding-bottom: 0;
   }
 
-  #mainToolbar .bottom {
-    margin-left: 48px;
-    /* Required for main area's paper-scroll-header-panel custom condensing transformation */
-    -webkit-transform-origin: left center;
-    transform-origin: left center;
+  #mainToolbar {
+    background: url('../images/header-background.png');
   }
 
   /* Height of the scroll area */
@@ -94,18 +78,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   /* Small */
   @media (max-width: 600px) {
-
-    paper-material {
-      --menu-container-display: none;
-      width: calc(97.33% - 32px);
-      padding-left: 16px;
-      padding-right: 16px;
-    }
-
-    paper-toolbar.tall .app-name {
-      font-size: 24px;
-      font-weight: 400;
-    }
 
     #drawer .paper-toolbar {
       margin-left: 16px;
@@ -123,13 +95,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   /* Tablet+ */
   @media (min-width: 601px) {
-
-    paper-material {
-      width: calc(98% - 46px);
-      margin-bottom: 32px;
-      padding-left: 30px;
-      padding-right: 30px;
-    }
 
     #drawer.paper-drawer-panel > [drawer] {
       border-right: 1px solid rgba(0, 0, 0, 0.14);
