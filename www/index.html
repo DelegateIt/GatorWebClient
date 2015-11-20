@@ -53,6 +53,21 @@
         <div data-ng-view>
         </div>
     </div>
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId          : '925854587499768',
+                xfbml          : true,
+                version        : 'v2.5'
+            });
+        };
+
+        //async load the fb sdk
+        (function(d) {
+            var js = d.getElementById("fb-auth-inject");
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+        }(document));
+    </script>
     <script src="/js/lib/jquery-2.1.4.min.js"></script>
     <script src="/js/lib/angular.min.js"></script>
     <script src="/js/lib/angular-cookies.min.js"></script>
