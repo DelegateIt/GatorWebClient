@@ -98,30 +98,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <section data-route="home">
 
-              <app-card elevation="1"></app-card>
+              <featured-card title="Coffee" image="images/featured/coffee.jpg"></featured-card>
+              <featured-card title="Pizza" image="images/featured/pizza.jpg"></featured-card>
+              <featured-card title="Toilet Paper" image="images/featured/toilet-paper.jpg"></featured-card>
+              <featured-card title="Concert Tickets" image="images/featured/concert.jpg"></featured-card>
+              <featured-card title="Vacation Rentals" image="images/featured/rental.jpg"></featured-card>
 
-              <featured-card></featured-card>
-              <featured-card></featured-card>
-
-              <app-card elevation="1">
-
-                <my-greeting></my-greeting>
-                <my-greeting></my-greeting>
-                <my-greeting></my-greeting>
-                <my-greeting></my-greeting>
-
-                <p class="paper-font-subhead">You now have:</p>
-                <my-list></my-list>
-
-              </app-card>
-              <app-card elevation="1">
-                <p class="paper-font-body2">This is another card.</p>
-              </app-card>
             </section>
 
             <section data-route="login">
               <app-card elevation="1">
-                <p class="paper-font-body2">Please Login.</p>
+                <span>Please login.</span>
+                <!-- <google-signin client-id="..." scopes="https://www.googleapis.com/auth/drive"></google-signin>
+                <facebook-login
+                    appID="743333545708443"
+                    logout-link graph-url="me?fields=name,email,birthday"
+                    scope="public_profile email user_birthday"
+                    graph-response="{{resp}}"
+                    auto-api-call></facebook-login> -->
               </app-card>
             </section>
 

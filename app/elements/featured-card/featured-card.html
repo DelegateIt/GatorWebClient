@@ -9,7 +9,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/polymer/paper-styles/shadow.html">
 
 <dom-module id="featured-card">
   <template>
@@ -17,31 +16,85 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         display: block;
       }
-      /*img {
-        width: 100%;
-        max-height: 100%;
-      }*/
-    </style>
-      <!-- <img src="{{image}}" /> -->
-      <paper-material elevation="1">
-        <my-greeting></my-greeting>
-      </paper-material>
-  </template>
-  <script>
-  (function() {
-    'use strict';
 
-    Polymer({
-      is: 'featured-card',
+      paper-material {
+        border-radius: 2px;
+        height: 100%;
+        /*padding: 16px 0 16px 0;*/
+        padding: 0;
+        width: calc(98.66%);/* - 16px);*/
+        margin: 16px auto;
+        background: white;
+      }
 
-      properties: {
-        image: {
-          type: String,
-          value: '../images/header-background.png',
-          notify: true
+      @media (max-width: 600px) {
+        paper-material {
+          --menu-container-display: none;
+          width: calc(97.33%);/* - 32px);*/
+          /*padding-left: 16px;
+          padding-right: 16px;*/
         }
       }
-    });
-  })();
+
+      @media (min-width: 601px) {
+        paper-material {
+          /*width: calc(98% - 46px);*/
+          width: calc(98% + 16px);
+          margin-bottom: 32px;
+          /*padding-left: 30px;
+          padding-right: 30px;*/
+        }
+      }
+
+      #featured {
+        min-height: 150px;
+        background-size: cover;
+        background-position: center center;
+      }
+
+      #featured h1 {
+        color: #ffffff;
+        position: absolute;
+        bottom: 0px;
+        line-height: 0px;
+        padding: 5px;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: #1b1b1b;
+        font-family: Arial, Helvetica, "Ubuntu", sans-serif;
+      }
+
+    </style>
+
+    <paper-material elevation="{{elevation}}">
+      <div id="featured">
+        <h1>{{title}}</h1>
+      </div>
+    </paper-material>
+  </template>
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'featured-card',
+
+        properties: {
+          image: {
+            type: String,
+            value: '../../images/header-background.png',
+            notify: true
+          },
+          title: {
+            type: String,
+            value: 'Item Title',
+            notify: true
+          },
+          elevation: 1
+        },
+        ready: function() {
+          this.$.featured.style.backgroundImage = 'url(\'' + this.image + '\')';
+        }
+      });
+    })();
   </script>
 </dom-module>
