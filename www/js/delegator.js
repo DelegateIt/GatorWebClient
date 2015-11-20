@@ -55,7 +55,7 @@ GAT.delegator = function() {
 
     var parseDlgtResp = function(resp) {
         return new Delegator(
-            resp.first_name + resp.last_name,
+            resp.first_name + " " + resp.last_name,
             resp.uuid,
             resp.phone_number,
             resp.email
