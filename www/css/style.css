@@ -35,9 +35,11 @@
 }
 
 .msg-sent {
-    background-color:#DFF0D8;
     float: left;
     clear: both;
+}
+.msg-sent-style {
+    background-color:#DFF0D8;
 }
 
 .msg-recv {
@@ -49,6 +51,3 @@
 .logout-btn {
     margin-right: 50px;
 };
-
-
-

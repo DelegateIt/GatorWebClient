@@ -38,9 +38,10 @@ GAT.transaction = function() {
         this.cost = cost;
     };
 
-    s.Message = function(content, fromCustomer) {
+    s.Message = function(content, fromCustomer, timestamp) {
         this.content = content;
         this.fromCustomer = !!fromCustomer;
+        this.timestamp = timestamp;
     };
 
     s.Receipt = function() {
@@ -55,7 +56,7 @@ GAT.transaction = function() {
         return GAT.webapi.sendMessage(transactionId, message, "web_client", false).
             onSuccess(function() {
                 if (transactionId in s.cache)
-                    s.cache[transactionId].messages.push(new s.Message(message, false));
+                    s.cache[transactionId].messages.push(new s.Message(message, false, -1));
             });
     };
 
@@ -150,7 +151,10 @@ GAT.transaction = function() {
 
             transaction.messages = [];
             for (var i = 0; i < resp.messages.length; i++) {
-                var m = new s.Message(resp.messages[i].content, resp.messages[i].from_customer);
+                var m = new s.Message(
+                    resp.messages[i].content,
+                    resp.messages[i].from_customer,
+                    Math.floor(resp.messages[i].timestamp / 1000));
                 transaction.messages.push(m);
             }
         }

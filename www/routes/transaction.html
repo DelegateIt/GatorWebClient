@@ -54,9 +54,11 @@
                                     data-ng-class="{
                                         'msg-sent': !msg.fromCustomer,
                                         'msg-recv': msg.fromCustomer
-                                    }"
-                                    class="well well-sm">
-                                <div data-ng-repeat="line in msg.content.split('\n') track by $index">{{line}}</div>
+                                    }" style="margin-bottom:10px">
+                                <div class="well well-sm" data-ng-class="{'msg-sent-style': !msg.fromCustomer}" style="margin-bottom: 0px">
+                                    <div data-ng-repeat="line in msg.content.split('\n') track by $index">{{line}}</div>
+                                </div>
+                                <div class="text-muted">{{toDateString(msg.timestamp)}}</div>
                             </div>
                         </div>
                         <div>

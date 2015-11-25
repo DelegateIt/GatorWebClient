@@ -313,6 +313,12 @@ angular.module("app", ["ngRoute", "ngCookies"])
         updateTextInputSize();
     };
 
+    $scope.toDateString = function(timestamp) {
+        if (timestamp == -1)
+            return "Sending...";
+        return GAT.utils.toDateString(timestamp);
+    };
+
 }])
 .controller("receiptItemCtrl", ["$scope", function($scope) {
 
