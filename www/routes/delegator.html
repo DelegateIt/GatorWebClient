@@ -1,0 +1,60 @@
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+    <div class="panel panel-default">
+        <div class="panel-heading">Delegator List</div>
+        <table class="table">
+            <thead>
+                <th>Delegator's Name</th>
+                <th class="text-center">Total Orders</th>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="(dId, delegator) in getDelegators()">
+                    <td><a href="#/delegator/{{dId}}">{{delegator.name}}</a></td>
+                    <td class="text-center">{{delegator.transactionIds.length}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div data-ng-hide="selectedDelegator === null" class="row">
+    <div class="col-md-6 col-md-offset-3">
+    <div class="panel panel-default">
+        <div class="panel-heading">{{selectedDelegator.name}}'s Profile</div>
+        <div class="panel-body">
+            <div>
+                <label>Name </label> <span class="indent">{{selectedDelegator.name}}</span>
+            </div>
+            <div>
+                <label>Phone number </label> <span class="indent">{{selectedDelegator.phone}}</span>
+            </div>
+            <div>
+                <label>Email </label> <span class="indent">{{selectedDelegator.email}}</span>
+            </div>
+            <div>
+                <label>Total Orders </label> <span class="indent">{{selectedDelegator.transactionIds.length}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div data-ng-hide="selectedDelegator === null" class="row">
+    <div class="col-md-6 col-md-offset-3">
+    <div class="panel panel-default">
+        <div class="panel-heading">{{selectedDelegator.name}}'s Orders</div>
+        <table class="table">
+            <tbody>
+                <tr data-ng-repeat="tId in selectedDelegator.transactionIds">
+                    <td>{{getDate(tId)}}</td>
+                    <td>{{getCustomerName(tId)}}</td>
+                    <td class="text-center">
+                        <a href="#/transaction/{{tId}}">
+                            {{getTitle(tId)}}
+                                <span data-ng-show="isActiveOrder(tId)" class="badge pull-right">
+                                    Active
+                                </span>
+                            </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

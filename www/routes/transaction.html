@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-2">
         <div class="panel panel-default">
-            <div class="panel-heading">Customers</div>
+            <div class="panel-heading">Active Orders</div>
             <div class="panel-body">
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="active-tab">
@@ -26,15 +26,10 @@
                         <span class="glyphicon glyphicon-plus"></span> Add customer
                     </button>
                 </div>
+                <div class="text-center padded" style="margin-bottom:auto">
+                    <a href="#/delegator/{{getLoggedInDelegator().id}}">View all orders</a>
+                </div>
             </div>
-            <!--
-            <div class="panel-footer">
-                <ul class="nav nav-pills nav-stacked" role="tablist">
-                    <li role="presentation" class="active"><a href data-target="#active-tab" role="tab" data-toggle="tab">Active</a></li>
-                    <li role="presentation"><a href data-target="#past-tab" role="tab" data-toggle="tab">Past</a></li>
-                </ul>
-            </div>
-            -->
         </div>
     </div>
     <div data-ng-show="selected === null" class="col-md-10">

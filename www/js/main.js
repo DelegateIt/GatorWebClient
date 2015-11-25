@@ -22,6 +22,14 @@ angular.module("app", ["ngRoute", "ngCookies"])
             "templateUrl": "/routes/register.html",
             "controller": "registerCtrl"
         }).
+        when("/delegator/:delegatorId", {
+            "templateUrl": "/routes/delegator.html",
+            "controller": "delegatorCtrl"
+        }).
+        when("/delegator/", {
+            "templateUrl": "/routes/delegator.html",
+            "controller": "delegatorCtrl"
+        }).
         otherwise({
             redirectTo: "/login/"
         });
@@ -108,6 +116,63 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.logout = GAT.auth.logout;
 
 }])
+.controller("delegatorCtrl", ["$scope", "$routeParams", function($scope, $routeParams) {
+
+    $scope.selectedDelegator = null;
+
+    $scope.isActiveOrder = function(transactionId) {
+        return transactionId in GAT.transaction.cache &&
+                GAT.transaction.cache[transactionId].state !==
+                GAT.transaction.states.COMPLETED;
+    };
+    $scope.getDelegators = function() {
+        return GAT.delegator.cache;
+    };
+
+    $scope.getDate = function(transactionId) {
+        if (transactionId in GAT.transaction.cache)
+            return GAT.utils.toDateString(GAT.transaction.cache[transactionId].startTimestamp);
+        return "";
+    };
+
+    $scope.getCustomerName = function(transactionId) {
+        if (transactionId in GAT.transaction.cache) {
+            var transaction = GAT.transaction.cache[transactionId];
+            if (transaction.customerId in GAT.customer.cache)
+                return GAT.customer.cache[transaction.customerId].name;
+            else
+                GAT.customer.load(transaction.customerId);
+        }
+        return "";
+    };
+
+    $scope.getTitle = function(transactionId) {
+        if (transactionId in GAT.transaction.cache) {
+            var transaction = GAT.transaction.cache[transactionId];
+            if (transaction.receipt.items.length === 0)
+                return "Nothing purchased";
+            else
+                return transaction.receipt.items[0].name + "  -  ";
+        } else {
+            return "Loading...";
+        }
+    };
+
+    if (typeof($routeParams.delegatorId) !== "undefined") {
+        var delegatorId = $routeParams.delegatorId;
+        var loaded = function() {
+            GAT.transaction.loadList(GAT.delegator.cache[delegatorId].transactionIds);
+            $scope.selectedDelegator = GAT.delegator.cache[delegatorId];
+        };
+        if (delegatorId in GAT.delegator.cache) {
+            loaded();
+        } else {
+            GAT.delegator.getLoadListFuture().onSuccess(function() {
+                loaded();
+            });
+        }
+    }
+}])
 .controller("tranStatCtrl", ["$scope",
         function($scope) {
 
@@ -123,12 +188,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.getDelegators = function() {
         return GAT.delegator.cache;
-    };
-
-    $scope.getLoggedInDelegator = function() {
-        if (!GAT.auth.isLoggedIn())
-            return null;
-        return GAT.delegator.cache[GAT.auth.getLoggedInUser().id];
     };
 
     $scope.setState = function(newState) {
@@ -155,6 +214,12 @@ angular.module("app", ["ngRoute", "ngCookies"])
         function($scope, $routeParams, $location) {
 
     $scope.selected = null;
+
+    $scope.getLoggedInDelegator = function() {
+        if (!GAT.auth.isLoggedIn())
+            return null;
+        return GAT.delegator.cache[GAT.auth.getLoggedInUser().id];
+    };
 
     $scope.isCustomerListEmpty = function() {
         for (var i in GAT.transaction.cache)
@@ -393,4 +458,3 @@ GAT.view = function() {
 
     return s;
 }();
-

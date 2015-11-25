@@ -204,4 +204,3 @@ GAT.Updater.prototype.connect = function(url) {
         }
     });
 };
-

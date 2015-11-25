@@ -5,11 +5,14 @@ GAT.delegator = function() {
 
     s.cache = {};
 
-    var Delegator = function(name, id, phone, email) {
+    var loadListFuture = null;
+
+    var Delegator = function(name, id, phone, email, transactionIds) {
         this.name = name;
         this.id = id;
         this.phone = phone;
         this.email = email;
+        this.transactionIds = transactionIds;
     };
 
     s.loadAssignedTransactions = function(delegatorId) {
@@ -44,22 +47,33 @@ GAT.delegator = function() {
     };
 
     s.loadList = function() {
-        return GAT.webapi.getDelegatorList().
+        loadListFuture = GAT.webapi.getDelegatorList().
             onSuccess(function(resp) {
                 for (var i in resp.delegators) {
                     var dlg = resp.delegators[i];
-                    s.cache[dlg.uuid] = parseDlgtResp(dlg);
+                    parseDlgtResp(dlg);
                 }
             });
+        return loadListFuture;
+    };
+
+    s.getLoadListFuture = function() {
+        return loadListFuture;
     };
 
     var parseDlgtResp = function(resp) {
-        return new Delegator(
-            resp.first_name + " " + resp.last_name,
-            resp.uuid,
-            resp.phone_number,
-            resp.email
-        );
+        if (!(resp.uuid in s.cache))
+            s.cache[resp.uuid] = new Delegator();
+        var delegator = s.cache[resp.uuid];
+        delegator.name = resp.first_name + " " + resp.last_name;
+        delegator.id = resp.uuid,
+        delegator.phone = resp.phone_number,
+        delegator.email = resp.email
+        delegator.transactionIds = [];
+        if ("active_transaction_uuids" in resp)
+            delegator.transactionIds = resp.active_transaction_uuids;
+        if ("inactive_transaction_uuids" in resp)
+            delegator.transactionIds.push.apply(delegator.transactionIds, resp.inactive_transaction_uuids);
     };
 
     return s;
