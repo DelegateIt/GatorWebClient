@@ -16,10 +16,10 @@ GAT.delegator = function() {
         return GAT.webapi.getDelegator(delegatorId).
             onSuccess(function(resp) {
                 var transactionIds = [];
-                if ("active_transaction_uuids" in resp)
-                    transactionIds = resp.active_transaction_uuids;
-                if ("inactive_transaction_uuids" in resp)
-                    transactionIds.push.apply(transactionIds, resp.inactive_transaction_uuids);
+                if ("active_transaction_uuids" in resp.delegator)
+                    transactionIds = resp.delegator.active_transaction_uuids;
+                if ("inactive_transaction_uuids" in resp.delegator)
+                    transactionIds.push.apply(transactionIds, resp.delegator.inactive_transaction_uuids);
                 for (var i in transactionIds) {
                     if (transactionIds[i] in GAT.transaction.cache)
                         continue;

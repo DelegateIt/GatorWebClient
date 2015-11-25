@@ -17,7 +17,8 @@ GAT.customer = function() {
         this.transactionIds = [];
     };
 
-    var updateFromResp = function(resp) {
+    var updateFromResp = function(fullresp) {
+        var resp = fullresp.customer;
         var customer = (resp.uuid in s.cache) ? s.cache[resp.uuid] : new Customer();
         customer.id = resp.uuid;
         customer.name = "SMS user #" + resp.uuid.substring(0, 3);
