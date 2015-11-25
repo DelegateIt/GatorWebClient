@@ -98,6 +98,7 @@
                                     <div class="panel-body">
                                         <div>
                                             <label>Name </label> <span class="indent">{{getCustomer().name}}</span>
+                                            <span data-ng-show="getCustomer().autoGenName" class="text-muted"> (Auto generated)</span>
                                         </div>
                                         <div data-ng-show="getCustomer().phone !== null">
                                             <label>Phone number </label> <span class="indent">{{getCustomer().phone}}</span>
