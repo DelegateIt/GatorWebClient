@@ -319,7 +319,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.sendMessageText = "";
 
-    $scope.tmpMessageText = "";
+    $scope.isSending = false;
 
     var updateTextInputSize = function() {
         //When this function is called, angular has not finished updating the view,
@@ -333,10 +333,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.sendMessage = function($event) {
         $("#sendMsgBtn").button("loading");
-        $scope.tmpMessageText = $scope.sendMessageText;
+        $scope.isSending = true;
         GAT.transaction.sendMessage($scope.selected.id, $scope.sendMessageText).
             onResponse(function() {
-                $scope.tmpMessageText = "";
+                $scope.isSending = false;
                 $("#sendMsgBtn").button("reset");
             });
         $scope.sendMessageText = "";

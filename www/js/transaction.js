@@ -53,11 +53,9 @@ GAT.transaction = function() {
     };
 
     s.sendMessage = function(transactionId, message) {
-        return GAT.webapi.sendMessage(transactionId, message, "web_client", false).
-            onSuccess(function() {
-                if (transactionId in s.cache)
-                    s.cache[transactionId].messages.push(new s.Message(message, false, -1));
-            });
+        if (transactionId in s.cache)
+            s.cache[transactionId].messages.push(new s.Message(message, false, -1));
+        return GAT.webapi.sendMessage(transactionId, message, "web_client", false);
     };
 
     s.reassign = function(transactionId, delegatorId) {
@@ -147,7 +145,7 @@ GAT.transaction = function() {
         }
         var count = transaction.messages.length;
         if (resp.hasOwnProperty("messages") && (resp.messages.length != count ||
-                    transaction.messages[count - 1].content != resp.messages[count - 1].content)) {
+                    transaction.messages[count - 1].timestamp != resp.messages[count - 1].timestamp)) {
 
             transaction.messages = [];
             for (var i = 0; i < resp.messages.length; i++) {
