@@ -137,7 +137,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
             if (transaction.receipt.items.length === 0)
                 return "Nothing purchased";
             else
-                return transaction.receipt.items[0].name + "  -  ";
+                return transaction.receipt.items[0].name;
         } else {
             return "Loading...";
         }

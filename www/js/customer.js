@@ -28,7 +28,7 @@ GAT.customer = function() {
     };
 
     var updateFromResp = function(fullresp) {
-        var resp = fullresp.customer;
+        var resp = ("customer" in fullresp) ? fullresp.customer : fullresp;
         var customer = (resp.uuid in s.cache) ? s.cache[resp.uuid] : new Customer();
         customer.id = resp.uuid;
         if ("first_name" in resp && "last_name" in resp) {
