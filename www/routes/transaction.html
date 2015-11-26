@@ -11,7 +11,10 @@
                                     data-ng-repeat="(tId, t) in getTransactions()"
                                     data-ng-class="{'active': t.id == selected.id}"
                                     data-ng-show="isTransactionActive(t)">
-                                <a data-ng-href="#/transaction/{{t.id}}">{{getCustomerName(t.customerId)}}</a>
+                                <a data-ng-href="#/transaction/{{t.id}}">
+                                    {{getCustomerName(t.customerId)}}
+                                    <span class="badge">{{getUnreadMsgCount(tId)}}</span>
+                                </a>
                             </li>
                         </ul>
                     </div>

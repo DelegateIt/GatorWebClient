@@ -271,6 +271,21 @@ angular.module("app", ["ngRoute", "ngCookies"])
                 transaction.delegatorId == GAT.auth.getLoggedInUser().id;
     };
 
+    $scope.getUnreadMsgCount = function(transactionId) {
+        var count = 0;
+        if (transactionId in GAT.transaction.cache) {
+            var messages = GAT.transaction.cache[transactionId].messages;
+            for (var i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].fromCustomer)
+                    count++;
+                else {
+                    break;
+                }
+            }
+        }
+        return (count == 0) ? "" : count;
+    };
+
     $scope.getTransactions = function() {
         return GAT.transaction.cache
     };
