@@ -157,11 +157,11 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return "";
     };
 
-    $scope.getCustomerName = function(transactionId) {
+    $scope.getCustomer = function(transactionId) {
         if (transactionId in GAT.transaction.cache) {
             var transaction = GAT.transaction.cache[transactionId];
             if (transaction.customerId in GAT.customer.cache)
-                return GAT.customer.cache[transaction.customerId].name;
+                return GAT.customer.cache[transaction.customerId];
             else
                 GAT.customer.load(transaction.customerId);
         }
