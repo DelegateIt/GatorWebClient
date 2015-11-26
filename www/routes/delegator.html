@@ -36,25 +36,26 @@
         </div>
     </div>
 </div>
-<div data-ng-hide="selectedDelegator === null" class="row">
+<div data-ng-hide="selectedDelegator === null" class="row" data-ng-controller="transactionListCtrl">
     <div class="col-md-6 col-md-offset-3">
-    <div class="panel panel-default">
-        <div class="panel-heading">{{selectedDelegator.name}}'s Orders</div>
-        <table class="table">
-            <tbody>
-                <tr data-ng-repeat="tId in selectedDelegator.transactionIds">
-                    <td>{{getDate(tId)}}</td>
-                    <td>{{getCustomerName(tId)}}</td>
-                    <td class="text-center">
-                        <a href="#/transaction/{{tId}}">
-                            {{getTitle(tId)}}
-                                <span data-ng-show="isActiveOrder(tId)" class="badge pull-right">
-                                    Active
-                                </span>
-                            </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="panel panel-default">
+            <div class="panel-heading">{{selectedDelegator.name}}'s Orders</div>
+            <table class="table">
+                <tbody>
+                    <tr data-ng-repeat="tId in selectedDelegator.transactionIds">
+                        <td>{{getDate(tId)}}</td>
+                        <td>{{getCustomerName(tId)}}</td>
+                        <td class="text-center">
+                            <a href="#/transaction/{{tId}}">
+                                {{getTitle(tId)}}
+                                    <span data-ng-show="isActiveOrder(tId)" class="badge pull-right">
+                                        Active
+                                    </span>
+                                </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

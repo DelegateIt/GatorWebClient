@@ -40,10 +40,10 @@
         </div>
     </div>
     <div data-ng-hide="selected === null" class="col-md-10">
-        <h3>{{getCustomer().name}}</h3>
+        <h3><a href="#/customer/{{getCustomer().id}}">{{getCustomer().name}}</a></h3>
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href data-target="#messages-tab" role="tab" data-toggle="tab">Messages</a></li>
-            <li role="presentation"><a href data-target="#info-tab" role="tab" data-toggle="tab">Customer Info</a></li>
+            <li role="presentation"><a href data-target="#info-tab" role="tab" data-toggle="tab">Transaction Info</a></li>
         </ul>
         <div class="tab-content">
             <div data-ng-controller="messageCtrl" role="tabpanel" class="tab-pane fade in active" id="messages-tab">
@@ -92,23 +92,6 @@
                 <div class="panel panel-default tabbed-panel">
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-6" data-ng-hide="selected === null">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">Customer Info</div>
-                                    <div class="panel-body">
-                                        <div>
-                                            <label>Name </label> <span class="indent">{{getCustomer().name}}</span>
-                                            <span data-ng-show="getCustomer().autoGenName" class="text-muted"> (Auto generated)</span>
-                                        </div>
-                                        <div data-ng-show="getCustomer().phone !== null">
-                                            <label>Phone number </label> <span class="indent">{{getCustomer().phone}}</span>
-                                        </div>
-                                        <div data-ng-show="getCustomer().email !== null">
-                                            <label>Email </label> <span class="indent">{{getCustomer().email}}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-md-6" data-ng-controller="tranStatCtrl" data-ng-hide="selected === null">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">Transaction</div>
@@ -171,18 +154,6 @@
                                     <div class="panel-footer">
                                         <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="panel panel-default" data-ng-controller="pastTransactionCtrl">
-                                    <div class="panel-heading">Past transactions</div>
-                                    <table class="table" style="max-height:200px; overflow-y:scroll;">
-                                        <tbody>
-                                            <tr data-ng-repeat="tId in getCustomer().transactionIds">
-                                                <td class="text-center"><a href data-ng-click="switchToTransaction(tId)">{{getTitle(tId, $index)}}</a></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>
