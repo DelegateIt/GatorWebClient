@@ -76,17 +76,7 @@ GAT.transaction = function() {
         for (var i in receipt.items)
             sum += receipt.items[i].cost;
 
-        var fee = 0.0;
-        if (sum < 20.0)
-            fee = sum * 0.18;
-        else if (sum < 50.0)
-            fee = sum * 0.15;
-        else if (sum < 100.0)
-            fee = sum * 0.125;
-        else if (sum < 250.0)
-            fee = sum * 0.10;
-        else
-            fee = sum * 0.08;
+        var fee = 5 + sum * 0.05;
 
         return Math.floor((sum + fee) * 100);//USD in cents
     };
