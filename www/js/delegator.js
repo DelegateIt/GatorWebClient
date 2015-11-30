@@ -65,6 +65,7 @@ GAT.delegator = function() {
     var parseDlgtResp = function(resp) {
         if (!(resp.uuid in s.cache))
             s.cache[resp.uuid] = new Delegator();
+        resp = ("delegator" in resp) ? resp["delegator"] : resp;
         var delegator = s.cache[resp.uuid];
         delegator.name = resp.first_name + " " + resp.last_name;
         delegator.id = resp.uuid,
