@@ -1,0 +1,126 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="app-chat">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .messages {
+        padding: 10px 10px 105px 10px;
+      }
+
+      footer {
+        padding: 10px;
+        background-color: #fff;
+        z-index: 1;
+        border-top: 1px solid #cecece;
+      }
+
+      .no-scroll {
+        overflow-y: hidden;
+      }
+
+      .scroll {
+        overflow-y: scroll;
+      }
+    </style>
+
+
+    <div class="fit vertical layout no-scroll">
+      <paper-header-panel class="flex">
+        <div class="vertical layout fit scroll messages">
+          <template is="dom-repeat" items="{{messages}}">
+            <chat-bubble text="{{item.message}}" position="{{item.position}}" avatar="{{item.avatar}}" arrow="{{item.arrow}}"></chat-bubble>
+          </template>
+        </div>
+      </paper-header-panel>
+
+      <footer>
+        <div class="horizontal layout" id="chatInputSection">
+          <paper-input class="flex" label="Type message..." id="input" value="{{input}}"></paper-input>
+          <paper-fab icon="send" id="sendButton" on-tap="{{sendMyMessage}}"></paper-fab>
+        </div>
+      </footer>
+    </div>
+
+
+
+  </template>
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'app-chat',
+        properties: {
+          items: {
+            type: Array,
+            notify: true,
+          }
+        },
+        ready: function() {
+          this.messages = [{
+            message: 'Hi',
+            position: 'left',
+            avatar: 'http://findicons.com/files/icons/1072/face_avatars/300/i04.png',
+            arrow: 'arrow'
+          }, {
+            message: 'I need soup',
+            position: 'left'
+          }, {
+            message: 'How much would that cost me? This is a really long message for testing purposes.How much would that cost me? This is a really long message for testing purposes.',
+            position: 'left'
+          }, {
+            message: 'I can do that.',
+            position: 'right',
+            avatar: '../../images/avatar.png',
+            arrow: 'arrow'
+          }, {
+            message: 'I can do that.',
+            position: 'right'
+          }, {
+            message: 'I can do that.',
+            position: 'right'
+          }, {
+            message: 'I need soup',
+            position: 'left'
+          }, {
+            message: 'How much would that cost me? This is a really long message for testing purposes.How much would that cost me? This is a really long message for testing purposes.',
+            position: 'left'
+          }, {
+            message: 'I can do that.',
+            position: 'right',
+            avatar: '../../images/avatar.png',
+            arrow: 'arrow'
+          }, {
+            message: 'I need soup',
+            position: 'left'
+          }, {
+            message: 'How much would that cost me? This is a really long message for testing purposes.How much would that cost me? This is a really long message for testing purposes.',
+            position: 'left'
+          }, {
+            message: 'I can do that.',
+            position: 'right',
+            avatar: '../../images/avatar.png',
+            arrow: 'arrow'
+          }, {
+            message: 'Here\'s another really long response for testing. Here\'s another really long response for testing. Here\'s another really long response for testing. ',
+            position: 'right'
+          }];
+        }
+      });
+    })();
+  </script>
+</dom-module>

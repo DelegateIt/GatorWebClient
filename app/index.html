@@ -75,7 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Main Toolbar -->
         <paper-toolbar id="mainToolbar">
           <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle on-click="forceWideDrawer"></paper-icon-button>
-          <span class="flex"></span>
+          <!-- <span class="flex"></span> -->
 
           <!-- Toolbar icons -->
           <!-- <paper-icon-button icon="refresh"></paper-icon-button> -->
@@ -97,13 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
             <section data-route="home">
-
-              <featured-card title="Coffee" image="images/featured/coffee.jpg"></featured-card>
-              <featured-card title="Pizza" image="images/featured/pizza.jpg"></featured-card>
-              <featured-card title="Toilet Paper" image="images/featured/toilet-paper.jpg"></featured-card>
-              <featured-card title="Concert Tickets" image="images/featured/concert.jpg"></featured-card>
-              <featured-card title="Vacation Rentals" image="images/featured/rental.jpg"></featured-card>
-
+              <featured-section></featured-section>
             </section>
 
             <section data-route="login">
@@ -120,9 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
 
             <section data-route="order">
-              <app-card elevation="1">
-                <h2 class="page-title">Order</h2>
-              </app-card>
+                <app-chat></app-chat>
             </section>
 
             <section data-route="profile">

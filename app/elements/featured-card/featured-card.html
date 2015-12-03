@@ -55,12 +55,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       #featured h1 {
         color: #ffffff;
         position: absolute;
+        font-weight: bold;
         bottom: 0px;
         line-height: 0px;
         padding: 5px;
-        -webkit-text-stroke-width: 1px;
-        -webkit-text-stroke-color: #1b1b1b;
         font-family: Arial, Helvetica, "Ubuntu", sans-serif;
+      }
+
+      paper-icon-button {
+        color: white;
+      }
+
+      .featured-button {
+        background-color: #FFD600;
+        width: 40px;
+        height: 40px;
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
       }
 
     </style>
@@ -68,6 +80,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-material elevation="{{elevation}}">
       <div id="featured">
         <h1>{{title}}</h1>
+        <div class="featured-button">
+          <paper-icon-button icon="add"></paper-button-icon>
+        </div>
       </div>
     </paper-material>
   </template>
@@ -77,18 +92,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       Polymer({
         is: 'featured-card',
-
         properties: {
-          image: {
-            type: String,
-            value: '../../images/header-background.png',
-            notify: true
-          },
-          title: {
-            type: String,
-            value: 'Item Title',
-            notify: true
-          },
+          image: '../../images/header-background.png',
+          title: 'Featured Item Title',
           elevation: 1
         },
         ready: function() {
