@@ -17,22 +17,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
 
-      #drawerToolbar {
-        color: var(--secondary-text-color);
-        background-color: var(--drawer-menu-color);
-        border-bottom: var(--drawer-toolbar-border-color);
-      }
-
       paper-menu iron-icon {
         margin-right: 33px;
         opacity: 0.54;
       }
+      /*paper-item, paper-menu {
+        background: transparent;
+      }*/
 
       paper-item.iron-selected a {
         color: var(--default-primary-color);
       }
 
-      paper-item:after, paper-item:before {
+      paper-item:after,
+      paper-item:before {
         display: none;
       }
 
@@ -57,12 +55,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         min-height: 48px;
         padding: 0 16px;
       }
+
+      .user {
+        background: url('../../images/polygons.png');
+        min-height: 150px;
+        color: var(--primary-text-color);
+        border-bottom: var(--drawer-toolbar-border-color);
+      }
+
+      .avatar {
+        height: var(--avatar-size);
+        width: var(--avatar-size);
+        border-radius: calc(var(--avatar-size) / 2);
+        margin: 15px 0 0 10px;
+      }
+
+      .user-name {
+        margin-top: 80px;
+        color: var(--text-primary-color);
+        padding: 10px;
+      }
     </style>
-    <!-- Drawer Toolbar -->
-    <paper-toolbar id="drawerToolbar">
-      <paper-icon-button icon="chevron-left" on-click="forceNarrowDrawer"></paper-icon-button>
-      <span class="paper-font-title">Menu</span>
-    </paper-toolbar>
+
+    <!-- User Panel -->
+    <div class="user">
+      <div class="vertical justified layout">
+        <div class="horizontal justified layout">
+          <img src="{{avatar}}" class="avatar">
+          <paper-icon-button icon="chevron-left" on-click="forceNarrowDrawer"></paper-icon-button>
+        </div>
+        <span class="user-name">{{user}}</span>
+      </div>
+    </div>
+
 
     <!-- Drawer Content -->
     <paper-menu class="list" selected="{{route}}" attr-for-selected="data-route">
@@ -123,6 +148,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             route: 'contact',
             uri: '/contact'
           }];
+          this.avatar = '../../images/avatar.png';
+          this.user = 'Customer Name';
         }
       });
     })();

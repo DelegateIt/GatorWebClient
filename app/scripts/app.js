@@ -28,6 +28,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // console.log('dom-change');
   });
 
+  // Listen for iron-deselect event for drawerPanel changes
+  window.addEventListener('iron-select', function(e) {
+    if (e.detail.item.id === 'drawer') {
+      document.querySelector('#chatInputSection').classList.add('invisible');
+    }
+  });
+
+  // Listen for iron-deselect event for drawerPanel changes
+  window.addEventListener('iron-deselect', function(e) {
+    if (e.detail.item.id === 'drawer') {
+      document.querySelector('#chatInputSection').classList.remove('invisible');
+    }
+  });
+
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
@@ -64,7 +78,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     if (drawerPanel.narrow) {
       drawerPanel.closeDrawer();
     }
-    // document.getElementById('chatInputContainer').style.width = '100%';
   };
 
   // Forces drawerPanel to be narrow
@@ -72,7 +85,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var drawerPanel = document.querySelector('#paperDrawerPanel');
     drawerPanel.forceNarrow = true;
     drawerPanel.closeDrawer();
-    // document.getElementById('chatInputContainer').style.width = '100%';
   };
 
   // Forces drawerPanel to be narrow
@@ -80,7 +92,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var drawerPanel = document.querySelector('#paperDrawerPanel');
     drawerPanel.forceNarrow = false;
     drawerPanel.openDrawer();
-    // document.getElementById('chatInputContainer').style.width = '80%';
   };
 
   // Scroll page to top and expand header
