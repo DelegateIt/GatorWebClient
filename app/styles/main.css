@@ -12,3 +12,13 @@ body {
   font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #333;
 }
+
+#mainToolbar .middle-container  {
+  height: 100%;
+  margin-left: 48px;
+}
+
+#mainToolbar .middle {
+  font-size: 18px;
+  padding-bottom: 0;
+}
