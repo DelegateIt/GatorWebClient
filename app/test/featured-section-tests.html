@@ -12,27 +12,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>chat-bubble</title>
+  <title>featured-section</title>
 
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/test-fixture/test-fixture-mocha.js"></script>
-  <link rel="import" href="../../bower_components/test-fixture/test-fixture.html">
 
   <!-- Step 1: import the element to test -->
-  <link rel="import" href="../elements/chat-bubble/chat-bubble.html">
+  <link rel="import" href="../elements/featured-section/featured-section.html">
 
 </head>
 <body>
 
 <test-fixture id="basic">
   <template>
-    <chat-bubble></chat-bubble>
+    <featured-section></featured-section>
   </template>
 </test-fixture>
 
 <script>
-  suite('chat-bubble tests', function() {
+  suite('featured-section tests', function() {
     var element;
 
     setup(function() {

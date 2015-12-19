@@ -12,35 +12,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>featured-card</title>
+  <title>app-card</title>
 
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/test-fixture/test-fixture-mocha.js"></script>
-  <link rel="import" href="../../bower_components/test-fixture/test-fixture.html">
 
   <!-- Step 1: import the element to test -->
-  <link rel="import" href="../elements/featured-card/featured-card.html">
+  <link rel="import" href="../elements/app-card/app-card.html">
 
 </head>
 <body>
 
-<test-fixture id="basic">
-  <template>
-    <featured-card></featured-card>
-  </template>
-</test-fixture>
+  <test-fixture id="basic">
+    <template>
+      <app-card>
+        <span>Test</span>
+      </app-card>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="elevated">
+    <template>
+      <app-card elevation="2">
+        <span>Test</span>
+      </app-card>
+    </template>
+  </test-fixture>
 
 <script>
-  suite('featured-card tests', function() {
+  suite('app-card tests', function() {
     var element;
 
     setup(function() {
       element = fixture('basic');
+      elevated = fixture('elevated');
     });
 
-    test('', function() {
+    test('Element Yields Content', function() {
+      span = element.querySelector('span');
+      assert.equal(span.textContent, 'Test');
+    });
 
+    test('Default Elevation is 1', function() {
+      assert.equal(element.elevation, 1);
+    });
+
+    test('Elevation can be set', function() {
+      assert.equal(elevated.elevation, 2);
     });
 
   });

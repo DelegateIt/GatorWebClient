@@ -12,27 +12,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>featured-section</title>
+  <title>featured-card</title>
 
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/test-fixture/test-fixture-mocha.js"></script>
-  <link rel="import" href="../../bower_components/test-fixture/test-fixture.html">
 
   <!-- Step 1: import the element to test -->
-  <link rel="import" href="../elements/featured-section/featured-section.html">
+  <link rel="import" href="../elements/featured-card/featured-card.html">
 
 </head>
 <body>
 
 <test-fixture id="basic">
   <template>
-    <featured-section></featured-section>
+    <featured-card></featured-card>
   </template>
 </test-fixture>
 
 <script>
-  suite('featured-section tests', function() {
+  suite('featured-card tests', function() {
     var element;
 
     setup(function() {

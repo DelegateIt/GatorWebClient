@@ -16,6 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         display: block;
       }
+
       paper-material {
         border-radius: 2px;
         height: 100%;
@@ -44,19 +45,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     <paper-material elevation="{{elevation}}">
-        <content></content>
-    </paper>
+      <content></content>
+      </paper>
   </template>
   <script>
-  (function() {
-    'use strict';
+    (function() {
+      'use strict';
 
-    Polymer({
-      is: 'app-card',
-      properties: {
-        elevation: 1
-      }
-    });
-  })();
+      Polymer({
+        is: 'app-card',
+        properties: {
+          elevation: {
+            type: Number,
+            value: 1
+          }
+        }
+      });
+    })();
   </script>
 </dom-module>

@@ -12,39 +12,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>facebook-login</title>
+  <title>my-greeting-basic</title>
 
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <script src="../../bower_components/test-fixture/test-fixture-mocha.js"></script>
-  <link rel="import" href="../../bower_components/test-fixture/test-fixture.html">
 
-  <!-- Step 1: import the element to test -->
-  <link rel="import" href="../elements/facebook-login/facebook-login.html">
+  <!-- Import the element to test -->
+  <link rel="import" href="../elements/my-greeting/my-greeting.html">
 
 </head>
 <body>
 
-<test-fixture id="basic">
-  <template>
-    <facebook-login></facebook-login>
-  </template>
-</test-fixture>
+  <test-fixture id="basic">
+    <template>
+      <my-greeting></my-greeting>
+    </template>
+  </test-fixture>
 
-<script>
-  suite('facebook-login tests', function() {
-    var element;
+  <script>
 
-    setup(function() {
-      element = fixture('basic');
+    suite('my-greeting tests', function() {
+      var greeting, header;
+
+      setup(function() {
+        greeting = fixture('basic');
+      });
+
+      test('Welcome!', function() {
+        header = greeting.querySelector('h2');
+        assert.equal(header.textContent, 'Welcome!');
+      });
+
     });
-
-    test('', function() {
-
-    });
-
-  });
-</script>
+  </script>
 
 </body>
 </html>
