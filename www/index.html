@@ -56,6 +56,7 @@
         <div data-ng-view>
         </div>
     </div>
+    <script src="/js/config.js"></script>
     <script>
         var authLoad = function() {
             var s = {};
@@ -73,7 +74,7 @@
         }();
         window.fbAsyncInit = function() {
             FB.init({
-                appId          : '925854587499768',
+                appId          : GAT.config.facebookAppId,
                 xfbml          : true,
                 version        : 'v2.5',
                 status         : true

@@ -11,33 +11,6 @@ GAT.webapi = function() {
 
     var debug = true;
 
-    var api_url = "";
-    var notify_url = "";
-
-    s.setApiMode = function(mode) {
-        if (mode == "local") {
-            api_url = "http://localhost:8000/";
-            notify_url = "http://localhost:8060/";
-        } else if (mode == "production"){
-            //api_url = "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
-            api_url = "http://gator-api.elasticbeanstalk.com/";
-            notify_url = "http://gator-ntfy.elasticbeanstalk.com/";
-        } else if (mode == "test") {
-            api_url = "http://test-gator-api.elasticbeanstalk.com/";
-            notify_url = "http://test-gator-ntfy.elasticbeanstalk.com/";
-        } else {
-            throw mode + " - is not a valid mode";
-        }
-    };
-
-    s.getApiUrl = function() {
-        return api_url;
-    };
-
-    s.getNotifyUrl = function() {
-        return notify_url;
-    };
-
     var notify = function(future, futureData, success, logMsg, logData, noLog) {
         if (!noLog) {
             var logLevel = success ? "debug" : "warning";
@@ -48,7 +21,7 @@ GAT.webapi = function() {
     };
 
     var formatUrl = function(components) {
-        var custom = s.getApiUrl();
+        var custom = GAT.config.apiUrl + "/";
         for (var i = 0; i < components.length; i++) {
             custom += encodeURIComponent(components[i]) + "/";
         }
@@ -177,8 +150,6 @@ GAT.webapi = function() {
         };
         return sendRestApiReq("POST", components, httpData);
     };
-
-    s.setApiMode("local");
 
     return s;
 }();

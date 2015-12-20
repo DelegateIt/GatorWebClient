@@ -40,8 +40,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
 }])
 .run(["$timeout", "$location", "$cookies", "$window", function($timeout, $location, $cookies, $window) {
     GAT.view.updateAfter = $timeout;
-    GAT.utils.logger.log("info", "Setting api mode to " + GAT.apiMode);
-    GAT.webapi.setApiMode(GAT.apiMode);
+    GAT.utils.logger.log("info", "Using config: " + JSON.stringify(GAT.config));
     GAT.transaction.initialize();
     GAT.auth.onLogout.push(function() {
         $cookies.remove("userlogin");
@@ -76,7 +75,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
         function($scope, $location, $cookies) {
 
     $scope.getApiMode = function() {
-        return GAT.apiMode;
+        return (GAT.config.apiUrl != "http://gatorapi.elasticbeanstalk.com:80") ? "test" : "production";
     };
 
     $scope.$on('$routeChangeSuccess', function() {

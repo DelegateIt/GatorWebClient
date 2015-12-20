@@ -191,7 +191,7 @@ GAT.transaction = function() {
     };
 
     s.initialize = function() {
-        updater.connect(GAT.webapi.getNotifyUrl());
+        updater.connect(GAT.config.notifierUrl);
     };
 
     return s;
