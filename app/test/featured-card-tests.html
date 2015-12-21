@@ -26,7 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <test-fixture id="basic">
   <template>
-    <featured-card></featured-card>
+    <featured-card title="Tester" image="https://www.polymer-project.org/images/logos/lockup.svg"></featured-card>
   </template>
 </test-fixture>
 
@@ -38,8 +38,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       element = fixture('basic');
     });
 
-    test('', function() {
-
+    test('Title and Image are set', function() {
+      assert.equal(element.title, 'Tester');
+      assert.equal(element.image, 'https://www.polymer-project.org/images/logos/lockup.svg');
     });
 
   });

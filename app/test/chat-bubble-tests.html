@@ -24,22 +24,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </head>
 <body>
 
-<test-fixture id="basic">
-  <template>
-    <chat-bubble></chat-bubble>
-  </template>
-</test-fixture>
+  <test-fixture id="basic">
+    <template>
+      <chat-bubble></chat-bubble>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="modified">
+    <template>
+      <chat-bubble text="Test Message!" position="right" arrow="arrow" avatar="../../images/avatar.png"></chat-bubble>
+    </template>
+  </test-fixture>
 
 <script>
   suite('chat-bubble tests', function() {
-    var element;
+    var basic, modified;
 
     setup(function() {
-      element = fixture('basic');
+      basic = fixture('basic');
+      modified = fixture('modified');
     });
 
-    test('', function() {
+    test('Element has basic values', function() {
+      assert.equal(basic.text, 'Error retreiving message, please refresh page.');
+      assert.equal(basic.position, 'left');
+      assert.equal(basic.arrow, '');
+      assert.equal(basic.avatar, '../../images/avatar.png');
+    });
 
+    test('Element values can be set', function() {
+      assert.equal(modified.text, 'Test Message!');
+      assert.equal(modified.position, 'right');
+      assert.equal(modified.arrow, 'arrow');
+      assert.equal(modified.avatar, '../../images/avatar.png');
     });
 
   });
