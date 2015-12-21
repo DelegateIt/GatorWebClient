@@ -52,10 +52,10 @@ GAT.transaction = function() {
         this.items = [];
     };
 
-    s.sendMessage = function(transactionId, message) {
+    s.sendMessage = function(transactionId, message, type) {
         if (transactionId in s.cache)
             s.cache[transactionId].messages.push(new s.Message(message, false, -1));
-        return GAT.webapi.sendMessage(transactionId, message, "web_client", false);
+        return GAT.webapi.sendMessage(transactionId, message, false, type);
     };
 
     s.reassign = function(transactionId, delegatorId) {

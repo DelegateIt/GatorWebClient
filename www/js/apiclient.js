@@ -99,10 +99,10 @@ GAT.webapi = function() {
         return sendRestApiReq("GET", components);
     };
 
-    s.sendMessage = function(transactionId, msg, platformType, fromCustomer) {
+    s.sendMessage = function(transactionId, msg, fromCustomer, type) {
         var components = ["core", "send_message", transactionId];
         var httpData = {
-            "platform_type": platformType,
+            "type": type,
             "content": msg,
             "from_customer": fromCustomer
         };

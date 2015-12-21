@@ -330,10 +330,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
         }, 300);
     };
 
-    $scope.sendMessage = function($event) {
+    $scope.sendMessage = function(type) {
         $("#sendMsgBtn").button("loading");
         $scope.isSending = true;
-        GAT.transaction.sendMessage($scope.selected.id, $scope.sendMessageText).
+        GAT.transaction.sendMessage($scope.selected.id, $scope.sendMessageText, type).
             onResponse(function() {
                 $scope.isSending = false;
                 $("#sendMsgBtn").button("reset");
@@ -342,13 +342,20 @@ angular.module("app", ["ngRoute", "ngCookies"])
         updateTextInputSize();
     };
 
-    $scope.insertReceipt = function() {
-        var text = $scope.sendMessageText === "" ? "" : "\r\n";
-        for (var i in $scope.selected.receipt.items)
-            text += $scope.selected.receipt.items[i].name + "\r\n";
-        text += $scope.selected.paymentUrl;
-        $scope.sendMessageText += text;
-        updateTextInputSize();
+    $scope.sendReceipt = function() {
+        var text = "Receipt: \r\n";
+        text += "Items: ";
+        for (var i in $scope.selected.receipt.items) {
+            text += $scope.selected.receipt.items[i].name;
+            if (i != $scope.selected.receipt.items.length - 1)
+                text += ", ";
+        }
+        text += "\r\nTotal cost: " + Math.floor($scope.selected.receipt.total) / 100;
+        if ($scope.selected.receipt.notes != "")
+            text += "\r\nNotes: " + $scope.selected.receipt.notes;
+        text += "\r\n Pay here: " + $scope.selected.paymentUrl;
+        $scope.sendMessageText = text;
+        $scope.sendMessage("receipt");
     };
 
     $scope.toDateString = function(timestamp) {
