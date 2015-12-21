@@ -93,9 +93,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Polymer({
         is: 'featured-card',
         properties: {
-          image: '../../images/header-background.png',
-          title: 'Featured Item Title',
-          elevation: 1
+          image: {
+            type: String,
+            value: '../../images/header-background.png'
+          },
+          title: {
+            type: String,
+            value: 'Featured Item Title'
+          },
+          elevation: {
+            type: Number,
+            value: 1
+          }
         },
         ready: function() {
           this.$.featured.style.backgroundImage = 'url(\'' + this.image + '\')';

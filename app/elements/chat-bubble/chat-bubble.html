@@ -115,10 +115,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Polymer({
         is: 'chat-bubble',
         properties: {
-          text: 'Error retreiving message.',
-          position: 'left',
-          arrow: 'arrow',
-          avatar: '../../images/avatar.png'
+          text: {
+            type: String,
+            value: 'Error retreiving message, please refresh page.'
+          },
+          position: {
+            type: String,
+            value: 'left'
+          },
+          arrow: {
+            type: String,
+            value: '',
+          },
+          avatar: {
+            type: String,
+            value: '../../images/avatar.png',
+          },
         },
         isLeft: function(item) {
           return item === 'left';
