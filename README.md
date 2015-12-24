@@ -47,13 +47,13 @@ The deployment-ready version is placed under the `dist` directory.
 
 ### Application Theming & Styling
 
-Polymer 1.0 introduces a shim for CSS custom properties. We take advantage of this in `app/styles/app-theme.html` to provide theming for your application. You can also find our presets for [Material Design](https://www.google.com/design/spec/material-design/introduction.html) breakpoints in this file.
+Polymer 1.0 introduces a shim for CSS custom properties. We take advantage of this in `app/styles/app-theme.html`. You can also find the presets for [Material Design](https://www.google.com/design/spec/material-design/introduction.html) breakpoints in this file.
 
 [Read more](https://www.polymer-project.org/1.0/docs/devguide/styling.html) about CSS custom properties.
 
 ### Styling
 1. ***main.css*** - to define styles that can be applied outside of Polymer's custom CSS properties implementation. Some of the use-cases include defining styles that you want to be applied for a splash screen, styles for your application 'shell' before it gets upgraded using Polymer or critical style blocks that you want parsed before your elements are.
-2. ***app-theme.html*** - to provide theming for your application. You can also find our presets for Material Design breakpoints in this file.
+2. ***app-theme.html*** - to provide theming for the application. You can also find the presets for Material Design breakpoints in this file.
 3. ***shared-styles.html*** - to shared styles between elements and index.html.
 4. ***element styles only*** - styles specific to element. These styles should be inside the `<style></style>` inside `template`.
 
@@ -79,13 +79,13 @@ These style files are located in the [styles folder](app/styles/).
 
 ### Unit Testing
 
-We're using the [Web Component Tester](https://github.com/Polymer/web-component-tester) - Polymer's preferred tool for authoring and running unit tests. This makes testing elements easy.
+We're using the [Web Component Tester](https://github.com/Polymer/web-component-tester) - Polymer's preferred tool for authoring and running unit tests. This makes testing elements easy. See the [test folder](app/test/) for examples.
 
 [Read more](https://github.com/Polymer/web-component-tester#html-suites) about using Web Component tester.
 
 ### Dependency Management
 
-We use [Bower](http://bower.io) for package management. This makes it easy to keep your elements up to date and versioned. For tooling, we use npm to manage Node.js-based dependencies.
+We use [Bower](http://bower.io) for package management. This makes it easy to keep our elements up to date and versioned. For tooling, we use npm to manage Node.js-based dependencies.
 
 ### Routing
 
