@@ -99,4 +99,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     document.getElementById('mainContainer').scrollTop = 0;
   };
 
+  app.getUserName = function() {
+    return 'Customer Name';
+  };
+
+  app.getUserAvatar = function() {
+    return '../../images/avatar.png';
+  };
+
 })(document);

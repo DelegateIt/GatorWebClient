@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <html>
+
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>featured-section</title>
@@ -22,37 +23,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../elements/featured-section/featured-section.html">
 
 </head>
+
 <body>
 
-<test-fixture id="basic">
-  <template>
-    <featured-section></featured-section>
-  </template>
-</test-fixture>
+  <test-fixture id="basic">
+    <template>
+      <featured-section></featured-section>
+    </template>
+  </test-fixture>
 
-<script>
-  suite('featured-section tests', function() {
-    var element;
+  <script>
+    suite('featured-section tests', function() {
+      var element;
 
-    setup(function() {
-      element = fixture('basic');
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('Element has correct number of cards', function(done) {
+        // Data bindings will stamp out new DOM asynchronously
+        // so wait to check for updates
+        flush(function() {
+          listItems = element.querySelectorAll('featured-card');
+          assert.equal(element.items.length, listItems.length);
+          done();
+        });
+
+      });
+
+      test('Child elements are set properly', function(done) {
+        // Data bindings will stamp out new DOM asynchronously
+        // so wait to check for updates
+        flush(function() {
+          listItems = element.querySelectorAll('featured-card');
+          for (var i = 0; i < element.items.length; i++) {
+            assert.equal(listItems[i].title, element.items[i].title);
+            assert.equal(listItems[i].image, element.items[i].image);
+          }
+          done();
+        });
+
+      });
+
     });
-
-    test('Element has correct number of cards', function() {
-      // listItems = element.querySelectorAll('featured-card');
-      // assert.equal(element.items.length, listItems.length);
-    });
-
-    test('Child elements are set properly', function() {
-      // listItems = element.querySelectorAll('featured-card');
-      // for (var i = 0; i < listItems.length; i++) {
-      //   assert.equal(listItems[i].title, element.items[i].title);
-      //   assert.equal(listItems[i].image, element.items[i].image);
-      // }
-    });
-
-  });
-</script>
+  </script>
 
 </body>
+
 </html>

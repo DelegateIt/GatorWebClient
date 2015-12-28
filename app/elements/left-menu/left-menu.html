@@ -151,8 +151,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             route: 'contact',
             uri: '/contact'
           }];
-          this.avatar = '../../images/avatar.png';
-          this.user = 'Customer Name';
+          this.avatar = app.getUserAvatar();
+          this.user = app.getUserName();
         }
       });
     })();
