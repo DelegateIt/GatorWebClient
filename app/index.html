@@ -65,7 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-drawer-panel id="paperDrawerPanel">
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer>
-        <left-menu route="{{route}}"></left-menu>
+        <left-menu route="{{route}}" user="{{user}}"></left-menu>
       </paper-scroll-header-panel>
 
       <!-- Main Area -->
@@ -100,20 +100,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
 
             <section data-route="login">
-              <app-card elevation="1">
-                <span>Please login.</span>
-              </app-card>
+              <center>
+                <facebook-login appID="925854587499768" data-size="xlarge" logout-link="true" graph-url="me?fields=first_name,last_name,email,picture.type(normal)" scope="public_profile email" graph-response="{{user}}" auto-api-call></facebook-login>
+              </center>
             </section>
 
             <section data-route="order">
-                <app-chat></app-chat>
+              <app-chat user="{{user}}"></app-chat>
             </section>
 
             <section data-route="profile">
               <app-card elevation="1">
-                <h2 class="page-title">Users</h2>
-                <p>This is the users section</p>
-                <a href="/profile/Rob">Rob</a>
+                <h2 class="page-title">Profile</h2>
+
+
+
+                <div style="margin-top: 20px">
+                  <div>[[user.id]]</div>
+                  <div>[[user.accessToken]]</div>
+                  <div>[[user.first_name]]</div>
+                  <div>[[user.last_name]]</div>
+                  <div>[[user.email]]</div>
+                  <img src="[[user.picture.data.url]]" />
+                </div>
+
+
+                <a href="/profile/Rob">Test Details</a>
               </app-card>
             </section>
 

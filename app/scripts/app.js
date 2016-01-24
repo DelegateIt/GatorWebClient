@@ -42,6 +42,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   });
 
+  // Listen for signin-success event
+  window.addEventListener('signin-success', function(e) {
+    if (app.route === 'login') {
+      window.location.href = '/';
+    }
+  });
+
+  // Listen for signout-success event
+  window.addEventListener('signout-success', function(e) {
+    if (app.route !== 'login') {
+      window.location.href = '/login';
+    }
+  });
+
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
@@ -99,12 +113,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     document.getElementById('mainContainer').scrollTop = 0;
   };
 
-  app.getUserName = function() {
-    return 'Customer Name';
-  };
-
-  app.getUserAvatar = function() {
-    return '../../images/avatar.png';
+  app.john = {
+    name: 'John',
+    avatar: '../../images/avatar.png'
   };
 
 })(document);
