@@ -42,7 +42,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-header-panel class="flex">
         <div class="vertical layout fit scroll messages">
           <template is="dom-repeat" items="{{messages}}">
-            <chat-bubble text="{{item.message}}" position="{{item.position}}" avatar="{{item.avatar}}" arrow="{{item.arrow}}"></chat-bubble>
+            <template is="dom-if" if="{{item.isFirst}}">
+              <template is="dom-if" if="{{item.isUser}}">
+                <chat-bubble text="{{item.message}}" position="right" avatar="[[user.picture.data.url]]" arrow="arrow"></chat-bubble>
+              </template>
+              <template is="dom-if" if="{{!item.isUser}}">
+                <chat-bubble text="{{item.message}}" position="left" avatar="{{item.avatar}}" arrow="arrow"></chat-bubble>
+              </template>
+            </template>
+            <template is="dom-if" if="{{!item.isFirst}}">
+              <template is="dom-if" if="{{item.isUser}}">
+                <chat-bubble text="{{item.message}}" position="right"></chat-bubble>
+              </template>
+              <template is="dom-if" if="{{!item.isUser}}">
+                <chat-bubble text="{{item.message}}" position="left"></chat-bubble>
+              </template>
+            </template>
           </template>
         </div>
       </paper-header-panel>
@@ -73,51 +88,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ready: function() {
           this.messages = [{
             message: 'Hi',
-            position: 'left',
-            avatar: 'http://findicons.com/files/icons/1072/face_avatars/300/i04.png',
-            arrow: 'arrow'
+            isUser: true,
+            isFirst: true
           }, {
             message: 'I need soup',
-            position: 'left'
+            isUser: true
+          }, {
+            message: 'I can do that.',
+            isUser: false,
+            isFirst: true,
+            avatar: '../../images/avatar.png'
           }, {
             message: 'How much would that cost me? This is a really long message for testing purposes.How much would that cost me? This is a really long message for testing purposes.',
-            position: 'left'
-          }, {
-            message: 'I can do that.',
-            position: 'right',
-            avatar: '../../images/avatar.png',
-            arrow: 'arrow'
-          }, {
-            message: 'I can do that.',
-            position: 'right'
-          }, {
-            message: 'I can do that.',
-            position: 'right'
-          }, {
-            message: 'I need soup',
-            position: 'left'
-          }, {
-            message: 'How much would that cost me? This is a really long message for testing purposes.How much would that cost me? This is a really long message for testing purposes.',
-            position: 'left'
-          }, {
-            message: 'I can do that.',
-            position: 'right',
-            avatar: '../../images/avatar.png',
-            arrow: 'arrow'
-          }, {
-            message: 'I need soup',
-            position: 'left'
-          }, {
-            message: 'How much would that cost me? This is a really long message for testing purposes.How much would that cost me? This is a really long message for testing purposes.',
-            position: 'left'
-          }, {
-            message: 'I can do that.',
-            position: 'right',
-            avatar: '../../images/avatar.png',
-            arrow: 'arrow'
-          }, {
-            message: 'Here\'s another really long response for testing. Here\'s another really long response for testing. Here\'s another really long response for testing. ',
-            position: 'right'
+            isUser: true,
+            isFirst: true
           }];
         }
       });

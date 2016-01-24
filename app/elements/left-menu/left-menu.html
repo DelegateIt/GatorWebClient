@@ -78,29 +78,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <!-- User Panel -->
-    <div class="user">
-      <div class="vertical justified layout">
-        <div class="horizontal justified layout">
-          <img src="{{avatar}}" class="avatar">
-          <paper-icon-button icon="chevron-left" on-click="forceNarrowDrawer"></paper-icon-button>
+
+      <div class="user">
+        <div class="vertical justified layout">
+          <div class="horizontal justified layout">
+            <template is="dom-if" if="[[user.picture.data.url]]">
+              <img src="[[user.picture.data.url]]" class="avatar">
+            </template>
+            <paper-icon-button icon="chevron-left" on-click="forceNarrowDrawer"></paper-icon-button>
+          </div>
+          <template is="dom-if" if="[[user.first_name]]">
+            <span class="user-name">[[user.first_name]] [[user.last_name]]</span>
+          </template>
+          <template is="dom-if" if="[[!user]]">
+            <span class="user-name">Menu</span>
+          </template>
         </div>
-        <span class="user-name">{{user}}</span>
       </div>
-    </div>
+
 
 
     <!-- Drawer Content -->
-    <paper-menu class="list" selected="{{route}}" attr-for-selected="data-route">
-      <template is="dom-repeat" items="{{items}}">
-        <paper-item data-route$="{{item.route}}">
-          <a data-route="{{item.route}}" href="{{item.uri}}" on-click="hideLeftDrawer" class="{{ {iron-selected: item.route == app.route } | tokenList}}">
-            <iron-icon icon="{{item.icon}}"></iron-icon>
-            <span>{{item.text}}</span>
-          </a>
-        </paper-item>
-      </template>
+    <template is="dom-if" if="[[user]]">
+      <paper-menu class="list" selected="{{route}}" attr-for-selected="data-route">
+        <template is="dom-repeat" items="{{items}}" filter="loggedIn">
+          <paper-item data-route$="{{item.route}}">
+            <a data-route="{{item.route}}" href="{{item.uri}}" on-click="hideLeftDrawer" class="{{ {iron-selected: item.route === app.route } | tokenList}}">
+              <iron-icon icon="[[item.icon]]"></iron-icon>
+              <span>[[item.text]]</span>
+            </a>
+          </paper-item>
+        </template>
+      </paper-menu>
+    </template>
 
-    </paper-menu>
+    <template is="dom-if" if="[[!user]]">
+      <paper-menu class="list" selected="{{route}}" attr-for-selected="data-route">
+        <template is="dom-repeat" items="{{items}}" filter="loggedOut">
+          <paper-item data-route$="{{item.route}}">
+            <a data-route="{{item.route}}" href="{{item.uri}}" on-click="hideLeftDrawer" class="{{ {iron-selected: item.route === app.route } | tokenList}}">
+              <iron-icon icon="[[item.icon]]"></iron-icon>
+              <span>[[item.text]]</span>
+            </a>
+          </paper-item>
+        </template>
+      </paper-menu>
+    </template>
+
+    <template is="dom-if" if="{{user.isDelegator}}">
+      Oooo we've got a delegator.
+    </template>
 
   </template>
   <script>
@@ -116,7 +143,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           route: {
             type: String,
             value: 'home'
-          }
+          },
+          user: Object
         },
         hideLeftDrawer: function() {
           app.closeDrawer();
@@ -124,35 +152,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         forceNarrowDrawer: function() {
           app.forceNarrowDrawer();
         },
+        loggedIn: function(item) {
+          return item.showWhenloggedIn;
+        },
+        loggedOut: function(item) {
+          return item.showWhenloggedOut;
+        },
         ready: function() {
           this.items = [{
-            text: 'Home',
-            icon: 'home',
+            text: 'Featured',
+            icon: 'star',
             route: 'home',
-            uri: '/'
+            uri: '/',
+            showWhenloggedIn: true,
+            showWhenloggedOut: false
           }, {
             text: 'Login',
             icon: 'lock',
             route: 'login',
-            uri: '/login'
+            uri: '/login',
+            showWhenloggedIn: false,
+            showWhenloggedOut: true
           }, {
             text: 'Order',
             icon: 'speaker-notes',
             route: 'order',
-            uri: '/order'
+            uri: '/order',
+            showWhenloggedIn: true,
+            showWhenloggedOut: false
           }, {
             text: 'Profile',
             icon: 'account-circle',
             route: 'profile',
-            uri: '/profile'
+            uri: '/profile',
+            showWhenloggedIn: true,
+            showWhenloggedOut: false
           }, {
             text: 'Contact',
             icon: 'mail',
             route: 'contact',
-            uri: '/contact'
+            uri: '/contact',
+            showWhenloggedIn: true,
+            showWhenloggedOut: true
+          }, {
+            text: 'Logout',
+            icon: 'power-settings-new',
+            route: 'login',
+            uri: '/login',
+            showWhenloggedIn: true,
+            showWhenloggedOut: false
           }];
-          this.avatar = app.getUserAvatar();
-          this.user = app.getUserName();
         }
       });
     })();
