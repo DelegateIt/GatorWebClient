@@ -11,33 +11,6 @@ GAT.webapi = function() {
 
     var debug = true;
 
-    var api_url = "";
-    var notify_url = "";
-
-    s.setApiMode = function(mode) {
-        if (mode == "local") {
-            api_url = "http://localhost:8000/";
-            notify_url = "http://localhost:8060/";
-        } else if (mode == "production"){
-            //api_url = "http://backend-lb-125133299.us-west-2.elb.amazonaws.com/";
-            api_url = "http://gator-api.elasticbeanstalk.com/";
-            notify_url = "http://gator-ntfy.elasticbeanstalk.com/";
-        } else if (mode == "test") {
-            api_url = "http://test-gator-api.elasticbeanstalk.com/";
-            notify_url = "http://test-gator-ntfy.elasticbeanstalk.com/";
-        } else {
-            throw mode + " - is not a valid mode";
-        }
-    };
-
-    s.getApiUrl = function() {
-        return api_url;
-    };
-
-    s.getNotifyUrl = function() {
-        return notify_url;
-    };
-
     var notify = function(future, futureData, success, logMsg, logData, noLog) {
         if (!noLog) {
             var logLevel = success ? "debug" : "warning";
@@ -48,7 +21,7 @@ GAT.webapi = function() {
     };
 
     var formatUrl = function(components) {
-        var custom = s.getApiUrl();
+        var custom = GAT.config.apiUrl + "/";
         for (var i = 0; i < components.length; i++) {
             custom += encodeURIComponent(components[i]) + "/";
         }
@@ -126,10 +99,10 @@ GAT.webapi = function() {
         return sendRestApiReq("GET", components);
     };
 
-    s.sendMessage = function(transactionId, msg, platformType, fromCustomer) {
+    s.sendMessage = function(transactionId, msg, fromCustomer, type) {
         var components = ["core", "send_message", transactionId];
         var httpData = {
-            "platform_type": platformType,
+            "type": type,
             "content": msg,
             "from_customer": fromCustomer
         };
@@ -162,10 +135,21 @@ GAT.webapi = function() {
             "fbuser_id": fbuser_id,
             "fbuser_token": fbuser_token
         };
-        return sendRestApiReq("POST", components, httpData);
+        return sendRestApiReq("POST", components, httpData, true);
     };
 
-    s.setApiMode("local");
+    s.createDelegator = function(firstName, lastName, phone, email, fbuserId, fbuserToken) {
+        var components = ["core", "delegator"];
+        var httpData = {
+            "first_name": firstName,
+            "last_name": lastName,
+            "phone_number": phone,
+            "email": email,
+            "fbuser_id": fbuserId,
+            "fbuser_token": fbuserToken
+        };
+        return sendRestApiReq("POST", components, httpData);
+    };
 
     return s;
 }();

@@ -1,5 +1,8 @@
 "use strict";
 
+//gets overwritten in run
+var loginDelegator = function() {};
+
 angular.module("app", ["ngRoute", "ngCookies"])
 .config(["$routeProvider", function($routeProvider) {
     $routeProvider.
@@ -15,14 +18,29 @@ angular.module("app", ["ngRoute", "ngCookies"])
             "templateUrl": "/routes/login.html",
             "controller": "loginCtrl"
         }).
+        when("/register/", {
+            "templateUrl": "/routes/register.html",
+            "controller": "registerCtrl"
+        }).
+        when("/delegator/:delegatorId", {
+            "templateUrl": "/routes/delegator.html",
+            "controller": "delegatorCtrl"
+        }).
+        when("/delegator/", {
+            "templateUrl": "/routes/delegator.html",
+            "controller": "delegatorCtrl"
+        }).
+        when("/customer/:customerId", {
+            "templateUrl": "/routes/customer.html",
+            "controller": "customerCtrl"
+        }).
         otherwise({
             redirectTo: "/login/"
         });
 }])
 .run(["$timeout", "$location", "$cookies", "$window", function($timeout, $location, $cookies, $window) {
     GAT.view.updateAfter = $timeout;
-    GAT.utils.logger.log("info", "Setting api mode to " + GAT.apiMode);
-    GAT.webapi.setApiMode(GAT.apiMode);
+    GAT.utils.logger.log("info", "Using config: " + JSON.stringify(GAT.config));
     GAT.transaction.initialize();
     GAT.auth.onLogout.push(function() {
         $cookies.remove("userlogin");
@@ -36,15 +54,28 @@ angular.module("app", ["ngRoute", "ngCookies"])
         if($location.path() === "/login/")
             $location.path("/transaction/");
     });
+    loginDelegator =  function() {
+        if (GAT.auth.isLoggedIn())
+            return;
+        GAT.auth.loginDelegator().onError(function(resp) {
+            if ("result" in resp && resp.result === 9) {
+                GAT.utils.logger.log("info", "Delegator account does not exist. Redirecting to register page");
+                $location.path("/register/");
+            }
+        });
+    };
     if (typeof($cookies.getObject("userlogin")) !== "undefined") {
+        GAT.utils.logger.log("info", "Logging in with stored token cookie");
         GAT.auth.setUser($cookies.getObject("userlogin"));
+    } else {
+        authLoad.loadedAuth();
     }
 }])
 .controller("mainCtrl", ["$scope", "$location", "$cookies",
         function($scope, $location, $cookies) {
 
     $scope.getApiMode = function() {
-        return GAT.apiMode;
+        return (GAT.config.apiUrl != "http://gatorapi.elasticbeanstalk.com:80") ? "test" : "production";
     };
 
     $scope.$on('$routeChangeSuccess', function() {
@@ -52,7 +83,8 @@ angular.module("app", ["ngRoute", "ngCookies"])
         if (GAT.auth.isLoggedIn() && $location.path() === "/login/")
             $location.path("/transaction/");
 
-        if (!GAT.auth.isLoggedIn() && $location.path() !== "/login/") {
+        if (!GAT.auth.isLoggedIn() && ($location.path() !== "/login/" &&
+                $location.path() !== "/register/")) {
             $location.path("/login/");
         }
     });
@@ -76,8 +108,93 @@ angular.module("app", ["ngRoute", "ngCookies"])
         return GAT.delegator.cache[user.id].name;
     };
 
+    $scope.login = function() {
+        $("#LoginBtn").button("loading");
+        FB.login(function(resp) {
+            loginDelegator()
+            $("#LoginBtn").button("reset");
+        });
+    };
+
     $scope.logout = GAT.auth.logout;
 
+}])
+.controller("customerCtrl", ["$scope", "$routeParams", function($scope, $routeParams) {
+    $scope.selectedCustomer = null;
+
+    if (typeof($routeParams.customerId) !== "undefined") {
+        var customerId = $routeParams.customerId;
+        GAT.customer.load(customerId).onSuccess(function() {
+            $scope.selectedCustomer = GAT.customer.cache[customerId];
+        });
+    }
+}])
+.controller("transactionListCtrl", ["$scope", function($scope) {
+    $scope.getTitle = function(transactionId) {
+        if (transactionId in GAT.transaction.cache) {
+            var transaction = GAT.transaction.cache[transactionId];
+            if (transaction.receipt.items.length === 0)
+                return "Nothing purchased";
+            else
+                return transaction.receipt.items[0].name;
+        } else {
+            return "Loading...";
+        }
+    };
+
+    $scope.getDate = function(transactionId) {
+        if (transactionId in GAT.transaction.cache)
+            return GAT.utils.toDateString(GAT.transaction.cache[transactionId].startTimestamp);
+        return "";
+    };
+
+    $scope.getDelegator = function(transactionId) {
+        if (transactionId in GAT.transaction.cache) {
+            var transaction = GAT.transaction.cache[transactionId];
+            return GAT.delegator.cache[transaction.delegatorId];
+        }
+        return "";
+    };
+
+    $scope.getCustomer = function(transactionId) {
+        if (transactionId in GAT.transaction.cache) {
+            var transaction = GAT.transaction.cache[transactionId];
+            if (transaction.customerId in GAT.customer.cache)
+                return GAT.customer.cache[transaction.customerId];
+            else
+                GAT.customer.load(transaction.customerId);
+        }
+        return "";
+    };
+
+    $scope.isActiveOrder = function(transactionId) {
+        return transactionId in GAT.transaction.cache &&
+                GAT.transaction.cache[transactionId].state !==
+                GAT.transaction.states.COMPLETED;
+    };
+}])
+.controller("delegatorCtrl", ["$scope", "$routeParams", function($scope, $routeParams) {
+
+    $scope.selectedDelegator = null;
+
+    $scope.getDelegators = function() {
+        return GAT.delegator.cache;
+    };
+
+    if (typeof($routeParams.delegatorId) !== "undefined") {
+        var delegatorId = $routeParams.delegatorId;
+        var loaded = function() {
+            GAT.transaction.loadList(GAT.delegator.cache[delegatorId].transactionIds);
+            $scope.selectedDelegator = GAT.delegator.cache[delegatorId];
+        };
+        if (delegatorId in GAT.delegator.cache) {
+            loaded();
+        } else {
+            GAT.delegator.getLoadListFuture().onSuccess(function() {
+                loaded();
+            });
+        }
+    }
 }])
 .controller("tranStatCtrl", ["$scope",
         function($scope) {
@@ -94,12 +211,6 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.getDelegators = function() {
         return GAT.delegator.cache;
-    };
-
-    $scope.getLoggedInDelegator = function() {
-        if (!GAT.auth.isLoggedIn())
-            return null;
-        return GAT.delegator.cache[GAT.auth.getLoggedInUser().id];
     };
 
     $scope.setState = function(newState) {
@@ -127,6 +238,12 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.selected = null;
 
+    $scope.getLoggedInDelegator = function() {
+        if (!GAT.auth.isLoggedIn())
+            return null;
+        return GAT.delegator.cache[GAT.auth.getLoggedInUser().id];
+    };
+
     $scope.isCustomerListEmpty = function() {
         for (var i in GAT.transaction.cache)
             if ($scope.isTransactionActive(GAT.transaction.cache[i]))
@@ -151,6 +268,21 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.isTransactionActive = function(transaction) {
         return transaction.state !== GAT.transaction.states.COMPLETED &&
                 transaction.delegatorId == GAT.auth.getLoggedInUser().id;
+    };
+
+    $scope.getUnreadMsgCount = function(transactionId) {
+        var count = 0;
+        if (transactionId in GAT.transaction.cache) {
+            var messages = GAT.transaction.cache[transactionId].messages;
+            for (var i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].fromCustomer)
+                    count++;
+                else {
+                    break;
+                }
+            }
+        }
+        return (count == 0) ? "" : count;
     };
 
     $scope.getTransactions = function() {
@@ -186,7 +318,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     $scope.sendMessageText = "";
 
-    $scope.tmpMessageText = "";
+    $scope.isSending = false;
 
     var updateTextInputSize = function() {
         //When this function is called, angular has not finished updating the view,
@@ -198,25 +330,38 @@ angular.module("app", ["ngRoute", "ngCookies"])
         }, 300);
     };
 
-    $scope.sendMessage = function($event) {
+    $scope.sendMessage = function(type) {
         $("#sendMsgBtn").button("loading");
-        $scope.tmpMessageText = $scope.sendMessageText;
-        GAT.transaction.sendMessage($scope.selected.id, $scope.sendMessageText).
+        $scope.isSending = true;
+        GAT.transaction.sendMessage($scope.selected.id, $scope.sendMessageText, type).
             onResponse(function() {
-                $scope.tmpMessageText = "";
+                $scope.isSending = false;
                 $("#sendMsgBtn").button("reset");
             });
         $scope.sendMessageText = "";
         updateTextInputSize();
     };
 
-    $scope.insertReceipt = function() {
-        var text = $scope.sendMessageText === "" ? "" : "\r\n";
-        for (var i in $scope.selected.receipt.items)
-            text += $scope.selected.receipt.items[i].name + "\r\n";
-        text += $scope.selected.paymentUrl;
-        $scope.sendMessageText += text;
-        updateTextInputSize();
+    $scope.sendReceipt = function() {
+        var text = "Receipt: \r\n";
+        text += "Items: ";
+        for (var i in $scope.selected.receipt.items) {
+            text += $scope.selected.receipt.items[i].name;
+            if (i != $scope.selected.receipt.items.length - 1)
+                text += ", ";
+        }
+        text += "\r\nTotal cost: " + Math.floor($scope.selected.receipt.total) / 100;
+        if ($scope.selected.receipt.notes != "")
+            text += "\r\nNotes: " + $scope.selected.receipt.notes;
+        text += "\r\n Pay here: " + $scope.selected.paymentUrl;
+        $scope.sendMessageText = text;
+        $scope.sendMessage("receipt");
+    };
+
+    $scope.toDateString = function(timestamp) {
+        if (timestamp == -1)
+            return "Sending...";
+        return GAT.utils.toDateString(timestamp);
     };
 
 }])
@@ -325,6 +470,31 @@ controller("pastTransactionCtrl", ["$scope", function($scope) {
             return "#" + index;
         }
     };
+}]).
+controller("registerCtrl", ["$scope", "$location", function($scope, $location) {
+    $scope.firstName = "";
+    $scope.lastName = "";
+    $scope.phoneNumber = "";
+    $scope.email = "";
+
+    $scope.onSubmit = function() {
+
+        FB.getLoginStatus(function(resp) {
+            if (resp.status !== "connected") {
+                GAT.utils.logger.log("warning", "You are not logged into facebook");
+                return;
+            }
+            var fbToken = resp.authResponse.accessToken;
+            var fbId = resp.authResponse.userID;
+            GAT.webapi.createDelegator($scope.firstName, $scope.lastName, $scope.phoneNumber,
+                    $scope.email, fbId, fbToken).onSuccess(function() {
+                        GAT.utils.logger.log("info", "Created delegator");
+                        GAT.auth.loginDelegator().onSuccess(function() {
+                            $location.path("/transaction/");
+                        });
+                    });
+        });
+    };
 }]);
 
 var GAT = GAT || {};
@@ -339,4 +509,3 @@ GAT.view = function() {
 
     return s;
 }();
-

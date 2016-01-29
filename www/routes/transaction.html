@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-2">
         <div class="panel panel-default">
-            <div class="panel-heading">Customers</div>
+            <div class="panel-heading">Active Orders</div>
             <div class="panel-body">
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="active-tab">
@@ -11,7 +11,10 @@
                                     data-ng-repeat="(tId, t) in getTransactions()"
                                     data-ng-class="{'active': t.id == selected.id}"
                                     data-ng-show="isTransactionActive(t)">
-                                <a data-ng-href="#/transaction/{{t.id}}">{{getCustomerName(t.customerId)}}</a>
+                                <a data-ng-href="#/transaction/{{t.id}}">
+                                    {{getCustomerName(t.customerId)}}
+                                    <span class="badge">{{getUnreadMsgCount(tId)}}</span>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -26,15 +29,10 @@
                         <span class="glyphicon glyphicon-plus"></span> Add customer
                     </button>
                 </div>
+                <div class="text-center padded" style="margin-bottom:auto">
+                    <a href="#/delegator/{{getLoggedInDelegator().id}}">View all orders</a>
+                </div>
             </div>
-            <!--
-            <div class="panel-footer">
-                <ul class="nav nav-pills nav-stacked" role="tablist">
-                    <li role="presentation" class="active"><a href data-target="#active-tab" role="tab" data-toggle="tab">Active</a></li>
-                    <li role="presentation"><a href data-target="#past-tab" role="tab" data-toggle="tab">Past</a></li>
-                </ul>
-            </div>
-            -->
         </div>
     </div>
     <div data-ng-show="selected === null" class="col-md-10">
@@ -45,10 +43,10 @@
         </div>
     </div>
     <div data-ng-hide="selected === null" class="col-md-10">
-        <h3>{{getCustomer().name}}</h3>
+        <h3><a href="#/customer/{{getCustomer().id}}">{{getCustomer().name}}</a></h3>
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href data-target="#messages-tab" role="tab" data-toggle="tab">Messages</a></li>
-            <li role="presentation"><a href data-target="#info-tab" role="tab" data-toggle="tab">Customer Info</a></li>
+            <li role="presentation"><a href data-target="#info-tab" role="tab" data-toggle="tab">Transaction Info</a></li>
         </ul>
         <div class="tab-content">
             <div data-ng-controller="messageCtrl" role="tabpanel" class="tab-pane fade in active" id="messages-tab">
@@ -59,26 +57,23 @@
                                     data-ng-class="{
                                         'msg-sent': !msg.fromCustomer,
                                         'msg-recv': msg.fromCustomer
-                                    }"
-                                    class="well well-sm">
-                                <div data-ng-repeat="line in msg.content.split('\n') track by $index">{{line}}</div>
-                            </div>
-                        </div>
-                        <div>
-                            <div data-ng-hide="tmpMessageText === ''" class="msg-sent well well-sm">
-                                <div data-ng-repeat="tline in tmpMessageText.split('\n')">{{tline}}</div>
+                                    }" style="margin-bottom:10px">
+                                <div class="well well-sm" data-ng-class="{'msg-sent-style': !msg.fromCustomer}" style="margin-bottom: 0px">
+                                    <div data-ng-repeat="line in msg.content.split('\n') track by $index">{{line}}</div>
+                                </div>
+                                <div class="text-muted">{{toDateString(msg.timestamp)}}</div>
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
                         <div class="input-group">
-                            <textarea data-ng-model="sendMessageText" data-ng-disabled="tmpMessageText !== ''" class="form-control message-input" rows="1" id="messageInput" placeholder="Send a message"></textarea>
+                            <textarea data-ng-model="sendMessageText" data-ng-disabled="isSending" class="form-control message-input" rows="1" id="messageInput" placeholder="Send a message"></textarea>
                             <span class="input-group-btn">
-                                <button data-ng-click="insertReceipt()" data-ng-disabled="!selected.receipt.isSaved" class="btn btn-default" type="button">
-                                    <span class="glyphicon glyphicon-list-alt"></span><span class="hidden-xs"> Insert receipt</span>
+                                <button data-ng-click="sendReceipt()" data-ng-disabled="!selected.receipt.isSaved" class="btn btn-default" type="button">
+                                    <span class="glyphicon glyphicon-list-alt"></span><span class="hidden-xs"> Send receipt</span>
                                 </button>
                                 <button
-                                        data-ng-click="sendMessage()"
+                                        data-ng-click="sendMessage('text')"
                                         data-ng-disabled="selected.state === 'completed'"
                                         data-loading-text="Sending..."
                                         class="btn btn-success"
@@ -95,22 +90,6 @@
                 <div class="panel panel-default tabbed-panel">
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-6" data-ng-hide="selected === null">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">Customer Info</div>
-                                    <div class="panel-body">
-                                        <div>
-                                            <label>Name </label> <span class="indent">{{getCustomer().name}}</span>
-                                        </div>
-                                        <div data-ng-show="getCustomer().phone !== null">
-                                            <label>Phone number </label> <span class="indent">{{getCustomer().phone}}</span>
-                                        </div>
-                                        <div data-ng-show="getCustomer().email !== null">
-                                            <label>Email </label> <span class="indent">{{getCustomer().email}}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-md-6" data-ng-controller="tranStatCtrl" data-ng-hide="selected === null">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">Transaction</div>
@@ -130,7 +109,7 @@
                                         <div class="dropdown v-space">
                                             <label>Assigned </label>
                                             <button class="btn btn-default dropdown-toggle indent" type="button" data-toggle="dropdown">
-                                                {{getLoggedInDelegator().name}}
+                                                {{getDelegators()[selected.delegatorId].name}}
                                                 <span class="caret"></span>
                                             </button>
                                             <ul class="dropdown-menu indent">
@@ -173,18 +152,6 @@
                                     <div class="panel-footer">
                                         <button data-ng-disabled="!canEdit()" class="btn btn-success" type="button" data-toggle="modal" data-target="#EditReceiptModal"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="panel panel-default" data-ng-controller="pastTransactionCtrl">
-                                    <div class="panel-heading">Past transactions</div>
-                                    <table class="table" style="max-height:200px; overflow-y:scroll;">
-                                        <tbody>
-                                            <tr data-ng-repeat="tId in getCustomer().transactionIds">
-                                                <td class="text-center"><a href data-ng-click="switchToTransaction(tId)">{{getTitle(tId, $index)}}</a></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>

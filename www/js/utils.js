@@ -120,7 +120,7 @@ GAT.utils = function() {
             "error": 3
         });
 
-        logger.minLevel = "info";
+        logger.minLevel = GAT.config.logLevel;
 
         logger.Handler = function(level, callback) {
             this.levelIndex = logger.levels[level];
@@ -204,4 +204,3 @@ GAT.Updater.prototype.connect = function(url) {
         }
     });
 };
-

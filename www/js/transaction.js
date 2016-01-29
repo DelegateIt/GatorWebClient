@@ -38,9 +38,10 @@ GAT.transaction = function() {
         this.cost = cost;
     };
 
-    s.Message = function(content, fromCustomer) {
+    s.Message = function(content, fromCustomer, timestamp) {
         this.content = content;
         this.fromCustomer = !!fromCustomer;
+        this.timestamp = timestamp;
     };
 
     s.Receipt = function() {
@@ -51,12 +52,10 @@ GAT.transaction = function() {
         this.items = [];
     };
 
-    s.sendMessage = function(transactionId, message) {
-        return GAT.webapi.sendMessage(transactionId, message, "web_client", false).
-            onSuccess(function() {
-                if (transactionId in s.cache)
-                    s.cache[transactionId].messages.push(new s.Message(message, false));
-            });
+    s.sendMessage = function(transactionId, message, type) {
+        if (transactionId in s.cache)
+            s.cache[transactionId].messages.push(new s.Message(message, false, -1));
+        return GAT.webapi.sendMessage(transactionId, message, false, type);
     };
 
     s.reassign = function(transactionId, delegatorId) {
@@ -77,17 +76,7 @@ GAT.transaction = function() {
         for (var i in receipt.items)
             sum += receipt.items[i].cost;
 
-        var fee = 0.0;
-        if (sum < 20.0)
-            fee = sum * 0.18;
-        else if (sum < 50.0)
-            fee = sum * 0.15;
-        else if (sum < 100.0)
-            fee = sum * 0.125;
-        else if (sum < 250.0)
-            fee = sum * 0.10;
-        else
-            fee = sum * 0.08;
+        var fee = 5 + sum * 0.05;
 
         return Math.floor((sum + fee) * 100);//USD in cents
     };
@@ -146,11 +135,14 @@ GAT.transaction = function() {
         }
         var count = transaction.messages.length;
         if (resp.hasOwnProperty("messages") && (resp.messages.length != count ||
-                    transaction.messages[count - 1].content != resp.messages[count - 1].content)) {
+                    transaction.messages[count - 1].timestamp != resp.messages[count - 1].timestamp)) {
 
             transaction.messages = [];
             for (var i = 0; i < resp.messages.length; i++) {
-                var m = new s.Message(resp.messages[i].content, resp.messages[i].from_customer);
+                var m = new s.Message(
+                    resp.messages[i].content,
+                    resp.messages[i].from_customer,
+                    Math.floor(resp.messages[i].timestamp / 1000));
                 transaction.messages.push(m);
             }
         }
@@ -199,7 +191,7 @@ GAT.transaction = function() {
     };
 
     s.initialize = function() {
-        updater.connect(GAT.webapi.getNotifyUrl());
+        updater.connect(GAT.config.notifierUrl);
     };
 
     return s;

@@ -12,8 +12,6 @@ GAT.auth = function() {
 
     var user = null;
 
-    var FB = null;
-
     s.onLogin = []; //[function, ...]
     s.onLogout = []; //[function, ...]
 
@@ -33,49 +31,36 @@ GAT.auth = function() {
     };
 
     s.login = function(type, fbUserId, fbUserToken) {
-        GAT.webapi.login(type, fbUserId, fbUserToken).onSuccess(function(resp) {
+        return GAT.webapi.login(type, fbUserId, fbUserToken).onSuccess(function(resp) {
             s.setUser(new User(resp.delegator.uuid, type, resp.token));
         });
     };
 
     s.loginDelegator = function() {
-        window.FB.getLoginStatus(function(resp) {
+        var future = new GAT.utils.Future();
+        FB.getLoginStatus(function(resp) {
             GAT.utils.logger.log("info", "Received fb login status", resp);
             if (resp.status === "connected") {
                 var fbUserToken = resp.authResponse.accessToken;
                 var fbUserId = resp.authResponse.userID;
-                s.login("delegator", fbUserId, fbUserToken);
+                s.login("delegator", fbUserId, fbUserToken).
+                  onResponse(function(success, resp) {
+                      future.notify(resp, success);
+                  });
+            } else {
+                future.notify(resp, false);
             }
         });
+        return future;
     };
 
     s.logout = function() {
         GAT.utils.logger.log("info", "Logging out delegator", user);
-        window.FB.logout(function(response) {});
         user = null;
+        FB.logout(function(response) {});
         for (var i in s.onLogout)
             s.onLogout[i]();
     };
 
     return s;
 }();
-
-window.fbAsyncInit = function() {
-    FB.init({
-        appId          : '925854587499768',
-        cookie         : true,
-        xfbml          : true,
-        version        : 'v2.5'
-    });
-
-    if (!GAT.auth.isLoggedIn())
-        GAT.auth.loginDelegator();
-
-};
-
-//async load the fb sdk
-(function(d) {
-    var js = d.getElementById("fb-auth-inject");
-    js.src = "//connect.facebook.net/en_US/sdk.js";
-}(document));
-
