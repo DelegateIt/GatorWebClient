@@ -43,14 +43,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   });
 
   // Listen for signin-success event
-  window.addEventListener('signin-success', function(e) {
+  window.addEventListener('signin-success', function() {
     if (app.route === 'login') {
       window.location.href = '/';
     }
   });
 
   // Listen for signout-success event
-  window.addEventListener('signout-success', function(e) {
+  window.addEventListener('signout-success', function() {
     if (app.route !== 'login') {
       window.location.href = '/login';
     }

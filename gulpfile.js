@@ -72,7 +72,8 @@ var optimizeHtmlTask = function(src, dest) {
 
   return gulp.src(src)
     // Replace path for vulcanized assets
-    .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.vulcanized.html')))
+    .pipe($.if('*.html',
+      $.replace('elements/elements.html', 'elements/elements.vulcanized.html')))
     .pipe(assets)
     // Concatenate and minify JavaScript
     .pipe($.if('*.js', $.uglify({
@@ -238,7 +239,7 @@ gulp.task('clean', function() {
 });
 
 // Watch files for changes & reload
-gulp.task('serve', [/*'lint',*/ 'styles', 'elements', 'images'], function() {
+gulp.task('serve', ['lint', 'styles', 'elements', 'images'], function() {
   browserSync({
     port: 8080,
     notify: false,
@@ -314,16 +315,16 @@ gulp.task('build-deploy-gh-pages', function(cb) {
 });
 
 // Deploy to GitHub pages gh-pages branch
-gulp.task('deploy-gh-pages', function() {
-  return gulp.src(dist('**/*'))
-    // Check if running task from Travis Cl, if so run using GH_TOKEN
-    // otherwise run using ghPages defaults.
-    .pipe($.if(process.env.TRAVIS === 'true', $.ghPages({
-      remoteUrl: 'https://$GH_TOKEN@github.com/polymerelements/polymer-starter-kit.git',
-      silent: true,
-      branch: 'gh-pages'
-    }), $.ghPages()));
-});
+// gulp.task('deploy-gh-pages', function() {
+//   return gulp.src(dist('**/*'))
+//     // Check if running task from Travis Cl, if so run using GH_TOKEN
+//     // otherwise run using ghPages defaults.
+//     .pipe($.if(process.env.TRAVIS === 'true', $.ghPages({
+//       remoteUrl: 'https://$GH_TOKEN@github.com/polymerelements/polymer-starter-kit.git',
+//       silent: true,
+//       branch: 'gh-pages'
+//     }), $.ghPages()));
+// });
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
