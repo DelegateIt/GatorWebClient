@@ -14,7 +14,6 @@ GAT.customer = function() {
         this.id = null;
         this.phone = null;
         this.email = null;
-        this.transactionIds = [];
         this.autoGenName = false;
     };
 
@@ -44,11 +43,6 @@ GAT.customer = function() {
         customer.email = null;
         if ("email" in resp)
             customer.email = resp.email;
-        customer.transactionIds = [];
-        if ("active_transaction_uuids" in resp)
-            customer.transactionIds = resp.active_transaction_uuids;
-        if ("inactive_transaction_uuids" in resp)
-            customer.transactionIds.push.apply(customer.transactionIds, resp.inactive_transaction_uuids);
         s.cache[customer.id] = customer;
     };
 
@@ -77,18 +71,9 @@ GAT.customer = function() {
     };
 
     s.deepLoad = function(customerId) {
-        var load = function() {
-            var customer = s.cache[customerId];
-            GAT.transaction.loadList(customer.transactionIds);
-        };
-
-        if (customerId in s.cache) {
-            load();
-        } else {
-            s.load(customerId).onSuccess(function() {
-                load();
-            });
-        }
+        if (!(customerId in s.cache))
+            s.load(customerId);
+        GAT.transaction.loadCustomersTransactions(customerId);
     };
 
     var adjectiveList = ["Adorable", "Adventurous", "Aggressive", "Alert", "Attractive", "Average", "Beautiful", "Blue-eyed ", "Bloody", "Blushing", "Bright", "Clean", "Clear", "Cloudy", "Colorful", "Crowded", "Cute", "Dark", "Drab", "Distinct", "Dull", "Elegant", "Excited", "Fancy", "Filthy", "Glamorous", "Gleaming", "Gorgeous", "Graceful", "Grotesque", "Handsome", "Homely", "Light", "Long", "Magnificent", "Misty", "Motionless", "Muddy", "Old-fashioned", "Plain", "Poised", "Precious", "Quaint", "Shiny", "Smoggy", "Sparkling", "Spotless", "Stormy", "Strange", "Ugly", "Ugliest", "Unsightly", "Unusual", "Wide-eyed", "Alive", "Annoying", "Bad", "Better", "Beautiful", "Brainy", "Breakable", "Busy", "Careful", "Cautious", "Clever", "Clumsy", "Concerned", "Crazy", "Curious", "Dead", "Different", "Difficult", "Doubtful", "Easy", "Expensive", "Famous", "Fragile", "Frail", "Gifted", "Helpful", "Helpless", "Horrible", "Important", "Impossible", "Inexpensive", "Innocent", "Inquisitive", "Modern", "Mushy", "Odd", "Open", "Outstanding", "Poor", "Powerful", "Prickly", "Puzzled", "Real", "Rich", "Shy", "Sleepy", "Stupid", "Super", "Talented", "Tame", "Tender", "Tough", "Uninterested", "Vast", "Wandering", "Wild", "Wrong", "Agreeable", "Amused", "Brave", "Calm", "Charming", "Cheerful", "Comfortable", "Cooperative", "Courageous", "Delightful", "Determined", "Eager", "Elated", "Enchanting", "Encouraging", "Energetic", "Enthusiastic", "Excited", "Exuberant", "Fair", "Faithful", "Fantastic", "Fine", "Friendly", "Funny", "Gentle", "Glorious", "Good", "Happy", "Healthy", "Helpful", "Hilarious", "Jolly", "Joyous", "Kind", "Lively", "Lovely", "Lucky", "Nice", "Obedient", "Perfect", "Pleasant", "Proud", "Relieved", "Silly", "Smiling", "Splendid", "Successful", "Thankful", "Thoughtful", "Victorious", "Vivacious", "Witty", "Wonderful", "Zealous", "Zany", "Broad", "Chubby", "Crooked", "Curved", "Deep", "Flat", "High", "Hollow", "Low", "Narrow", "Round", "Shallow", "Skinny", "Square", "Steep", "Straight", "Widebig", "Colossal", "Fat", "Gigantic", "Great", "Huge", "Immense", "Large", "Little", "Mammoth", "Massive", "Miniature", "Petite", "Puny", "Scrawny", "Short", "Small", "Tall", "Teeny", "Teeny-tiny", "Tiny", "Bitter", "Delicious", "Fresh", "Juicy", "Ripe", "Rotten", "Salty", "Sour", "Spicy", "Stale", "Sticky", "Strong", "Sweet", "Tart", "Tasteless", "Tasty", "Thirsty", "Fluttering", "Fuzzy", "Greasy", "Grubby", "Hard", "Hot", "Icy", "Loose", "Melted", "Nutritious", "Plastic", "Prickly", "Rainy", "Rough", "Scattered", "Shaggy", "Shaky", "Sharp", "Shivering", "Silky", "Slimy", "Slippery", "Smooth", "Soft", "Solid", "Steady", "Sticky", "Tender", "Tight", "Uneven", "Weak", "Wet", "Wooden", "Yummy", "Boiling", "Breezy", "Broken", "Bumpy", "Chilly", "Cold", "Cool", "Creepy", "Crooked", "Cuddly", "Curly", "Damaged", "Damp", "Dirty", "Dry", "Dusty", "Filthy", "Flaky", "Fluffy", "Freezing", "Hot", "Warm", "Wet", "Abundant", "Empty", "Few", "Heavy", "Light", "Many", "Numerous", "Substantial"];

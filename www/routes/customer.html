@@ -32,7 +32,7 @@
                     <th class="text-muted">Assigned Delegator</th>
                     <th class="text-center text-muted">Order</th>
                 </tr>
-                <tr data-ng-repeat="tId in selectedCustomer.transactionIds">
+                <tr data-ng-repeat="(tId, t) in transactions" data-ng-show="t.customerId == selectedCustomer.id">
                     <td>{{getDate(tId)}}</td>
                     <td><a href="#/delegator/{{getDelegator(tId).id}}">{{getDelegator(tId).name}}</a></td>
                     <td class="text-center">

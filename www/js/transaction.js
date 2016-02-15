@@ -16,6 +16,8 @@ GAT.transaction = function() {
         "COMPLETED": "completed"
     });
 
+    var cachedTransactionLists = {};
+
     s.cache = {};
 
     var loadInProgress = {}; //{transactionId: Future}
@@ -157,6 +159,31 @@ GAT.transaction = function() {
         GAT.customer.load(transaction.customerId);
     };
 
+    var loadUsersTransactions = function(type, userId) {
+        var future = new GAT.utils.Future();
+        if (userId in cachedTransactionLists) {
+            future.notify({}, true);
+        } else {
+            //Store an empty value. It's never used so it doesn't matter
+            cachedTransactionLists[userId] = null;
+            GAT.webapi.loadUsersTransactions(type, userId).
+                onSuccess(function(resp) {
+                    resp.transactions.forEach(onTransactionLoad);
+                }).onResponse(function(success) {
+                    future.notify({}, success);
+                });
+        }
+        return future;
+    };
+
+    s.loadDelegatorsTransactions = function(delegatorId) {
+        return loadUsersTransactions("delegator", delegatorId);
+    };
+
+    s.loadCustomersTransactions = function(customerId) {
+        return loadUsersTransactions("customer", customerId);
+    };
+
     s.load = function(transactionId) {
         if (transactionId in loadInProgress)
             return loadInProgress[transactionId];
@@ -179,15 +206,6 @@ GAT.transaction = function() {
             });
         }
         return future;
-    };
-
-    s.loadList = function(transactionIds) {
-        for (var i in transactionIds) {
-            var id = transactionIds[i];
-            if (id in s.cache)
-                continue;
-            s.load(id);
-        }
     };
 
     s.initialize = function() {

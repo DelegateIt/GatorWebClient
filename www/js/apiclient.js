@@ -6,7 +6,8 @@ var has = function(obj, property) {
     return obj.hasOwnProperty(property);
 };
 
-GAT.webapi = function() {
+GAT.webapi = (function() {
+    "use strict";
     var s = {};
 
     var debug = true;
@@ -20,14 +21,23 @@ GAT.webapi = function() {
             future.notify(futureData, success);
     };
 
-    var formatUrl = function(components) {
+    var formatUrl = function(components, query) {
         var custom = GAT.config.apiUrl + "/";
         for (var i = 0; i < components.length; i++) {
             custom += encodeURIComponent(components[i]) + "/";
         }
         custom = custom.substring(0, custom.length - 1);
         if (GAT.auth.isLoggedIn())
-            custom += "?token=" + encodeURIComponent(GAT.auth.getLoggedInUser().apiToken);
+            query["token"] = GAT.auth.getLoggedInUser().apiToken;
+        var querystr = "";
+        Object.keys(query).forEach(key => {
+            if (querystr.length == 0)
+                querystr += "?";
+            else
+                querystr += "&";
+            querystr += encodeURIComponent(key) + "=" + encodeURIComponent(query[key]);
+        });
+        custom += querystr;
         return custom;
     };
 
@@ -48,9 +58,10 @@ GAT.webapi = function() {
         }
     };
 
-    var sendRestApiReq = function(method, urlComponents, data, noLog) {
+    var sendRestApiReq = function(method, urlComponents, data, query, noLog) {
         noLog = (typeof(noLog) === "undefined") ? false : noLog;
-        var url = formatUrl(urlComponents);
+        query = (typeof(query) === "undefined") ? {} : query;
+        var url = formatUrl(urlComponents, query);
         var future = new GAT.utils.Future();
         var http = new XMLHttpRequest();
 
@@ -80,6 +91,14 @@ GAT.webapi = function() {
     s.getTransaction = function(transactionId) {
         var components = ["core", "transaction", transactionId];
         return sendRestApiReq("GET", components);
+    };
+
+    s.loadUsersTransactions = function(type, userId) {
+        var keyName = (type == "customer") ? "customer_uuid" : "delegator_uuid";
+        var query = {};
+        query[keyName] = userId;
+        var components = ["core", "transaction"];
+        return sendRestApiReq("GET", components, null, query);
     };
 
     s.updateTransaction = function(transactionId, delegatorId, transStatus, receipt) {
@@ -135,7 +154,7 @@ GAT.webapi = function() {
             "fbuser_id": fbuser_id,
             "fbuser_token": fbuser_token
         };
-        return sendRestApiReq("POST", components, httpData, true);
+        return sendRestApiReq("POST", components, httpData, {}, true);
     };
 
     s.createDelegator = function(firstName, lastName, phone, email, fbuserId, fbuserToken) {
@@ -152,4 +171,4 @@ GAT.webapi = function() {
     };
 
     return s;
-}();
+})();

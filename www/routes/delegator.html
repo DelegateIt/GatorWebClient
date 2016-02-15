@@ -5,12 +5,10 @@
             <table class="table">
                 <thead>
                     <th>Delegator's Name</th>
-                    <th class="text-center">Total Orders</th>
                 </thead>
                 <tbody>
                     <tr data-ng-repeat="(dId, delegator) in getDelegators()">
                         <td><a href="#/delegator/{{dId}}">{{delegator.name}}</a></td>
-                        <td class="text-center">{{delegator.transactionIds.length}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -31,9 +29,6 @@
                 <div>
                     <label>Email </label> <span class="indent">{{selectedDelegator.email}}</span>
                 </div>
-                <div>
-                    <label>Total Orders </label> <span class="indent">{{selectedDelegator.transactionIds.length}}</span>
-                </div>
             </div>
         </div>
     </div>
@@ -48,7 +43,7 @@
                     <th class="text-muted">Customer</th>
                     <th class="text-muted text-centered">Order</th>
                 </tr>
-                <tr data-ng-repeat="tId in selectedDelegator.transactionIds">
+                <tr data-ng-repeat="(tId, t) in transactions" data-ng-show="t.delegatorId == selectedDelegator.id">
                     <td>{{getDate(tId)}}</td>
                     <td><a href="#/customer/{{getCustomer(tId).id}}">{{getCustomer(tId).name}}</a></td>
                     <td class="text-center">

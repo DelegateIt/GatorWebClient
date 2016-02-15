@@ -7,29 +7,11 @@ GAT.delegator = function() {
 
     var loadListFuture = null;
 
-    var Delegator = function(name, id, phone, email, transactionIds) {
+    var Delegator = function(name, id, phone, email) {
         this.name = name;
         this.id = id;
         this.phone = phone;
         this.email = email;
-        this.transactionIds = transactionIds;
-    };
-
-    s.loadAssignedTransactions = function(delegatorId) {
-        return GAT.webapi.getDelegator(delegatorId).
-            onSuccess(function(resp) {
-                var root = ("delegator" in resp) ? resp.delegator : resp;
-                var transactionIds = [];
-                if ("active_transaction_uuids" in root)
-                    transactionIds = root.active_transaction_uuids;
-                if ("inactive_transaction_uuids" in root)
-                    transactionIds.push.apply(transactionIds, root.inactive_transaction_uuids);
-                for (var i in transactionIds) {
-                    if (transactionIds[i] in GAT.transaction.cache)
-                        continue;
-                    GAT.transaction.load(transactionIds[i]);
-                }
-            });
     };
 
     s.assignUnhelpedTransaction = function(delegatorId) {
@@ -71,11 +53,6 @@ GAT.delegator = function() {
         delegator.id = resp.uuid,
         delegator.phone = resp.phone_number,
         delegator.email = resp.email
-        delegator.transactionIds = [];
-        if ("active_transaction_uuids" in resp)
-            delegator.transactionIds = resp.active_transaction_uuids;
-        if ("inactive_transaction_uuids" in resp)
-            delegator.transactionIds.push.apply(delegator.transactionIds, resp.inactive_transaction_uuids);
     };
 
     return s;

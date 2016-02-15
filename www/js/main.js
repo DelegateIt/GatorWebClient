@@ -50,7 +50,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
         var user = GAT.auth.getLoggedInUser();
         $cookies.putObject("userlogin", user);
         GAT.delegator.loadList();
-        GAT.delegator.loadAssignedTransactions(user.id);
+        GAT.transaction.loadDelegatorsTransactions(user.id);
         if($location.path() === "/login/")
             $location.path("/transaction/");
     });
@@ -124,12 +124,15 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     if (typeof($routeParams.customerId) !== "undefined") {
         var customerId = $routeParams.customerId;
+        GAT.transaction.loadCustomersTransactions(customerId);
         GAT.customer.load(customerId).onSuccess(function() {
             $scope.selectedCustomer = GAT.customer.cache[customerId];
         });
     }
 }])
 .controller("transactionListCtrl", ["$scope", function($scope) {
+    $scope.transactions = GAT.transaction.cache;
+
     $scope.getTitle = function(transactionId) {
         if (transactionId in GAT.transaction.cache) {
             var transaction = GAT.transaction.cache[transactionId];
@@ -183,17 +186,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
 
     if (typeof($routeParams.delegatorId) !== "undefined") {
         var delegatorId = $routeParams.delegatorId;
-        var loaded = function() {
-            GAT.transaction.loadList(GAT.delegator.cache[delegatorId].transactionIds);
+        GAT.transaction.loadDelegatorsTransactions(delegatorId);
+        GAT.delegator.getLoadListFuture().onSuccess(function() {
             $scope.selectedDelegator = GAT.delegator.cache[delegatorId];
-        };
-        if (delegatorId in GAT.delegator.cache) {
-            loaded();
-        } else {
-            GAT.delegator.getLoadListFuture().onSuccess(function() {
-                loaded();
-            });
-        }
+        });
     }
 }])
 .controller("tranStatCtrl", ["$scope",
