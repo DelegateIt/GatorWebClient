@@ -1,8 +1,8 @@
 var GAT = GAT || {};
 
 GAT.config = {
-    "apiUrl": "http://gatorapi.elasticbeanstalk.com:80",
-    "notifierUrl": "http://gatorapi.elasticbeanstalk.com:8060",
+    "apiUrl": "http://api.godelegateit.com",
+    "notifierUrl": "http://notify.godelegateit.com",
     "facebookAppId": "922040531214507",
     "logLevel": "info"
 };
