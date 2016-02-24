@@ -75,7 +75,7 @@ angular.module("app", ["ngRoute", "ngCookies"])
         function($scope, $location, $cookies) {
 
     $scope.getApiMode = function() {
-        return (GAT.config.apiUrl != "http://gatorapi.elasticbeanstalk.com:80") ? "test" : "production";
+        return GAT.config.mode;
     };
 
     $scope.$on('$routeChangeSuccess', function() {
