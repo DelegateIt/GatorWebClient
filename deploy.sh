@@ -23,6 +23,6 @@ aws s3 sync www s3://$s3bucket --include "*" --delete --no-follow-symlinks --acl
 
 if [ "$1" == "live" ]; then
     echo "Invalidating cache in cloudfront"
-    aws cloudfront create-invalidation --distribution-id E2VXSB9TKC6EYA --paths \*
+    aws cloudfront create-invalidation --distribution-id E2VXSB9TKC6EYA --paths "/*"
 fi
 
