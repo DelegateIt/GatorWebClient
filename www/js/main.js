@@ -339,14 +339,14 @@ angular.module("app", ["ngRoute", "ngCookies"])
     };
 
     $scope.sendReceipt = function() {
-        var text = "Receipt: \r\n";
+        var text = "Receipt - \r\n";
         text += "Items: ";
         for (var i in $scope.selected.receipt.items) {
             text += $scope.selected.receipt.items[i].name;
             if (i != $scope.selected.receipt.items.length - 1)
                 text += ", ";
         }
-        text += "\r\nTotal cost: " + Math.floor($scope.selected.receipt.total) / 100;
+        text += "\r\nTotal cost: $" + (Math.floor($scope.selected.receipt.total) / 100).toFixed(2);
         if ($scope.selected.receipt.notes != "")
             text += "\r\nNotes: " + $scope.selected.receipt.notes;
         text += "\r\n Pay here: " + $scope.selected.paymentUrl;
