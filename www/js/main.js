@@ -470,6 +470,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
         $scope.alerts.splice(index, 1);
     };
 
+    $scope.$on("$routeChangeSuccess", function() {
+        $scope.alerts = [];
+    });
+
     GAT.utils.logger.handlers["ui-alert"] = new GAT.utils.logger.Handler("warning",
         function(level, message) {
             var alertMsg = "Whoa, something didn't go right. " + message;
