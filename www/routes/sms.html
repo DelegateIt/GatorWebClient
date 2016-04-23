@@ -1,0 +1,18 @@
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">Create SMS Order</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div ng-class="{'has-error': !isValid()}" class="input-group v-space">
+                        <span class="input-group-addon">Phone</span>
+                        <input ng-model="phone" type="text" class="form-control" placeholder="Phone" required>
+                    </div>
+                    <button data-ng-click="createSmsOrder()" ng-disabled="!isValid()" id="createSmsOrder" data-loading-text="Creating..." class="btn btn-primary pull-right" type="button">
+                        Create SMS order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

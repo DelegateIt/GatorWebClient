@@ -18,6 +18,11 @@
                 <div data-ng-show="selectedCustomer.email !== null">
                     <label>Email </label> <span class="indent">{{selectedCustomer.email}}</span>
                 </div>
+                <div data-ng-show="selectedCustomer.phone !== null" class="pull-right">
+                    <button data-ng-click="addSmsOrder()" id="addSmsOrderBtn" data-loading-text="Creating..." class="btn btn-default" type="button">
+                        Create SMS order
+                    </button>
+                </div>
             </div>
         </div>
     </div>

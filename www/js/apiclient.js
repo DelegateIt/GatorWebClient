@@ -113,6 +113,27 @@ GAT.webapi = (function() {
         return sendRestApiReq("PUT", components, httpData);
     };
 
+    s.openSmsTransaction = function(phoneNumber, delegatorId) {
+        var components = ["sms", "open", phoneNumber];
+        var httpData = { };
+        if (delegatorId !== null)
+            httpData["delegator_uuid"] = delegatorId;
+        return sendRestApiReq("POST", components, httpData);
+    }
+
+    s.createTransaction = function(customerId, type, status, delegatorId) {
+        var components = ["core", "transaction"];
+        var httpData = {
+            customer_platform_type: type,
+            customer_uuid: customerId
+        };
+        if (delegatorId !== null)
+            httpData["delegator_uuid"] = delegatorId;
+        if (status !== null)
+            httpData["status"] = status;
+        return sendRestApiReq("POST", components, httpData);
+    };
+
     s.getCustomer = function(customerId) {
         var components = ["core", "customer", customerId];
         return sendRestApiReq("GET", components);

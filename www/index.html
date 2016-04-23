@@ -33,6 +33,9 @@
                     <li data-ng-class="{'active': isActive('/delegator/')}">
                         <a href="#/delegator/">Delegators</a>
                     </li>
+                    <li data-ng-class="{'active': isActive('/sms')}">
+                        <a href="#/sms/">SMS</a>
+                    </li>
                 </ul>
                 <ul data-ng-controller="loginCtrl" data-ng-hide="!isLoggedIn()" class="nav navbar-nav navbar-right ng-cloak">
                     <li class="navbar-text" style="margin-left:10px">Hello, {{getDelegatorName()}}</li>

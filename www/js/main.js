@@ -34,6 +34,10 @@ angular.module("app", ["ngRoute", "ngCookies"])
             "templateUrl": "/routes/customer.html",
             "controller": "customerCtrl"
         }).
+        when("/sms", {
+            "templateUrl": "/routes/sms.html",
+            "controller": "smsOrderCtrl"
+        }).
         otherwise({
             redirectTo: "/login/"
         });
@@ -119,8 +123,40 @@ angular.module("app", ["ngRoute", "ngCookies"])
     $scope.logout = GAT.auth.logout;
 
 }])
-.controller("customerCtrl", ["$scope", "$routeParams", function($scope, $routeParams) {
+.controller("smsOrderCtrl", ["$scope", "$location", function($scope, $location) {
+
+    $scope.phone = "";
+
+    $scope.createSmsOrder = function() {
+        var phone = $scope.phone;
+        if (phone.charAt(0) != "+")
+            phone = "+" + phone;
+        $("#createSmsOrder").button("loading");
+        GAT.webapi.openSmsTransaction(phone, GAT.auth.getLoggedInUser().id).
+            onResponse(function(success, resp) {
+                $("#createSmsOrder").button("reset");
+                if (success)
+                    $location.path("/transaction/" + resp.transaction_uuid);
+            });
+    };
+
+    $scope.isValid = function() {
+        return $scope.phone != "";
+    };
+
+}])
+.controller("customerCtrl", ["$scope", "$routeParams", "$location", function($scope, $routeParams, $location) {
     $scope.selectedCustomer = null;
+
+    $scope.addSmsOrder = function() {
+        $("#addSmsOrderBtn").button("loading");
+        GAT.webapi.createTransaction($scope.selectedCustomer.id, "sms", "helped", GAT.auth.getLoggedInUser().id).
+            onResponse(function(success, resp) {
+                $("#addSmsOrderBtn").button("reset");
+                if (success)
+                    $location.path("/transaction/" + resp.uuid);
+            });
+    };
 
     if (typeof($routeParams.customerId) !== "undefined") {
         var customerId = $routeParams.customerId;
